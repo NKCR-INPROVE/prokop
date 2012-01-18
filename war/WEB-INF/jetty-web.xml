@@ -10,7 +10,7 @@
     <Arg>
      <New class="com.jolbox.bonecp.BoneCPDataSource">
                  <Set name="driverClass">org.postgresql.Driver</Set>
-                 <Set name="jdbcUrl">jdbc:oracle:thin:@//oracv.incad.cz:1521/INCAD.incad.cz/DEV_PROKOP</Set>
+                 <Set name="jdbcUrl">jdbc:oracle:thin:@//oracv.incad.cz:1521/INCAD.incad.cz</Set>
                  <Set name="username">DEV_PROKOP</Set>
                  <Set name="password">prokop</Set>
      </New>
