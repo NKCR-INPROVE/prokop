@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright (C) 2011 Vladimir Lahoda This program is free software: you
+    can redistribute it and/or modify it under the terms of the GNU General Public
+    License as published by the Free Software Foundation, either version 3 of
+    the License, or (at your option) any later version. This program is distributed
+    in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+    the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+    See the GNU General Public License for more details. You should have received
+    a copy of the GNU General Public License along with this program. If not,
+    see <http://www.gnu.org/licenses/>. -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>cz.incad</groupId>
+    <artifactId>prokop</artifactId>
+    <packaging>war</packaging>
+    <version>1.0-SNAPSHOT</version>
+    <name>prokop</name>
+
+
+    <properties>
+        <gwt.version>2.4.0</gwt.version>
+        <gwt.maven.version>2.3.0-1</gwt.maven.version>
+        <maven.compiler.source>1.6</maven.compiler.source>
+        <maven.compiler.target>1.6</maven.compiler.target>
+        <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+
+    <dependencies>
+        <dependency>
+            <groupId>org.aplikator</groupId>
+            <artifactId>aplikator</artifactId>
+            <version>0.2-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>8.4-702.jdbc4</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.oracle</groupId>
+            <artifactId>ojdbc14</artifactId>
+            <version>10.0.2.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.servlet.jsp</groupId>
+            <artifactId>jsp-api</artifactId>
+            <version>2.1</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- GWT dependencies -->
+        <dependency>
+            <groupId>com.google.gwt</groupId>
+            <artifactId>gwt-servlet</artifactId>
+            <version>${gwt.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.gwt</groupId>
+            <artifactId>gwt-user</artifactId>
+            <version>${gwt.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.validation</groupId>
+            <artifactId>validation-api</artifactId>
+            <version>1.0.0.GA</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.validation</groupId>
+            <artifactId>validation-api</artifactId>
+            <version>1.0.0.GA</version>
+            <classifier>sources</classifier>
+            <scope>provided</scope>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <outputDirectory>war/WEB-INF/classes</outputDirectory>
+        <sourceDirectory>src</sourceDirectory>
+        <resources>
+            <resource>
+                <directory>${basedir}/src</directory>
+                <includes>
+                    <include>**/*</include>
+                </includes>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>gwt-maven-plugin</artifactId>
+                <version>${gwt.maven.version}</version>
+                <configuration>
+                    <hostedWebapp>${basedir}/war</hostedWebapp>
+                    <webappDirectory>${basedir}/war</webappDirectory>
+                    <runTarget>Prokop.html</runTarget>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.google.gwt</groupId>
+                            <artifactId>gwt-user</artifactId>
+                            <version>${gwt.version}</version>
+                        </dependency>
+                        <dependency>
+                            <groupId>com.google.gwt</groupId>
+                            <artifactId>gwt-dev</artifactId>
+                            <version>${gwt.version}</version>
+                        </dependency>
+                </dependencies>
+
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <configuration>
+                    <warSourceDirectory>war</warSourceDirectory>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                    <encoding>${maven.compiler.encoding}</encoding>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <includes>
+                        <include>**/*Test.java</include>
+                        <include>**/*TestCase.java</include>
+                    </includes>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-clean-plugin</artifactId>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>${basedir}/war/WEB-INF/classes</directory>
+                        </fileset>
+                        <fileset>
+                            <directory>${basedir}/war/WEB-INF/lib</directory>
+                        </fileset>
+                    </filesets>
+                </configuration>
+            </plugin>
+
+        </plugins>
+    </build>
+
+</project>
