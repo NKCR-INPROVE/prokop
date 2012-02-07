@@ -3,6 +3,7 @@ package cz.incad.prokop.server.data;
 import org.aplikator.server.descriptor.Collection;
 import org.aplikator.server.descriptor.Entity;
 import org.aplikator.server.descriptor.Property;
+import org.aplikator.server.descriptor.Reference;
 
 import cz.incad.prokop.server.Structure;
 
@@ -19,11 +20,10 @@ public class Zaznam extends Entity {
     public Collection<Edice> edice;
     public Collection<Exemplar> exemplar;
     public Collection<DigitalniVerze> digitalniVerze;
-    public Property<String> url;
-    public Property<String> zdroj;
-    public Property<String> typHarvestu;
-    public Property<String> formatXML;
+    public Property<String> urlZdroje;
+
     public Property<String> sourceXML;
+    public Reference<Sklizen> sklizen;
 
     public Zaznam() {
         super("Zaznam","Zaznam","Zaznam_ID");
@@ -43,11 +43,9 @@ public class Zaznam extends Entity {
         edice = collectionProperty(Structure.edice, "edice", "zaznam");
         exemplar = collectionProperty(Structure.exemplar, "exemplar", "zaznam");
         digitalniVerze = collectionProperty(Structure.digitalniVerze, "digitalniVerze", "zaznam");
-        url = stringProperty("url");
-        zdroj = stringProperty("zdroj");
-        typHarvestu = stringProperty("typHarvestu");
-        formatXML = stringProperty("formatXML");
+        urlZdroje = stringProperty("url");
         sourceXML = textProperty("sourceXML");
+        sklizen = referenceProperty(Structure.sklizen, "sklizen");
 
     }
 
