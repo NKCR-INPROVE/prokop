@@ -36,11 +36,11 @@
             <version>0.2-SNAPSHOT</version>
         </dependency>
 
-        <dependency>
+        <!--dependency>
             <groupId>postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <version>8.4-702.jdbc4</version>
-        </dependency>
+        </dependency-->
 
         <dependency>
             <groupId>com.oracle</groupId>

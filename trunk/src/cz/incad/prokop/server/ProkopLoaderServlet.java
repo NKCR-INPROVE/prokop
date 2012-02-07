@@ -22,8 +22,8 @@ public class ProkopLoaderServlet extends ApplicationLoaderServlet {
         try {
             LOG.info("Prokop Loader started");
             struct = (Structure) Application.get();
-            Menu records = new Menu("Records");
-            records.addView(Structure.Record.view());
+            Menu records = new Menu("Zaznamy");
+            records.addView(Structure.zaznam.view());
             struct.addMenu(records);
             Menu admin = new Menu("Admin");
             struct.addMenu(admin);
