@@ -21,6 +21,9 @@ public class Modul extends Entity {
     protected void initFields() {
         typModulu = stringProperty("typModulu");
         nazev = stringProperty("nazev");
+        formatXML = stringProperty("formatXML");
+        trida = stringProperty("trida");
+        parametry = stringProperty("parametry");
     }
 
 }
