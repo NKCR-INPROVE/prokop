@@ -1,24 +1,8 @@
 package cz.incad.prokop.server;
 
 import org.aplikator.server.descriptor.Application;
-import org.aplikator.server.descriptor.Function;
 
-import cz.incad.prokop.server.data.Analyza;
-import cz.incad.prokop.server.data.Autor;
-import cz.incad.prokop.server.data.DigitalniVerze;
-import cz.incad.prokop.server.data.Edice;
-import cz.incad.prokop.server.data.Exemplar;
-import cz.incad.prokop.server.data.Identifikator;
-import cz.incad.prokop.server.data.Jazyk;
-import cz.incad.prokop.server.data.Modul;
-import cz.incad.prokop.server.data.Nazev;
-import cz.incad.prokop.server.data.Periodicita;
-import cz.incad.prokop.server.data.Rozsah;
-import cz.incad.prokop.server.data.Sklizen;
-import cz.incad.prokop.server.data.Vydani;
-import cz.incad.prokop.server.data.Zaznam;
-import cz.incad.prokop.server.data.Zdroj;
-import cz.incad.prokop.server.functions.NacistData;
+import cz.incad.prokop.server.data.*;
 
 public class Structure extends Application {
 
@@ -43,7 +27,7 @@ public class Structure extends Application {
 
     public static final Zaznam zaznam = new Zaznam();
 
-    //public static final Function nacistData = new Function("NacistData", "NacistData", new NacistData());
+
 
     static {
         zdroj.sklizen = zdroj.reverseCollectionProperty("sklizen", sklizen, sklizen.zdroj);
