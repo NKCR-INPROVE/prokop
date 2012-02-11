@@ -1,7 +1,10 @@
 package cz.incad.prokop.server.data;
 
+import static org.aplikator.server.descriptor.Panel.row;
+
 import org.aplikator.server.descriptor.Entity;
 import org.aplikator.server.descriptor.Property;
+import org.aplikator.server.descriptor.View;
 
 public class Identifikator extends Entity {
     public Property<String> typ;
@@ -16,5 +19,16 @@ public class Identifikator extends Entity {
         typ = stringProperty("typ");
         hodnota = stringProperty("hodnota");
     }
+
+    @Override
+    protected View initDefaultView() {
+        View retval = new View(this);
+        retval.addProperty(typ).addProperty(hodnota);
+        retval.form(
+                row(typ,hodnota)
+            );
+        return retval;
+    }
+
 
 }

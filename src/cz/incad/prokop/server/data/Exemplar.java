@@ -1,7 +1,11 @@
 package cz.incad.prokop.server.data;
 
+import static org.aplikator.server.descriptor.Panel.column;
+import static org.aplikator.server.descriptor.Panel.row;
+
 import org.aplikator.server.descriptor.Entity;
 import org.aplikator.server.descriptor.Property;
+import org.aplikator.server.descriptor.View;
 
 public class Exemplar extends Entity {
     public Property<String> signatura;
@@ -25,6 +29,17 @@ public class Exemplar extends Entity {
         rocnik = stringProperty("rocnik");
         cislo = stringProperty("cislo");
         rok = stringProperty("rok");
+    }
+
+    @Override
+    protected View initDefaultView() {
+        View retval = new View(this);
+        retval.addProperty(signatura).addProperty(popis);
+        retval.form(column(
+                row(signatura,carovyKod,popis),
+                row(svazek,rocnik, cislo, rok)
+            ));
+        return retval;
     }
 
 }
