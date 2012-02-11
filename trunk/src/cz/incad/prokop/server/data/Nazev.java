@@ -1,7 +1,10 @@
 package cz.incad.prokop.server.data;
 
+import static org.aplikator.server.descriptor.Panel.row;
+
 import org.aplikator.server.descriptor.Entity;
 import org.aplikator.server.descriptor.Property;
+import org.aplikator.server.descriptor.View;
 
 public class Nazev extends Entity {
 
@@ -16,6 +19,16 @@ public class Nazev extends Entity {
     protected void initFields() {
         typNazvu = stringProperty("typNazvu");
         nazev = stringProperty("nazev");
+    }
+
+    @Override
+    protected View initDefaultView() {
+        View retval = new View(this);
+        retval.addProperty(typNazvu).addProperty(nazev);
+        retval.form(
+                row(typNazvu,nazev)
+            );
+        return retval;
     }
 
 }

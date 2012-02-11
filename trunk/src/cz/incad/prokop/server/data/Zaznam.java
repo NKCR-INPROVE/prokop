@@ -1,9 +1,18 @@
 package cz.incad.prokop.server.data;
 
+import static org.aplikator.server.descriptor.Panel.column;
+import static org.aplikator.server.descriptor.Panel.row;
+import static org.aplikator.server.descriptor.RepeatedForm.repeated;
+
+import java.awt.TextField;
+
 import org.aplikator.server.descriptor.Collection;
 import org.aplikator.server.descriptor.Entity;
 import org.aplikator.server.descriptor.Property;
 import org.aplikator.server.descriptor.Reference;
+import org.aplikator.server.descriptor.ReferenceField;
+import org.aplikator.server.descriptor.TextArea;
+import org.aplikator.server.descriptor.View;
 
 import cz.incad.prokop.server.Structure;
 
@@ -47,6 +56,30 @@ public class Zaznam extends Entity {
         sourceXML = textProperty("sourceXML");
         sklizen = referenceProperty(Structure.sklizen, "sklizen");
 
+    }
+
+    @Override
+    protected View initDefaultView() {
+        View retval = new View(this);
+        retval.addProperty(hlavniNazev).addProperty(typDokumentu).addProperty(urlZdroje);
+        retval.form(column(
+                row(hlavniNazev,typDokumentu),
+                urlZdroje,
+                repeated(identifikator),
+                row(repeated(nazev),repeated(jazyk)),
+                repeated(autor),
+                repeated(vydani),
+                repeated(rozsah),
+                repeated(periodicita),
+                repeated(edice),
+                repeated(exemplar),
+                repeated(digitalniVerze),
+                ReferenceField.reference(sklizen, Structure.sklizen.spusteni,Structure.sklizen.stav),
+                new TextArea(sourceXML).setWidth("100em")
+
+
+            ));
+        return retval;
     }
 
 

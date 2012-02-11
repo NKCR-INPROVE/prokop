@@ -1,7 +1,10 @@
 package cz.incad.prokop.server.data;
 
+import static org.aplikator.server.descriptor.Panel.row;
+
 import org.aplikator.server.descriptor.Entity;
 import org.aplikator.server.descriptor.Property;
+import org.aplikator.server.descriptor.View;
 
 public class Vydani extends Entity {
     public Property<String> oznaceni;
@@ -19,6 +22,16 @@ public class Vydani extends Entity {
         nakladatel = stringProperty("nakladatel");
         misto = stringProperty("misto");
         datum = stringProperty("datum");
+    }
+
+    @Override
+    protected View initDefaultView() {
+        View retval = new View(this);
+        retval.addProperty(oznaceni).addProperty(nakladatel);
+        retval.form(
+                row(oznaceni,nakladatel,misto,datum)
+            );
+        return retval;
     }
 
 }

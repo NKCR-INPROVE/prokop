@@ -38,7 +38,8 @@ public class Zdroj extends Entity {
         cron = stringProperty("cron");
     }
 
-    public  View view() {
+    @Override
+    protected View initDefaultView() {
         View retval = new View(this);
         retval.addProperty(nazev).addProperty(typZdroje).addProperty(trida);
         retval.form(column(

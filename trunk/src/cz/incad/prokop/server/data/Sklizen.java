@@ -57,7 +57,7 @@ public class Sklizen extends Entity {
     }
 
     @Override
-    public  View view() {
+    protected View initDefaultView() {
         View retval = new View(this);
         retval.addProperty(stav).addProperty(spusteni).addProperty(ukonceni).addProperty(pocet).addProperty(uzivatel);
         retval.form(column(

@@ -1,7 +1,10 @@
 package cz.incad.prokop.server.data;
 
+import static org.aplikator.server.descriptor.Panel.row;
+
 import org.aplikator.server.descriptor.Entity;
 import org.aplikator.server.descriptor.Property;
+import org.aplikator.server.descriptor.View;
 
 public class Jazyk extends Entity {
     public Property<String> kod;
@@ -13,6 +16,16 @@ public class Jazyk extends Entity {
 
     protected void initFields() {
         kod = stringProperty("kod");
+    }
+
+    @Override
+    protected View initDefaultView() {
+        View retval = new View(this);
+        retval.addProperty(kod);
+        retval.form(
+                row(kod)
+            );
+        return retval;
     }
 
 }
