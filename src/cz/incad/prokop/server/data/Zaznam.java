@@ -4,8 +4,6 @@ import static org.aplikator.server.descriptor.Panel.column;
 import static org.aplikator.server.descriptor.Panel.row;
 import static org.aplikator.server.descriptor.RepeatedForm.repeated;
 
-import java.awt.TextField;
-
 import org.aplikator.server.descriptor.Collection;
 import org.aplikator.server.descriptor.Entity;
 import org.aplikator.server.descriptor.Property;
