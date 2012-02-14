@@ -23,7 +23,7 @@ public class Autor extends Entity {
     protected void initFields() {
         prijmeni = stringProperty("prijmeni");
         jmeno = stringProperty("jmeno");
-        nazev = stringProperty("nazev");
+        nazev = stringProperty("nazev", 512);
         datumNarozeni = stringProperty("datumNarozeni");
         datumUmrti = stringProperty("datumUmrti");
         odpovednost = stringProperty("odpovednost");

@@ -42,7 +42,7 @@ public class Zaznam extends Entity {
         identifikator = collectionProperty(Structure.identifikator, "identifikator", "zaznam");
         autor = collectionProperty(Structure.autor, "autor", "zaznam");
         jazyk = collectionProperty(Structure.jazyk, "jazyk", "zaznam");
-        hlavniNazev = stringProperty("hlavniNazev");
+        hlavniNazev = stringProperty("hlavniNazev", 512);
         nazev = collectionProperty(Structure.nazev, "nazev", "zaznam");
         vydani = collectionProperty(Structure.vydani, "vydani", "zaznam");
         rozsah = collectionProperty(Structure.rozsah, "extent", "zaznam");

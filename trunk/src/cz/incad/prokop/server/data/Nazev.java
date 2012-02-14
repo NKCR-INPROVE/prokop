@@ -18,7 +18,7 @@ public class Nazev extends Entity {
 
     protected void initFields() {
         typNazvu = stringProperty("typNazvu");
-        nazev = stringProperty("nazev");
+        nazev = stringProperty("nazev", 512);
     }
 
     @Override
