@@ -8,7 +8,7 @@ import static org.aplikator.server.data.RecordUtils.*;
 
 import cz.incad.prokop.server.Structure;
 import cz.incad.prokop.server.datasources.DataSource;
-import cz.incad.prokop.server.fast.FastIndexer;
+//import cz.incad.prokop.server.fast.FastIndexer;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -55,8 +55,8 @@ public class OAIHarvester implements DataSource {
     private int interval;
     String completeListSize;
     int currentDocsSent = 0;
-    private FastIndexer fastIndexer;
-    
+   // private FastIndexer fastIndexer;
+
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd/HH");
     SimpleDateFormat sdfoai;
     Transformer xformer;
@@ -71,7 +71,7 @@ public class OAIHarvester implements DataSource {
         if (!arguments.parse(params.split(" "))) {
             System.out.println("Program arguments are invalid");
         }
-        
+
         conf = new Configuration(arguments.configFile);
         xmlReader = new XMLReader(conf);
         logger.info("Indexer initialized");
@@ -122,7 +122,7 @@ public class OAIHarvester implements DataSource {
             } else {
                 update(from);
             }
-            
+
             logger.info("Harvest success");
             logger.log(Level.INFO, "Harvest success {0} records", currentDocsSent);
 
@@ -169,8 +169,8 @@ public class OAIHarvester implements DataSource {
             current = c_to.getTime();
         }
         update(sdfoai.format(c_from.getTime()), sdfoai.format(final_date));
-        if(!arguments.onlyHarvest)
-            fastIndexer.sendPendingRecords();
+        //if(!arguments.onlyHarvest)
+          //  fastIndexer.sendPendingRecords();
 
     }
 
@@ -196,46 +196,46 @@ public class OAIHarvester implements DataSource {
                     it = IndexTypes.DELETED;
                 }
                 if (it != IndexTypes.DELETED) {
-                    RecordContainer rc = new RecordContainer(); 
+                    RecordContainer rc = new RecordContainer();
                     Record fr = newRecord(Structure.zaznam);
                     Structure.zaznam.sklizen.setValue(fr, sklizen.getPrimaryKey().getId());
                     Structure.zaznam.urlZdroje.setValue(fr, conf.getProperty("baseUrl") + "?verb=GetRecord&identifier=" + identifier + "&metadataPrefix=" + metadataPrefix);
-                    Structure.zaznam.hlavniNazev.setValue(fr, 
+                    Structure.zaznam.hlavniNazev.setValue(fr,
                             xmlReader.getNodeValue(node, "./metadata/marc21:datafield[@tag='245']/marc21:subfield[@code='a']/text()"));
-                    Structure.zaznam.typDokumentu.setValue(fr, 
+                    Structure.zaznam.typDokumentu.setValue(fr,
                             xmlReader.getNodeValue(node, "./metadata/marc21:record/marc21:leader/text()").substring(7, 2));
                     Structure.zaznam.sourceXML.setValue(fr, nodeToString(node));
                     rc.addRecord(null, fr, fr, Operation.CREATE);
-                    
-                    
+
+
                     //Identifikatory
                     Record ISSN = newSubrecord(fr.getPrimaryKey(), Structure.zaznam.identifikator);
-                    Structure.identifikator.hodnota.setValue(ISSN, 
+                    Structure.identifikator.hodnota.setValue(ISSN,
                             xmlReader.getNodeValue(node, "./metadata/marc21:datafield[@tag='022']/marc21:subfield[@code='a']/text()"));
                     Structure.identifikator.typ.setValue(ISSN, "ISSN");
                     rc.addRecord(null, ISSN, ISSN, Operation.CREATE);
-                    
+
                     Record ISBN = newSubrecord(fr.getPrimaryKey(), Structure.zaznam.identifikator);
-                    Structure.identifikator.hodnota.setValue(ISBN, 
+                    Structure.identifikator.hodnota.setValue(ISBN,
                             xmlReader.getNodeValue(node, "./metadata/marc21:datafield[@tag='020']/marc21:subfield[@code='a']/text()"));
                     Structure.identifikator.typ.setValue(ISBN, "ISBN");
                     rc.addRecord(null, ISBN, ISBN, Operation.CREATE);
-                    
+
                     Record cnb = newSubrecord(fr.getPrimaryKey(), Structure.zaznam.identifikator);
-                    Structure.identifikator.hodnota.setValue(cnb, 
+                    Structure.identifikator.hodnota.setValue(cnb,
                             xmlReader.getNodeValue(node, "./metadata/marc21:datafield[@tag='015']/marc21:subfield[@code='a']/text()"));
                     Structure.identifikator.typ.setValue(cnb, "cCNB");
                     rc.addRecord(null, cnb, cnb, Operation.CREATE);
-                    
+
                     //Autori
                     NodeList autori = xmlReader.getListOfNodes("./metadata/marc21:datafield[@tag='100']");
                     for(int i =0; i<autori.getLength();i++){
                         Record autor = newSubrecord(fr.getPrimaryKey(), Structure.zaznam.autor);
-                        Structure.autor.nazev.setValue(autor, 
+                        Structure.autor.nazev.setValue(autor,
                             xmlReader.getNodeValue(node, "./metadata/marc21:datafield[@tag='100'][position()=" + (i + 1) + "]/marc21:subfield[@code='a']/text()"));
                         rc.addRecord(null, autor, autor, Operation.CREATE);
                     }
-                    
+
                     //Jazyky
                     String[] jazyky = xmlReader.getListOfValues("./metadata/marc21:datafield[@tag='041']/marc21:subfield[@code='a']/text()");
                     for(String jazyk : jazyky){
@@ -243,12 +243,12 @@ public class OAIHarvester implements DataSource {
                         Structure.jazyk.kod.setValue(j, jazyk);
                         rc.addRecord(null, j, j, Operation.CREATE);
                     }
-                    
-                    Structure.sklizen.pocet.setValue(sklizen, currentDocsSent++);  
+
+                    Structure.sklizen.pocet.setValue(sklizen, currentDocsSent++);
                     rc.addRecord(null, sklizen, sklizen, Operation.UPDATE); //přidat záznam sklizně do kontejneru pro aktualizaci
 
                     rc = context.getAplikatorService().execute(new ProcessRecords(rc)).getRecordContainer();
-        
+
                 }
             } else {
                 logger.log(Level.SEVERE, "Can't proccess xml{0}", error);
@@ -261,7 +261,7 @@ public class OAIHarvester implements DataSource {
             resumptionToken = getRecords("?verb=" + conf.getProperty("verb") + "&resumptionToken=" + resumptionToken);
         }
     }
-    
+
     private String getInitialDate() throws Exception{
         String xml = "";
         String urlString = conf.getProperty("baseUrl") + "?verb=Identify";
@@ -300,7 +300,7 @@ public class OAIHarvester implements DataSource {
             completeListSize = xmlReader.getNodeValue("//resumptionToken/@completeListSize");
             String date;
             String identifier;
-            //saveToIndexDir(date, xml, xmlNumber); 
+            //saveToIndexDir(date, xml, xmlNumber);
 
             NodeList nodes = xmlReader.getListOfNodes("//record");
             for (int i = 0; i < nodes.getLength(); i++) {
@@ -318,7 +318,7 @@ public class OAIHarvester implements DataSource {
         }
         return null;
     }
-    
+
 
     private void getRecordsFromDisk() throws Exception {
         logger.fine("Processing dowloaded files");
@@ -365,7 +365,7 @@ public class OAIHarvester implements DataSource {
         Result result = new StreamResult(file);
         xformer.transform(source, result);
     }
-    
+
     private String nodeToString(Node node) throws Exception {
 
         StringWriter sw = new StringWriter();
@@ -374,7 +374,7 @@ public class OAIHarvester implements DataSource {
         xformer.transform(source, new StreamResult(sw));
         return sw.toString();
     }
-    
+
     private String formatElapsedTime(long timeInMiliseconds) {
         long hours, minutes, seconds;
         long timeInSeconds = timeInMiliseconds / 1000;
