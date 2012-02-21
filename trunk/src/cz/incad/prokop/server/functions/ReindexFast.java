@@ -1,19 +1,20 @@
 package cz.incad.prokop.server.functions;
 
-import com.fastsearch.esp.content.DocumentFactory;
-import com.fastsearch.esp.content.IDocument;
-import com.typesafe.config.Config;
-import cz.incad.prokop.server.Structure;
-import cz.incad.prokop.server.fast.FastIndexer;
 import java.util.logging.Logger;
+
 import org.aplikator.server.Context;
 import org.aplikator.server.function.Executable;
 import org.aplikator.server.function.FunctionParameters;
 import org.aplikator.server.function.FunctionResult;
 import org.aplikator.server.util.Configurator;
 
+import com.typesafe.config.Config;
+
+import cz.incad.prokop.server.fast.FastIndexer;
+
 public class ReindexFast implements Executable {
     Logger log = Logger.getLogger(ReindexFast.class.getName());
+    @SuppressWarnings("unused")
     private FastIndexer fastIndexer;
 
     @Override
@@ -33,9 +34,9 @@ public class ReindexFast implements Executable {
 //        doc.addElement(DocumentFactory.newString("originformat", conf.getProperty("originformat")));
 //        doc.addElement(DocumentFactory.newString("data", xmlStr));
 //        fastIndexer.add(doc, it);
-                    
-                    
+
+
         return new FunctionResult("Reindexovano", true);
     }
-    
+
 }

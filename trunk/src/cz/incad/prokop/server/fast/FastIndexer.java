@@ -1,23 +1,18 @@
 package cz.incad.prokop.server.fast;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.fastsearch.esp.content.ContentManagerException;
 import com.fastsearch.esp.content.ContentManagerFactory;
-import com.fastsearch.esp.content.DocumentFactory;
-import com.fastsearch.esp.content.DuplicateElementException;
 import com.fastsearch.esp.content.FactoryException;
 import com.fastsearch.esp.content.IContentManager;
 import com.fastsearch.esp.content.IContentManagerFactory;
 import com.fastsearch.esp.content.IDocument;
 import com.fastsearch.esp.content.config.ISubsystem;
-import cz.incad.prokop.server.datasources.oai.FieldMappingType;
-import java.text.DateFormat;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -64,7 +59,7 @@ public class FastIndexer {
     //}else{
     doc.addElement(DocumentFactory.newString(ff.name, ff.stringValue()));
     //}
-    
+
     } else if (ff.type == FieldMappingType.INTEGER) {
     doc.addElement(DocumentFactory.newIntegerCollection(ff.name, ff.values));
     } else if (ff.type == FieldMappingType.BOOLEAN) {
@@ -74,13 +69,13 @@ public class FastIndexer {
     } else if (ff.type == FieldMappingType.BINARY) {
     doc.addElement(DocumentFactory.newByteArray(ff.name, (byte[]) ff.values.get(0)));
     }
-    
+
     }
     if (!hasData) {
     doc.addElement(DocumentFactory.newString("data", fr.id));
     }
-    
-    
+
+
     } catch (DuplicateElementException e) {
     logger.log(Level.WARNING, "error creating fast document: {0}", fr.id);
     logger.warning(e.toString());

@@ -2,7 +2,6 @@ package cz.incad.prokop.server.functions;
 
 import java.util.logging.Logger;
 
-import org.aplikator.client.data.Record;
 import org.aplikator.server.Context;
 import org.aplikator.server.function.Executable;
 import org.aplikator.server.function.FunctionParameters;
@@ -14,7 +13,7 @@ public class TestFunction implements Executable {
 
     @Override
     public FunctionResult execute(FunctionParameters functionParameters, Context context) {
-        Record zdroj = functionParameters.getClientContext().getCurrentRecord();
+        //Record zdroj = functionParameters.getClientContext().getCurrentRecord();
         try {
 
             return new FunctionResult("Test doběhl", true);

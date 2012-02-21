@@ -4,24 +4,23 @@
  */
 package cz.incad.prokop.server.datasources.rdcz;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
 
 /**
  *
@@ -33,7 +32,7 @@ public class Configuration {
     public HashMap<String, String> properties = new HashMap<String, String>();
     public ArrayList<FieldMapping> fieldMappings = new ArrayList<FieldMapping>();
     PreparedStatement psList;
-    
+
     public ArrayList<String> queries = new ArrayList<String>();
 
     public Configuration(String filename) {
@@ -50,7 +49,7 @@ public class Configuration {
 
             XPathFactory factory = XPathFactory.newInstance();
             XPath xpath = factory.newXPath();
-            
+
             //Loading properties
             XPathExpression expr = xpath.compile("//setup/properties/property");
             NodeList propertiesNodes = (NodeList) expr.evaluate(contentDom, XPathConstants.NODESET);
@@ -59,9 +58,9 @@ public class Configuration {
                 properties.put(node.getAttributes().getNamedItem("name").getNodeValue(),
                         node.getAttributes().getNamedItem("value").getNodeValue());
             }
-            
-            
-            
+
+
+
             //Loading queries
             expr = xpath.compile("//setup/queries/query");
             NodeList nodes = (NodeList) expr.evaluate(contentDom, XPathConstants.NODESET);
@@ -71,20 +70,20 @@ public class Configuration {
                     queries.add(childnode.getFirstChild().getNodeValue());
                 }
             }
-            
+
             //Loading field mappings
             expr = xpath.compile("//setup/field_mappings/field_map");
             nodes = (NodeList) expr.evaluate(contentDom, XPathConstants.NODESET);
             for (int i = 0; i < nodes.getLength(); i++) {
                 fieldMappings.add(FieldMapping.CreateFieldMapping(nodes.item(i)));
             }
-            
+
         } catch (Exception ex) {
             logger.severe("Can't load configuration");
             throw new RuntimeException(ex.toString());
         }
     }
-    
+
     public String getProperty(String key) {
         if (properties.containsKey(key)) {
             return properties.get(key);

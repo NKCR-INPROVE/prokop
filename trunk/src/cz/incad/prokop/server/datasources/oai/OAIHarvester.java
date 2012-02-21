@@ -4,17 +4,9 @@
  */
 package cz.incad.prokop.server.datasources.oai;
 
-import cz.incad.prokop.server.datasources.util.XMLReader;
-import com.fastsearch.esp.content.DocumentFactory;
-import com.fastsearch.esp.content.IDocument;
-import cz.incad.prokop.server.fast.IndexTypes;
-import static org.aplikator.server.data.RecordUtils.*;
+import static org.aplikator.server.data.RecordUtils.newRecord;
+import static org.aplikator.server.data.RecordUtils.newSubrecord;
 
-import cz.incad.prokop.server.Structure;
-import cz.incad.prokop.server.data.Zaznam;
-import cz.incad.prokop.server.datasources.DataSource;
-//import cz.incad.prokop.server.fast.FastIndexer;
-import cz.incad.prokop.server.fast.FastIndexer;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -26,11 +18,11 @@ import java.io.OutputStreamWriter;
 import java.io.StringWriter;
 import java.net.URL;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
@@ -38,6 +30,7 @@ import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+
 import org.aplikator.client.data.Operation;
 import org.aplikator.client.data.Record;
 import org.aplikator.client.data.RecordContainer;
@@ -46,6 +39,15 @@ import org.aplikator.server.Context;
 import org.aplikator.server.util.Configurator;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import com.fastsearch.esp.content.DocumentFactory;
+import com.fastsearch.esp.content.IDocument;
+
+import cz.incad.prokop.server.Structure;
+import cz.incad.prokop.server.datasources.DataSource;
+import cz.incad.prokop.server.datasources.util.XMLReader;
+import cz.incad.prokop.server.fast.FastIndexer;
+import cz.incad.prokop.server.fast.IndexTypes;
 
 /**
  *
@@ -72,7 +74,7 @@ public class OAIHarvester implements DataSource {
     @Override
     public int harvest(String params, Record sklizen, Context ctx) {
         context = ctx;
-        
+
         this.sklizen = sklizen;
         arguments = new ProgramArguments();
         if (!arguments.parse(params.split(" "))) {
@@ -123,7 +125,6 @@ public class OAIHarvester implements DataSource {
                 }
             }
 
-            boolean success = true;
 
             if (!arguments.resumptionToken.equals("")) {
                 getRecordWithResumptionToken(arguments.resumptionToken);
@@ -326,7 +327,6 @@ public class OAIHarvester implements DataSource {
     }
 
     private String getInitialDate() throws Exception {
-        String xml = "";
         String urlString = conf.getProperty("baseUrl") + "?verb=Identify";
 
         URL url = new URL(urlString.replace("\n", ""));
@@ -350,7 +350,6 @@ public class OAIHarvester implements DataSource {
     }
 
     private String getRecords(String query) throws Exception {
-        String xml = "";
         String urlString = conf.getProperty("baseUrl") + query;
 
         URL url = new URL(urlString.replace("\n", ""));

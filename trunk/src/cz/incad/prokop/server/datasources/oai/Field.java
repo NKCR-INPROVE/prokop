@@ -5,7 +5,6 @@
 package cz.incad.prokop.server.datasources.oai;
 
 import java.util.ArrayList;
-import java.util.Date;
 
 /**
  *
@@ -13,7 +12,7 @@ import java.util.Date;
  */
 public class Field {
 
-    public ArrayList values;
+    public ArrayList<Object> values;
     public String name;
     public FieldMappingType type;
     private String separator;

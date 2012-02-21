@@ -294,7 +294,7 @@ public class Indexer implements DataSource {
             Structure.nazev.nazev.setValue(j, rs.getString("podnazev"));
             Structure.nazev.typNazvu.setValue(j, "Podnázev");
             rc.addRecord(null, j, j, Operation.CREATE);
-            
+
             //Exemplar
             Record exemplar = newSubrecord(fr.getPrimaryKey(), Structure.zaznam.exemplar);
             Structure.exemplar.carovyKod.setValue(exemplar, rs.getString("carkod"));
@@ -340,6 +340,7 @@ public class Indexer implements DataSource {
                     try {
 
                         InputSource source = new InputSource(new StringReader(sb.toString()));
+                        @SuppressWarnings("unused")
                         Document doc = builder.parse(source);
 
                         return sb.toString();
