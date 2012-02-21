@@ -21,7 +21,6 @@
 
     <properties>
         <gwt.version>2.4.0</gwt.version>
-        <gwt.maven.version>2.3.0-1</gwt.maven.version>
         <maven.compiler.source>1.6</maven.compiler.source>
         <maven.compiler.target>1.6</maven.compiler.target>
         <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
@@ -71,7 +70,6 @@
             <groupId>javax.validation</groupId>
             <artifactId>validation-api</artifactId>
             <version>1.0.0.GA</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>javax.validation</groupId>
@@ -90,16 +88,17 @@
             <groupId>commons-httpclient</groupId>
             <artifactId>commons-httpclient</artifactId>
             <version>3.1</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
             <version>1.6</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-            <version>1.0.4</version>
         </dependency>
     </dependencies>
 
@@ -118,7 +117,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>gwt-maven-plugin</artifactId>
-                <version>${gwt.maven.version}</version>
+                <version>${gwt.version}</version>
                 <configuration>
                     <hostedWebapp>${basedir}/war</hostedWebapp>
                     <webappDirectory>${basedir}/war</webappDirectory>
@@ -127,14 +126,14 @@
                 <dependencies>
                     <dependency>
                         <groupId>com.google.gwt</groupId>
-                            <artifactId>gwt-user</artifactId>
-                            <version>${gwt.version}</version>
-                        </dependency>
-                        <dependency>
-                            <groupId>com.google.gwt</groupId>
-                            <artifactId>gwt-dev</artifactId>
-                            <version>${gwt.version}</version>
-                        </dependency>
+                        <artifactId>gwt-user</artifactId>
+                        <version>${gwt.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>com.google.gwt</groupId>
+                        <artifactId>gwt-dev</artifactId>
+                        <version>${gwt.version}</version>
+                    </dependency>
                 </dependencies>
 
                 <executions>
