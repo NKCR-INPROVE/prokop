@@ -43,6 +43,7 @@ import org.w3c.dom.NodeList;
 import com.fastsearch.esp.content.DocumentFactory;
 import com.fastsearch.esp.content.IDocument;
 
+import com.typesafe.config.Config;
 import cz.incad.prokop.server.Structure;
 import cz.incad.prokop.server.datasources.DataSource;
 import cz.incad.prokop.server.datasources.util.XMLReader;
@@ -98,9 +99,10 @@ public class OAIHarvester implements DataSource {
         } catch (TransformerConfigurationException ex) {
             Logger.getLogger(OAIHarvester.class.getName()).log(Level.SEVERE, null, ex);
         }
-        fastIndexer = new FastIndexer(conf.getProperty("fastHost"),
-                conf.getProperty("fastCollection"),
-                Integer.parseInt(conf.getProperty("fastBatchSize")));
+        Config config = Configurator.get().getConfig();
+        fastIndexer = new FastIndexer(config.getString("aplikator.fastHost"),
+                config.getString("aplikator.fastCollection"),
+                config.getInt("aplikator.fastBatchSize"));
         harvest();
         return currentDocsSent;
 
@@ -147,8 +149,8 @@ public class OAIHarvester implements DataSource {
     }
 
     private void writeResponseDate() throws FileNotFoundException, IOException {
-        File dateFile = new File(Configurator.get().getConfig().getString(Configurator.HOME) +
-                File.separator + conf.getProperty("updateTimeFile"));
+        File dateFile = new File(Configurator.get().getConfig().getString(Configurator.HOME)
+                + File.separator + conf.getProperty("updateTimeFile"));
         BufferedWriter out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(dateFile)));
         out.write(responseDate);
         out.close();
@@ -196,7 +198,6 @@ public class OAIHarvester implements DataSource {
 
     private void processRecord(Node node, String identifier) throws Exception {
         if (node != null) {
-
             String error = xmlReader.getNodeValue(node, "/error/@code");
             if (error.equals("")) {
                 IndexTypes it = IndexTypes.INSERTED;
@@ -219,7 +220,8 @@ public class OAIHarvester implements DataSource {
                     String hlavninazev = xmlReader.getNodeValue(node, "./metadata/record/datafield[@tag='245']/subfield[@code='a']/text()");
                     Structure.zaznam.hlavniNazev.setValue(fr, hlavninazev);
                     String leader = xmlReader.getNodeValue(node, "./metadata/record/leader/text()");
-                    if(leader!=null && leader.length()>9){
+                    String typDokumentu = typDokumentu(leader);
+                    if (leader != null && leader.length() > 9) {
                         Structure.zaznam.typDokumentu.setValue(fr, leader.substring(6, 8));
                     }
                     String xmlStr = nodeToString(node);
@@ -228,18 +230,21 @@ public class OAIHarvester implements DataSource {
 
 
                     //Identifikatory
-                    Record ISSN = newSubrecord(fr.getPrimaryKey(), Structure.zaznam.identifikator);
-                    Structure.identifikator.hodnota.setValue(ISSN,
-                            xmlReader.getNodeValue(node, "./metadata/record/datafield[@tag='022']/subfield[@code='a']/text()"));
-                    Structure.identifikator.typ.setValue(ISSN, "ISSN");
-                    rc.addRecord(null, ISSN, ISSN, Operation.CREATE);
+                    String isxn = xmlReader.getNodeValue(node, "./metadata/record/datafield[@tag='022']/subfield[@code='a']/text()");
+                    if (!"".equals(isxn)) {
+                        Record ISSN = newSubrecord(fr.getPrimaryKey(), Structure.zaznam.identifikator);
+                        Structure.identifikator.hodnota.setValue(ISSN, isxn);
+                        Structure.identifikator.typ.setValue(ISSN, "ISSN");
+                        rc.addRecord(null, ISSN, ISSN, Operation.CREATE);
 
-                    Record ISBN = newSubrecord(fr.getPrimaryKey(), Structure.zaznam.identifikator);
-                    Structure.identifikator.hodnota.setValue(ISBN,
-                            xmlReader.getNodeValue(node, "./metadata/record/datafield[@tag='020']/subfield[@code='a']/text()"));
-                    Structure.identifikator.typ.setValue(ISBN, "ISBN");
-                    rc.addRecord(null, ISBN, ISBN, Operation.CREATE);
-
+                    }
+                    isxn = xmlReader.getNodeValue(node, "./metadata/record/datafield[@tag='020']/subfield[@code='a']/text()");
+                    if (!"".equals(isxn)) {
+                        Record ISBN = newSubrecord(fr.getPrimaryKey(), Structure.zaznam.identifikator);
+                        Structure.identifikator.hodnota.setValue(ISBN, isxn);
+                        Structure.identifikator.typ.setValue(ISBN, "ISBN");
+                        rc.addRecord(null, ISBN, ISBN, Operation.CREATE);
+                    }
                     Record cnb = newSubrecord(fr.getPrimaryKey(), Structure.zaznam.identifikator);
                     String cnbStr = xmlReader.getNodeValue(node, "./metadata/record/datafield[@tag='015']/subfield[@code='a']/text()");
                     Structure.identifikator.hodnota.setValue(cnb, cnbStr);
@@ -248,10 +253,13 @@ public class OAIHarvester implements DataSource {
 
                     //Autori
                     NodeList autori = xmlReader.getListOfNodes("./metadata/record/datafield[@tag='100']");
+                    String autoriStr = "";
                     for (int i = 0; i < autori.getLength(); i++) {
                         Record autor = newSubrecord(fr.getPrimaryKey(), Structure.zaznam.autor);
+                        String autorStr = xmlReader.getNodeValue(node, "./metadata/record/datafield[@tag='100'][position()=" + (i + 1) + "]/subfield[@code='a']/text()");
                         Structure.autor.nazev.setValue(autor,
-                                xmlReader.getNodeValue(node, "./metadata/record/datafield[@tag='100'][position()=" + (i + 1) + "]/subfield[@code='a']/text()"));
+                                autorStr);
+                        autoriStr += autorStr + ";";
                         rc.addRecord(null, autor, autor, Operation.CREATE);
                     }
 
@@ -303,8 +311,11 @@ public class OAIHarvester implements DataSource {
                     doc.addElement(DocumentFactory.newString("title", hlavninazev));
                     doc.addElement(DocumentFactory.newInteger("dbid", z.getPrimaryKey().getId()));
                     doc.addElement(DocumentFactory.newString("url", urlZdroje));
-                    doc.addElement(DocumentFactory.newString("leader_format", leader));
+                    doc.addElement(DocumentFactory.newString("druhdokumentu", typDokumentu));
+                    doc.addElement(DocumentFactory.newString("autor", autoriStr));
                     doc.addElement(DocumentFactory.newString("zdroj", conf.getProperty("zdroj")));
+                    doc.addElement(DocumentFactory.newString("isxn", isxn));
+                    doc.addElement(DocumentFactory.newString("ccnb", cnbStr));
                     doc.addElement(DocumentFactory.newString("base", conf.getProperty("base")));
                     doc.addElement(DocumentFactory.newString("harvester", conf.getProperty("harvester")));
                     doc.addElement(DocumentFactory.newString("originformat", conf.getProperty("originformat")));
@@ -371,7 +382,9 @@ public class OAIHarvester implements DataSource {
                     processRecord(nodes.item(i), identifier);
                 }
                 //processRecordAsXml(nodes.item(i), identifier);
-                writeNodeToFile(nodes.item(i), date, identifier);
+                if (arguments.saveToDisk) {
+                    writeNodeToFile(nodes.item(i), date, identifier);
+                }
                 logger.log(Level.FINE, "number: {0} of {1}", new Object[]{(currentDocsSent++), completeListSize});
             }
             logger.log(Level.INFO, "number: {0} of {1}", new Object[]{(currentDocsSent++), completeListSize});
@@ -381,7 +394,6 @@ public class OAIHarvester implements DataSource {
         }
         return null;
     }
-
 
     private void getRecordsFromDisk() throws Exception {
         logger.fine("Processing dowloaded files");
@@ -448,5 +460,45 @@ public class OAIHarvester implements DataSource {
         timeInSeconds = timeInSeconds - (minutes * 60);
         seconds = timeInSeconds;
         return hours + " hour(s) " + minutes + " minute(s) " + seconds + " second(s)";
+    }
+
+    private String typDokumentu(String leader) {
+        if (leader != null && leader.length() > 9) {
+            String code = leader.substring(6, 8);
+            if ("aa".equals(code)
+                    || "ac".equals(code)
+                    || "ad".equals(code)
+                    || "am".equals(code)
+                    || code.startsWith("t")) {
+                return "BK";
+            } else if ("bi".equals(code)
+                    || "bs".equals(code)) {
+                return "SE";
+            } else if (code.startsWith("p")) {
+                return "MM";
+            } else if (code.startsWith("e")) {
+                return "MP";
+            } else if (code.startsWith("f")) {
+                return "MP";
+            } else if (code.startsWith("g")) {
+                return "VM";
+            } else if (code.startsWith("k")) {
+                return "VM";
+            } else if (code.startsWith("o")) {
+                return "VM";
+            } else if (code.startsWith("c")) {
+                return "MU";
+            } else if (code.startsWith("d")) {
+                return "MU";
+            } else if (code.startsWith("i")) {
+                return "MU";
+            } else if (code.startsWith("j")) {
+                return "MU";
+            } else {
+                return code;
+            }
+        } else {
+            return "none";
+        }
     }
 }
