@@ -80,7 +80,27 @@
             <classifier>sources</classifier>
             <scope>provided</scope>
         </dependency>
-
+        <dependency>
+            <groupId>com.fastsearch</groupId>
+            <artifactId>esp-contentapi</artifactId>
+            <version>5.1.1.55</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>commons-httpclient</groupId>
+            <artifactId>commons-httpclient</artifactId>
+            <version>3.1</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.6</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>1.0.4</version>
+        </dependency>
     </dependencies>
 
     <build>
