@@ -6,10 +6,10 @@ package cz.incad.prokop.server.datasources.oai;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import org.w3c.dom.Node;
 
 /**
@@ -34,7 +34,7 @@ public class FieldMapping {
     public String transform = "";
 
     public FieldMapping(String _name, String _source, FieldMappingType _type, String _range) {
-        
+
         name = _name;
         //sources.add(_source);
         source =_source;
@@ -51,9 +51,9 @@ public class FieldMapping {
         //sources.add(_source);
         source =_source;
         type = _type;
-        
+
     }
-    
+
     public String applyTransform(String value){
         if(transform.equals("")){
             return value;
@@ -77,7 +77,7 @@ public class FieldMapping {
         }
         return value;
     }
-    
+
     public static FieldMapping CreateFieldMapping(Node node) {
 
         String range = "";
@@ -113,9 +113,9 @@ public class FieldMapping {
         if (node.getAttributes().getNamedItem("isMultiple") != null) {
             fm.isMultiple = Boolean.parseBoolean(node.getAttributes().getNamedItem("isMultiple").getNodeValue());
         }
-        
-        
+
+
         return fm;
     }
-   
+
 }

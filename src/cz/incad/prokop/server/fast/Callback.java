@@ -79,7 +79,7 @@ class BatchState {
 
 /**
  * The Callback class implements the ESP Content API callback interface
- *  
+ *
  */
 
 public class Callback implements IContentCallback {
@@ -249,13 +249,14 @@ public class Callback implements IContentCallback {
      * Print error messages received in callback
      * @param errors Collection of DocumentError objects
      */
-    public void printErrorMessages(Collection errors) {
+    public void printErrorMessages(@SuppressWarnings("rawtypes") Collection errors) {
 
         if (errors.isEmpty()) {
             return;
         }
 
         logger.log(Level.SEVERE, "Errors: {0}", errors.size());
+        @SuppressWarnings("rawtypes")
         Iterator it = errors.iterator();
         while (it.hasNext()) {
             logger.log(Level.SEVERE, " {0}", ((DocumentError) it.next()).toString());
@@ -266,12 +267,13 @@ public class Callback implements IContentCallback {
      * Print warning messages received in callback
      * @param warnings Collection of DocumentWarning objects
      */
-    public void printWarningMessages(Collection warnings) {
+    public void printWarningMessages(@SuppressWarnings("rawtypes") Collection warnings) {
         if (warnings.isEmpty()) {
             return;
         }
 
         logger.log(Level.WARNING, "Warnings: {0}", warnings.size());
+        @SuppressWarnings("rawtypes")
         Iterator it = warnings.iterator();
         while (it.hasNext()) {
             logger.log(Level.WARNING, " {0}", ((DocumentWarning) it.next()).toString());

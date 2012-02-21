@@ -19,12 +19,13 @@ import java.util.List;
  * Enum class for types of Stages to take on a document eror. Its String representation is the same
  * as the name of the static final member.
  * </P>
- * 
+ *
  * <P>
  * See Joshua Bloch, "Effective Java", Item 21: "Replace enum constructs with classes", pp. 104-114
  * </P>
- *  
+ *
  */
+@SuppressWarnings("serial")
 public final class Stage implements Serializable {
 
     private static int nextOrdinal = 0;
@@ -60,7 +61,7 @@ public final class Stage implements Serializable {
     /**
      * An unmodifiable List of types.
      */
-    public final static List VALUES = Collections.unmodifiableList(Arrays.asList(PRIVATE_VALUES));
+    public final static List<Stage> VALUES = Collections.unmodifiableList(Arrays.asList(PRIVATE_VALUES));
 
     Object readResolve() {
         return PRIVATE_VALUES[this.ordinal];
