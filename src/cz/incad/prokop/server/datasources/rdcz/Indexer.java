@@ -302,7 +302,6 @@ public class Indexer implements DataSource {
             Structure.exemplar.rok.setValue(exemplar, rs.getString("rokVyd"));
             rc.addRecord(null, exemplar, exemplar, Operation.CREATE);
 
-
             Structure.sklizen.pocet.setValue(sklizen, processed++);
             rc.addRecord(null, sklizen, sklizen, Operation.UPDATE);
 
@@ -314,6 +313,14 @@ public class Indexer implements DataSource {
                 doc.addElement(DocumentFactory.newInteger("dbid", z.getPrimaryKey().getId()));
                 doc.addElement(DocumentFactory.newString("url", urlZdroje));
                 doc.addElement(DocumentFactory.newString("leader_format", "xx"));
+                doc.addElement(DocumentFactory.newString("druhdokumentu", typDokumentu));
+                doc.addElement(DocumentFactory.newString("autor", rs.getString("autor")));
+                if(!"".equals(rs.getString("ISSN"))){
+                    doc.addElement(DocumentFactory.newString("isxn", rs.getString("ISSN")));
+                }else if(!"".equals(rs.getString("ISBN"))){
+                    doc.addElement(DocumentFactory.newString("isxn", rs.getString("ISBN")));
+                }
+                doc.addElement(DocumentFactory.newString("ccnb", rs.getString("ccnb")));
                 doc.addElement(DocumentFactory.newString("zdroj", conf.getProperty("zdroj")));
                 doc.addElement(DocumentFactory.newString("base", conf.getProperty("base")));
                 doc.addElement(DocumentFactory.newString("harvester", conf.getProperty("harvester")));

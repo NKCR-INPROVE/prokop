@@ -21,6 +21,7 @@ public class ProgramArguments {
     public String docId;
     public Boolean fromDisk = false;
     public Boolean onlyHarvest = false;
+    public Boolean saveToDisk = false;
     public String resumptionToken = "";
     public String metadataPrefix = "";
 
@@ -46,6 +47,9 @@ public class ProgramArguments {
                     fromDisk = true;
                 } else if (args[i].equalsIgnoreCase("-onlyHarvest")) {
                     onlyHarvest = true;
+                    saveToDisk = true;
+                } else if (args[i].equalsIgnoreCase("-saveToDisk")) {
+                    saveToDisk = true;
                 } else if (args[i].equalsIgnoreCase("-docId")) {
                     i++;
                     docId = args[i];
