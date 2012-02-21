@@ -4,11 +4,17 @@
  */
 package cz.incad.prokop.server.datasources.oai;
 
+import cz.incad.prokop.server.datasources.util.XMLReader;
+import com.fastsearch.esp.content.DocumentFactory;
+import com.fastsearch.esp.content.IDocument;
+import cz.incad.prokop.server.fast.IndexTypes;
 import static org.aplikator.server.data.RecordUtils.*;
 
 import cz.incad.prokop.server.Structure;
+import cz.incad.prokop.server.data.Zaznam;
 import cz.incad.prokop.server.datasources.DataSource;
 //import cz.incad.prokop.server.fast.FastIndexer;
+import cz.incad.prokop.server.fast.FastIndexer;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -37,6 +43,7 @@ import org.aplikator.client.data.Record;
 import org.aplikator.client.data.RecordContainer;
 import org.aplikator.client.rpc.impl.ProcessRecords;
 import org.aplikator.server.Context;
+import org.aplikator.server.util.Configurator;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -55,8 +62,7 @@ public class OAIHarvester implements DataSource {
     private int interval;
     String completeListSize;
     int currentDocsSent = 0;
-   // private FastIndexer fastIndexer;
-
+    private FastIndexer fastIndexer;
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd/HH");
     SimpleDateFormat sdfoai;
     Transformer xformer;
@@ -66,6 +72,7 @@ public class OAIHarvester implements DataSource {
     @Override
     public int harvest(String params, Record sklizen, Context ctx) {
         context = ctx;
+        
         this.sklizen = sklizen;
         arguments = new ProgramArguments();
         if (!arguments.parse(params.split(" "))) {
@@ -89,6 +96,9 @@ public class OAIHarvester implements DataSource {
         } catch (TransformerConfigurationException ex) {
             Logger.getLogger(OAIHarvester.class.getName()).log(Level.SEVERE, null, ex);
         }
+        fastIndexer = new FastIndexer(conf.getProperty("fastHost"),
+                conf.getProperty("fastCollection"),
+                Integer.parseInt(conf.getProperty("fastBatchSize")));
         harvest();
         return currentDocsSent;
 
@@ -136,7 +146,8 @@ public class OAIHarvester implements DataSource {
     }
 
     private void writeResponseDate() throws FileNotFoundException, IOException {
-        File dateFile = new File(conf.getProperty("updateTimeFile"));
+        File dateFile = new File(Configurator.get().getConfig().getString(Configurator.HOME) +
+                File.separator + conf.getProperty("updateTimeFile"));
         BufferedWriter out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(dateFile)));
         out.write(responseDate);
         out.close();
@@ -169,8 +180,9 @@ public class OAIHarvester implements DataSource {
             current = c_to.getTime();
         }
         update(sdfoai.format(c_from.getTime()), sdfoai.format(final_date));
-        //if(!arguments.onlyHarvest)
-          //  fastIndexer.sendPendingRecords();
+        if (!arguments.onlyHarvest) {
+            fastIndexer.sendPendingRecords();
+        }
 
     }
 
@@ -189,7 +201,7 @@ public class OAIHarvester implements DataSource {
                 IndexTypes it = IndexTypes.INSERTED;
 
                 if (xmlReader.getNodeValue(node, "./header/@status").equals("deleted")) {
-                    if(arguments.fullIndex){
+                    if (arguments.fullIndex) {
                         logger.log(Level.FINE, "Spik deleted record when fullindex");
                         return;
                     }
@@ -197,58 +209,109 @@ public class OAIHarvester implements DataSource {
                 }
                 if (it != IndexTypes.DELETED) {
                     RecordContainer rc = new RecordContainer();
+
+
                     Record fr = newRecord(Structure.zaznam);
                     Structure.zaznam.sklizen.setValue(fr, sklizen.getPrimaryKey().getId());
-                    Structure.zaznam.urlZdroje.setValue(fr, conf.getProperty("baseUrl") + "?verb=GetRecord&identifier=" + identifier + "&metadataPrefix=" + metadataPrefix);
-                    Structure.zaznam.hlavniNazev.setValue(fr,
-                            xmlReader.getNodeValue(node, "./metadata/marc21:datafield[@tag='245']/marc21:subfield[@code='a']/text()"));
-                    Structure.zaznam.typDokumentu.setValue(fr,
-                            xmlReader.getNodeValue(node, "./metadata/marc21:record/marc21:leader/text()").substring(7, 2));
-                    Structure.zaznam.sourceXML.setValue(fr, nodeToString(node));
+                    String urlZdroje = conf.getProperty("baseUrl") + "?verb=GetRecord&identifier=" + identifier + "&metadataPrefix=" + metadataPrefix;
+                    Structure.zaznam.urlZdroje.setValue(fr, urlZdroje);
+                    String hlavninazev = xmlReader.getNodeValue(node, "./metadata/record/datafield[@tag='245']/subfield[@code='a']/text()");
+                    Structure.zaznam.hlavniNazev.setValue(fr, hlavninazev);
+                    String leader = xmlReader.getNodeValue(node, "./metadata/record/leader/text()");
+                    if(leader!=null && leader.length()>9){
+                        Structure.zaznam.typDokumentu.setValue(fr, leader.substring(6, 8));
+                    }
+                    String xmlStr = nodeToString(node);
+                    Structure.zaznam.sourceXML.setValue(fr, xmlStr);
                     rc.addRecord(null, fr, fr, Operation.CREATE);
 
 
                     //Identifikatory
                     Record ISSN = newSubrecord(fr.getPrimaryKey(), Structure.zaznam.identifikator);
                     Structure.identifikator.hodnota.setValue(ISSN,
-                            xmlReader.getNodeValue(node, "./metadata/marc21:datafield[@tag='022']/marc21:subfield[@code='a']/text()"));
+                            xmlReader.getNodeValue(node, "./metadata/record/datafield[@tag='022']/subfield[@code='a']/text()"));
                     Structure.identifikator.typ.setValue(ISSN, "ISSN");
                     rc.addRecord(null, ISSN, ISSN, Operation.CREATE);
 
                     Record ISBN = newSubrecord(fr.getPrimaryKey(), Structure.zaznam.identifikator);
                     Structure.identifikator.hodnota.setValue(ISBN,
-                            xmlReader.getNodeValue(node, "./metadata/marc21:datafield[@tag='020']/marc21:subfield[@code='a']/text()"));
+                            xmlReader.getNodeValue(node, "./metadata/record/datafield[@tag='020']/subfield[@code='a']/text()"));
                     Structure.identifikator.typ.setValue(ISBN, "ISBN");
                     rc.addRecord(null, ISBN, ISBN, Operation.CREATE);
 
                     Record cnb = newSubrecord(fr.getPrimaryKey(), Structure.zaznam.identifikator);
-                    Structure.identifikator.hodnota.setValue(cnb,
-                            xmlReader.getNodeValue(node, "./metadata/marc21:datafield[@tag='015']/marc21:subfield[@code='a']/text()"));
+                    String cnbStr = xmlReader.getNodeValue(node, "./metadata/record/datafield[@tag='015']/subfield[@code='a']/text()");
+                    Structure.identifikator.hodnota.setValue(cnb, cnbStr);
                     Structure.identifikator.typ.setValue(cnb, "cCNB");
                     rc.addRecord(null, cnb, cnb, Operation.CREATE);
 
                     //Autori
-                    NodeList autori = xmlReader.getListOfNodes("./metadata/marc21:datafield[@tag='100']");
-                    for(int i =0; i<autori.getLength();i++){
+                    NodeList autori = xmlReader.getListOfNodes("./metadata/record/datafield[@tag='100']");
+                    for (int i = 0; i < autori.getLength(); i++) {
                         Record autor = newSubrecord(fr.getPrimaryKey(), Structure.zaznam.autor);
                         Structure.autor.nazev.setValue(autor,
-                            xmlReader.getNodeValue(node, "./metadata/marc21:datafield[@tag='100'][position()=" + (i + 1) + "]/marc21:subfield[@code='a']/text()"));
+                                xmlReader.getNodeValue(node, "./metadata/record/datafield[@tag='100'][position()=" + (i + 1) + "]/subfield[@code='a']/text()"));
                         rc.addRecord(null, autor, autor, Operation.CREATE);
                     }
 
                     //Jazyky
-                    String[] jazyky = xmlReader.getListOfValues("./metadata/marc21:datafield[@tag='041']/marc21:subfield[@code='a']/text()");
-                    for(String jazyk : jazyky){
+                    String[] jazyky = xmlReader.getListOfValues("./metadata/record/datafield[@tag='041']/subfield[@code='a']/text()");
+                    for (String jazyk : jazyky) {
                         Record j = newSubrecord(fr.getPrimaryKey(), Structure.zaznam.jazyk);
                         Structure.jazyk.kod.setValue(j, jazyk);
                         rc.addRecord(null, j, j, Operation.CREATE);
                     }
 
+                    //Nazvy
+                    String[] nazvy = xmlReader.getListOfValues("./metadata/record/datafield[@tag='245']/subfield[@code='a']/text()");
+                    for (String nazev : nazvy) {
+                        Record j = newSubrecord(fr.getPrimaryKey(), Structure.zaznam.nazev);
+                        Structure.nazev.nazev.setValue(j, nazev);
+                        Structure.nazev.typNazvu.setValue(j, "Hlavní název");
+                        rc.addRecord(null, j, j, Operation.CREATE);
+                    }
+                    nazvy = xmlReader.getListOfValues("./metadata/record/datafield[@tag='245']/subfield[@code='b']/text()");
+                    for (String nazev : nazvy) {
+                        Record j = newSubrecord(fr.getPrimaryKey(), Structure.zaznam.nazev);
+                        Structure.nazev.nazev.setValue(j, nazev);
+                        Structure.nazev.typNazvu.setValue(j, "Podnázev");
+                        rc.addRecord(null, j, j, Operation.CREATE);
+                    }
+                    nazvy = xmlReader.getListOfValues("./metadata/record/datafield[@tag='245']/subfield[@code='p']/text()");
+                    for (String nazev : nazvy) {
+                        Record j = newSubrecord(fr.getPrimaryKey(), Structure.zaznam.nazev);
+                        Structure.nazev.nazev.setValue(j, nazev);
+                        Structure.nazev.typNazvu.setValue(j, "Název části");
+                        rc.addRecord(null, j, j, Operation.CREATE);
+                    }
+                    nazvy = xmlReader.getListOfValues("./metadata/record/datafield[@tag='246']/subfield[@code='a']/text()");
+                    for (String nazev : nazvy) {
+                        Record j = newSubrecord(fr.getPrimaryKey(), Structure.zaznam.nazev);
+                        Structure.nazev.nazev.setValue(j, nazev);
+                        Structure.nazev.typNazvu.setValue(j, "Alternativní název");
+                        rc.addRecord(null, j, j, Operation.CREATE);
+                    }
+
                     Structure.sklizen.pocet.setValue(sklizen, currentDocsSent++);
-                    rc.addRecord(null, sklizen, sklizen, Operation.UPDATE); //přidat záznam sklizně do kontejneru pro aktualizaci
+                    rc.addRecord(null, sklizen, sklizen, Operation.UPDATE);
 
                     rc = context.getAplikatorService().execute(new ProcessRecords(rc)).getRecordContainer();
 
+                    Record z = rc.getRecords().get(0).getEdited();
+                    IDocument doc = DocumentFactory.newDocument(urlZdroje);
+                    doc.addElement(DocumentFactory.newString("title", hlavninazev));
+                    doc.addElement(DocumentFactory.newInteger("dbid", z.getPrimaryKey().getId()));
+                    doc.addElement(DocumentFactory.newString("url", urlZdroje));
+                    doc.addElement(DocumentFactory.newString("leader_format", leader));
+                    doc.addElement(DocumentFactory.newString("zdroj", conf.getProperty("zdroj")));
+                    doc.addElement(DocumentFactory.newString("base", conf.getProperty("base")));
+                    doc.addElement(DocumentFactory.newString("harvester", conf.getProperty("harvester")));
+                    doc.addElement(DocumentFactory.newString("originformat", conf.getProperty("originformat")));
+                    doc.addElement(DocumentFactory.newString("data", xmlStr));
+                    fastIndexer.add(doc, it);
+
+                } else {
+                    //zpracovat deletes
                 }
             } else {
                 logger.log(Level.SEVERE, "Can't proccess xml{0}", error);
@@ -262,7 +325,7 @@ public class OAIHarvester implements DataSource {
         }
     }
 
-    private String getInitialDate() throws Exception{
+    private String getInitialDate() throws Exception {
         String xml = "";
         String urlString = conf.getProperty("baseUrl") + "?verb=Identify";
 
@@ -283,7 +346,6 @@ public class OAIHarvester implements DataSource {
         String resumptionToken = getRecords(query);
         while (resumptionToken != null && !resumptionToken.equals("")) {
             resumptionToken = getRecords("?verb=" + conf.getProperty("verb") + "&resumptionToken=" + resumptionToken);
-            //if(xmlNumber>100) break;
         }
     }
 
@@ -306,7 +368,9 @@ public class OAIHarvester implements DataSource {
             for (int i = 0; i < nodes.getLength(); i++) {
                 date = xmlReader.getNodeValue("//record[position()=" + (i + 1) + "]/header/datestamp/text()");
                 identifier = xmlReader.getNodeValue("//record[position()=" + (i + 1) + "]/header/identifier/text()");
-                if(!arguments.onlyHarvest) processRecord(nodes.item(i), identifier);
+                if (!arguments.onlyHarvest) {
+                    processRecord(nodes.item(i), identifier);
+                }
                 //processRecordAsXml(nodes.item(i), identifier);
                 writeNodeToFile(nodes.item(i), date, identifier);
                 logger.log(Level.FINE, "number: {0} of {1}", new Object[]{(currentDocsSent++), completeListSize});
@@ -324,8 +388,9 @@ public class OAIHarvester implements DataSource {
         logger.fine("Processing dowloaded files");
         File dir = new File(conf.getProperty("indexDirectory"));
         getRecordsFromDir(dir);
-        //if(!arguments.onlyHarvest)
-            //prokop.finish();
+        if (!arguments.onlyHarvest) {
+            fastIndexer.sendPendingRecords();
+        }
     }
 
     private void getRecordsFromDir(File dir) throws Exception {

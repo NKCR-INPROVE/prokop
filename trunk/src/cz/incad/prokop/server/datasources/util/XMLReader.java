@@ -1,9 +1,10 @@
-package cz.incad.prokop.server.datasources.oai;
+package cz.incad.prokop.server.datasources.util;
 
 /*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
+import cz.incad.prokop.server.datasources.oai.Configuration;
 import java.net.*;
 import java.io.*;
 
@@ -134,33 +135,7 @@ public class XMLReader {
 
     }
 
-//    public String getMappingGroupValue(MappingGroup mg) {
-//        String result = "";
-//        try {
-//            NodeList nodes = getListOfNodes(mg.basePath);
-//            for (int i = 0; i < nodes.getLength(); i++) {
-//                Element node = (Element) nodes.item(i);
-//
-//                for (int j = 0; j < mg.mappings.size(); j++) {
-//                    String path = mg.mappings.get(j);
-//                    NodeList els = node.getElementsByTagName(path);
-//                    if (els.getLength() > 0 && node.getElementsByTagName(path).item(0).hasChildNodes()) {
-//                        result += node.getElementsByTagName(path).item(0).getFirstChild().getNodeValue();
-//                        if (j < mg.mappings.size() - 1) {
-//                            result += mg.rec_sep_str;
-//                        }
-//                    }
-//                }
-//                result += mg.sep_str;
-//
-//            }
-//            return result;
-//        } catch (Exception ex) {
-//            logger.error(ex);
-//            return "";
-//        }
-//    }
-    String getNodeValue(Node node, String xPath)
+    public String getNodeValue(Node node, String xPath)
             throws ParserConfigurationException, SAXException,
             IOException, XPathExpressionException {
 
