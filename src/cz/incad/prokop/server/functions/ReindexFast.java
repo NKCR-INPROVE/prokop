@@ -27,9 +27,10 @@ public class ReindexFast implements Executable {
 
         return new FunctionResult("Reindexovano", true);
     }
-    
+
+    @SuppressWarnings("unused")
     private void getRecords(){
-        /*        
+        /*
          IDocument doc = DocumentFactory.newDocument(urlZdroje);
                     doc.addElement(DocumentFactory.newString("title", hlavninazev));
                     doc.addElement(DocumentFactory.newInteger("dbid", z.getPrimaryKey().getId()));

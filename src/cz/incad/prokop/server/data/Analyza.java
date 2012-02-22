@@ -9,7 +9,6 @@ import org.aplikator.client.data.ListItem;
 import org.aplikator.server.descriptor.Entity;
 import org.aplikator.server.descriptor.Property;
 import org.aplikator.server.descriptor.Reference;
-import org.aplikator.server.descriptor.ReferenceField;
 import org.aplikator.server.descriptor.TextArea;
 import org.aplikator.server.descriptor.View;
 
@@ -63,8 +62,7 @@ public class Analyza extends Entity {
         retval.addProperty(spusteni).addProperty(uzivatel).addProperty(ukonceni).addProperty(stav);
         retval.form(column(
                 row(spusteni,ukonceni, stav,uzivatel),
-                new TextArea(vysledek).setWidth("100em").setHeight("10em"),
-                ReferenceField.reference(modul,Structure.modul.getReverseView(), Structure.modul.nazev)
+                new TextArea(vysledek).setWidth("100em").setHeight("10em")
             ));
         return retval;
     }

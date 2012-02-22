@@ -28,7 +28,6 @@ public class Zaznam extends Entity {
     public Collection<Exemplar> exemplar;
     public Collection<DigitalniVerze> digitalniVerze;
     public Property<String> urlZdroje;
-
     public Property<String> sourceXML;
     public Reference<Sklizen> sklizen;
 
@@ -42,7 +41,7 @@ public class Zaznam extends Entity {
         identifikator = collectionProperty(Structure.identifikator, "identifikator", "zaznam");
         autor = collectionProperty(Structure.autor, "autor", "zaznam");
         jazyk = collectionProperty(Structure.jazyk, "jazyk", "zaznam");
-        hlavniNazev = stringProperty("hlavniNazev", 512);
+        hlavniNazev = stringProperty("hlavniNazev", 2048);
         nazev = collectionProperty(Structure.nazev, "nazev", "zaznam");
         vydani = collectionProperty(Structure.vydani, "vydani", "zaznam");
         rozsah = collectionProperty(Structure.rozsah, "extent", "zaznam");
