@@ -33,8 +33,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.TimeZone;
+import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -63,6 +65,8 @@ public class Indexer implements DataSource {
     Context context;
     Record sklizen;
     int processed = 0;
+    String homeDir;
+    FileHandler logFileHandler;
 
     @Override
     public int harvest(String params, org.aplikator.client.data.Record sklizen, Context ctx) {
@@ -76,6 +80,25 @@ public class Indexer implements DataSource {
 
         conf = new Configuration(arguments.configFile);
         Config config = Configurator.get().getConfig();
+        this.homeDir = Configurator.get().getConfig().getString(Configurator.HOME)
+                + File.separator;
+        try {
+            File dir = new File(this.homeDir + "logs");
+            if (!dir.exists()) {
+                boolean success = dir.mkdirs();
+                if (!success) {
+                    logger.log(Level.WARNING, "Can''t create logs directory");
+                }
+            }
+            logFileHandler = new FileHandler(this.homeDir + "logs" + File.separator + arguments.configFile + ".log");
+            logFileHandler.setFormatter(new SimpleFormatter());
+            
+            Logger.getLogger("cz.incad.prokop.server").addHandler(logFileHandler);
+        } catch (IOException ex) {
+            logger.log(Level.SEVERE, null, ex);
+        } catch (SecurityException ex) {
+            logger.log(Level.SEVERE, null, ex);
+        }
         fastIndexer = new FastIndexer(config.getString("aplikator.fastHost"),
                 config.getString("aplikator.fastCollection"),
                 config.getInt("aplikator.fastBatchSize"));

@@ -18,12 +18,6 @@
         <property name="identifierPrefix" value="oai:aleph.mzk.cz:" />
         <property name="interval" value="day" comment="year|month|day|hour|minute|second" />
         
-        <!-- fast properties -->
-        <property name="fastHost" value="albertoESPfedora.incad.cz:16100" />
-        <property name="fastCollection" value="prokop" />
-        <property name="fastBatchSize" value="500" />
-        <property name="fastDateFormat" value="yyyy-MM-dd" />
-        
         <property name="zdroj" value="Moravská zemská knihovna v Brně" />
         <property name="base" value="MZK01" />
         <property name="harvester" value="OAI" />

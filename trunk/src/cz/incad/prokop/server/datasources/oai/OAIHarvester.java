@@ -49,6 +49,8 @@ import cz.incad.prokop.server.datasources.DataSource;
 import cz.incad.prokop.server.datasources.util.XMLReader;
 import cz.incad.prokop.server.fast.FastIndexer;
 import cz.incad.prokop.server.fast.IndexTypes;
+import java.util.logging.FileHandler;
+import java.util.logging.SimpleFormatter;
 
 /**
  *
@@ -71,6 +73,8 @@ public class OAIHarvester implements DataSource {
     Transformer xformer;
     Context context;
     Record sklizen;
+    String homeDir;
+    FileHandler logFileHandler;
 
     @Override
     public int harvest(String params, Record sklizen, Context ctx) {
@@ -83,27 +87,48 @@ public class OAIHarvester implements DataSource {
         }
 
         conf = new Configuration(arguments.configFile);
+        this.homeDir = Configurator.get().getConfig().getString(Configurator.HOME)
+                + File.separator;
+        try {
+            File dir = new File(this.homeDir + "logs");
+            if (!dir.exists()) {
+                boolean success = dir.mkdirs();
+                if (!success) {
+                    logger.log(Level.WARNING, "Can''t create logs directory");
+                }
+            }
+            logFileHandler = new FileHandler(this.homeDir + "logs" + File.separator + arguments.configFile + ".log");
+            logFileHandler.setFormatter(new SimpleFormatter());
+            
+            Logger.getLogger("cz.incad.prokop.server").addHandler(logFileHandler);
+        } catch (IOException ex) {
+            logger.log(Level.SEVERE, null, ex);
+        } catch (SecurityException ex) {
+            logger.log(Level.SEVERE, null, ex);
+        }
         xmlReader = new XMLReader(conf);
         logger.info("Indexer initialized");
         sdfoai = new SimpleDateFormat(conf.getProperty("oaiDateFormat"));
         sdf = new SimpleDateFormat(conf.getProperty("filePathFormat"));
         if (arguments.metadataPrefix.equals("")) {
-            metadataPrefix = conf.getProperty("metadataPrefix");
+            this.metadataPrefix = conf.getProperty("metadataPrefix");
         } else {
-            metadataPrefix = arguments.metadataPrefix;
+            this.metadataPrefix = arguments.metadataPrefix;
         }
 
         interval = Interval.parseString(conf.getProperty("interval"));
         try {
             xformer = TransformerFactory.newInstance().newTransformer();
+            Config config = Configurator.get().getConfig();
+            fastIndexer = new FastIndexer(config.getString("aplikator.fastHost"),
+                    config.getString("aplikator.fastCollection"),
+                    config.getInt("aplikator.fastBatchSize"));
+            harvest();
         } catch (TransformerConfigurationException ex) {
             Logger.getLogger(OAIHarvester.class.getName()).log(Level.SEVERE, null, ex);
+        }finally{
+            logger.removeHandler(logFileHandler);
         }
-        Config config = Configurator.get().getConfig();
-        fastIndexer = new FastIndexer(config.getString("aplikator.fastHost"),
-                config.getString("aplikator.fastCollection"),
-                config.getInt("aplikator.fastBatchSize"));
-        harvest();
         return currentDocsSent;
 
     }
@@ -149,8 +174,7 @@ public class OAIHarvester implements DataSource {
     }
 
     private void writeResponseDate() throws FileNotFoundException, IOException {
-        File dateFile = new File(Configurator.get().getConfig().getString(Configurator.HOME)
-                + File.separator + conf.getProperty("updateTimeFile"));
+        File dateFile = new File(this.homeDir + conf.getProperty("updateTimeFile"));
         BufferedWriter out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(dateFile)));
         out.write(responseDate);
         out.close();
