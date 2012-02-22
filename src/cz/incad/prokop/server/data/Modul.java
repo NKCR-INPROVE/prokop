@@ -5,9 +5,12 @@ import static org.aplikator.server.descriptor.Panel.row;
 
 import org.aplikator.server.descriptor.Collection;
 import org.aplikator.server.descriptor.Entity;
+import org.aplikator.server.descriptor.Function;
 import org.aplikator.server.descriptor.Property;
 import org.aplikator.server.descriptor.RepeatedForm;
 import org.aplikator.server.descriptor.View;
+
+import cz.incad.prokop.server.functions.SpustitAnalyzu;
 
 public class Modul extends Entity {
 
@@ -17,6 +20,8 @@ public class Modul extends Entity {
     public Property<String> trida;
     public Property<String> parametry;
     public Collection<Analyza> analyza;
+
+    public Function spustitAnalyzu = new Function("SpustitAnalyzu", "SpustitAnalyzu", new SpustitAnalyzu());
 
     public Modul() {
         super("Modul","Modul","Modul_ID");
@@ -38,6 +43,7 @@ public class Modul extends Entity {
         retval.form(column(
                 row(typModulu,nazev, formatXML),
                 row(trida, parametry),
+                row(spustitAnalyzu),
                 RepeatedForm.repeated(analyza)
             ));
         return retval;
