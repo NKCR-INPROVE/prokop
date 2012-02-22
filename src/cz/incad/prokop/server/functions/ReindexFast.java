@@ -23,20 +23,28 @@ public class ReindexFast implements Executable {
         fastIndexer = new FastIndexer(config.getString("fastHost"),
                 config.getString("fastCollection"),
                 config.getInt("fastBatchSize"));
-//        IDocument doc = DocumentFactory.newDocument(urlZdroje);
-//        doc.addElement(DocumentFactory.newString("title", hlavninazev));
-//        doc.addElement(DocumentFactory.newInteger("dbid", z.getPrimaryKey().getId()));
-//        doc.addElement(DocumentFactory.newString("url", urlZdroje));
-//        doc.addElement(DocumentFactory.newString("leader_format", leader));
-//        doc.addElement(DocumentFactory.newString("zdroj", conf.getProperty("zdroj")));
-//        doc.addElement(DocumentFactory.newString("base", conf.getProperty("base")));
-//        doc.addElement(DocumentFactory.newString("harvester", conf.getProperty("harvester")));
-//        doc.addElement(DocumentFactory.newString("originformat", conf.getProperty("originformat")));
-//        doc.addElement(DocumentFactory.newString("data", xmlStr));
-//        fastIndexer.add(doc, it);
 
 
         return new FunctionResult("Reindexovano", true);
+    }
+    
+    private void getRecords(){
+        /*        
+         IDocument doc = DocumentFactory.newDocument(urlZdroje);
+                    doc.addElement(DocumentFactory.newString("title", hlavninazev));
+                    doc.addElement(DocumentFactory.newInteger("dbid", z.getPrimaryKey().getId()));
+                    doc.addElement(DocumentFactory.newString("url", urlZdroje));
+                    doc.addElement(DocumentFactory.newString("druhdokumentu", typDokumentu));
+                    doc.addElement(DocumentFactory.newString("autor", autoriStr));
+                    doc.addElement(DocumentFactory.newString("zdroj", conf.getProperty("zdroj")));
+                    doc.addElement(DocumentFactory.newString("isxn", isxn));
+                    doc.addElement(DocumentFactory.newString("ccnb", cnbStr));
+                    doc.addElement(DocumentFactory.newString("base", conf.getProperty("base")));
+                    doc.addElement(DocumentFactory.newString("harvester", conf.getProperty("harvester")));
+                    doc.addElement(DocumentFactory.newString("originformat", conf.getProperty("originformat")));
+                    doc.addElement(DocumentFactory.newString("data", xmlStr));
+        fastIndexer.add(doc, it);
+*/
     }
 
 }

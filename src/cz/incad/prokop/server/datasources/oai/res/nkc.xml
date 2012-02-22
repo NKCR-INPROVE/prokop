@@ -3,7 +3,7 @@
 <setup>
     <properties>
         <property name="indexDirectory" value="/media/SAMSUNG/OAI/NKP/NKC/2010/08/07/09/42" />
-        <property name="updateTimeFile" value="nkp.time" />
+        <property name="updateTimeFile" value="nkc.time" />
         <property name="charset" value="UTF-8" />
         <property name="dateFormat" value="yyyy-MM-dd" />
         <property name="oaiDateFormat" value="yyyy-MM-dd'T'HH:mm:ss'Z'" />
