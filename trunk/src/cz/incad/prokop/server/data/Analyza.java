@@ -5,15 +5,36 @@ import static org.aplikator.server.descriptor.Panel.row;
 
 import java.util.Date;
 
+import org.aplikator.client.data.ListItem;
 import org.aplikator.server.descriptor.Entity;
 import org.aplikator.server.descriptor.Property;
 import org.aplikator.server.descriptor.Reference;
 import org.aplikator.server.descriptor.ReferenceField;
+import org.aplikator.server.descriptor.TextArea;
 import org.aplikator.server.descriptor.View;
 
 import cz.incad.prokop.server.Structure;
 
 public class Analyza extends Entity {
+
+    public static enum Stav implements ListItem<String>  {
+        ZAHAJENA("zahajena"), UKONCENA("ukoncena"), CHYBA("chyba");
+
+        private Stav(String value){
+            this.value = value;
+        }
+        private String value;
+        @Override
+        public String getValue() {
+            return value;
+        }
+
+        @Override
+        public String getName() {
+            return value;
+        }
+
+    }
 
     public Property<Date> spusteni;
     public Property<Date> ukonceni;
@@ -42,7 +63,7 @@ public class Analyza extends Entity {
         retval.addProperty(spusteni).addProperty(uzivatel).addProperty(ukonceni).addProperty(stav);
         retval.form(column(
                 row(spusteni,ukonceni, stav,uzivatel),
-                vysledek,
+                new TextArea(vysledek).setWidth("100em").setHeight("10em"),
                 ReferenceField.reference(modul,Structure.modul.getReverseView(), Structure.modul.nazev)
             ));
         return retval;
