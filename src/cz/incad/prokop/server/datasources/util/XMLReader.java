@@ -101,6 +101,32 @@ public class XMLReader {
 
     }
 
+    public NodeList getListOfNodes(Node node, String xPath)
+            throws ParserConfigurationException, SAXException,
+            IOException, XPathExpressionException {
+
+        XPathExpression expr = xpath.compile(xPath);
+        return (NodeList) expr.evaluate(node, XPathConstants.NODESET);
+
+    }
+
+    public String[] getListOfValues(Node node, String xPath)
+            throws ParserConfigurationException, SAXException,
+            IOException, XPathExpressionException {
+
+
+        XPathExpression expr = xpath.compile(xPath);
+
+        Object result = expr.evaluate(node, XPathConstants.NODESET);
+        NodeList nodes = (NodeList) result;
+        String[] s = new String[nodes.getLength()];
+        for (int i = 0; i < nodes.getLength(); i++) {
+            //s.append(nodes.item(i).getNodeValue());
+            s[i] = nodes.item(i).getNodeValue();
+        }
+        return s;
+    }
+
     public String[] getListOfValues(String xPath)
             throws ParserConfigurationException, SAXException,
             IOException, XPathExpressionException {

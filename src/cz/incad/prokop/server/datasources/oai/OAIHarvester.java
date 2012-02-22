@@ -276,7 +276,7 @@ public class OAIHarvester implements DataSource {
                     rc.addRecord(null, cnb, cnb, Operation.CREATE);
 
                     //Autori
-                    NodeList autori = xmlReader.getListOfNodes("./metadata/record/datafield[@tag='100']");
+                    NodeList autori = xmlReader.getListOfNodes(node, "./metadata/record/datafield[@tag='100']");
                     String autoriStr = "";
                     for (int i = 0; i < autori.getLength(); i++) {
                         Record autor = newSubrecord(fr.getPrimaryKey(), Structure.zaznam.autor);
@@ -288,7 +288,7 @@ public class OAIHarvester implements DataSource {
                     }
 
                     //Jazyky
-                    String[] jazyky = xmlReader.getListOfValues("./metadata/record/datafield[@tag='041']/subfield[@code='a']/text()");
+                    String[] jazyky = xmlReader.getListOfValues(node, "./metadata/record/datafield[@tag='041']/subfield[@code='a']/text()");
                     for (String jazyk : jazyky) {
                         Record j = newSubrecord(fr.getPrimaryKey(), Structure.zaznam.jazyk);
                         Structure.jazyk.kod.setValue(j, jazyk);
@@ -296,28 +296,28 @@ public class OAIHarvester implements DataSource {
                     }
 
                     //Nazvy
-                    String[] nazvy = xmlReader.getListOfValues("./metadata/record/datafield[@tag='245']/subfield[@code='a']/text()");
+                    String[] nazvy = xmlReader.getListOfValues(node, "./metadata/record/datafield[@tag='245']/subfield[@code='a']/text()");
                     for (String nazev : nazvy) {
                         Record j = newSubrecord(fr.getPrimaryKey(), Structure.zaznam.nazev);
                         Structure.nazev.nazev.setValue(j, nazev);
                         Structure.nazev.typNazvu.setValue(j, "Hlavní název");
                         rc.addRecord(null, j, j, Operation.CREATE);
                     }
-                    nazvy = xmlReader.getListOfValues("./metadata/record/datafield[@tag='245']/subfield[@code='b']/text()");
+                    nazvy = xmlReader.getListOfValues(node, "./metadata/record/datafield[@tag='245']/subfield[@code='b']/text()");
                     for (String nazev : nazvy) {
                         Record j = newSubrecord(fr.getPrimaryKey(), Structure.zaznam.nazev);
                         Structure.nazev.nazev.setValue(j, nazev);
                         Structure.nazev.typNazvu.setValue(j, "Podnázev");
                         rc.addRecord(null, j, j, Operation.CREATE);
                     }
-                    nazvy = xmlReader.getListOfValues("./metadata/record/datafield[@tag='245']/subfield[@code='p']/text()");
+                    nazvy = xmlReader.getListOfValues(node, "./metadata/record/datafield[@tag='245']/subfield[@code='p']/text()");
                     for (String nazev : nazvy) {
                         Record j = newSubrecord(fr.getPrimaryKey(), Structure.zaznam.nazev);
                         Structure.nazev.nazev.setValue(j, nazev);
                         Structure.nazev.typNazvu.setValue(j, "Název části");
                         rc.addRecord(null, j, j, Operation.CREATE);
                     }
-                    nazvy = xmlReader.getListOfValues("./metadata/record/datafield[@tag='246']/subfield[@code='a']/text()");
+                    nazvy = xmlReader.getListOfValues(node, "./metadata/record/datafield[@tag='246']/subfield[@code='a']/text()");
                     for (String nazev : nazvy) {
                         Record j = newSubrecord(fr.getPrimaryKey(), Structure.zaznam.nazev);
                         Structure.nazev.nazev.setValue(j, nazev);
