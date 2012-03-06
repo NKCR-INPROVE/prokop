@@ -10,7 +10,7 @@ import org.aplikator.server.descriptor.Application;
 import org.aplikator.server.descriptor.Function;
 import org.aplikator.server.descriptor.Menu;
 
-import cz.incad.prokop.server.functions.TestFunction;
+import cz.incad.prokop.server.functions.ReindexFast;
 
 @SuppressWarnings("serial")
 public class ProkopLoaderServlet extends ApplicationLoaderServlet {
@@ -31,7 +31,7 @@ public class ProkopLoaderServlet extends ApplicationLoaderServlet {
             Menu admin = new Menu("Admin");
             admin.addView(Structure.zdroj.view());
             admin.addView(Structure.modul.view());
-            Function globalFunction = new Function("GlobalFunction", "GlobalFunction", new TestFunction());
+            Function globalFunction = new Function("GlobalFunction", "GlobalFunction", new ReindexFast());
             admin.addFunction(globalFunction);
             struct.addMenu(admin);
 
