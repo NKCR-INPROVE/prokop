@@ -1,9 +1,4 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package cz.incad.prokop.server.datasources.oai;
-
 
 /**
  *
@@ -22,8 +17,10 @@ public class ProgramArguments {
     public Boolean fromDisk = false;
     public Boolean onlyHarvest = false;
     public Boolean saveToDisk = false;
+    public Boolean onlyIdentifiers = false;
     public String resumptionToken = "";
     public String metadataPrefix = "";
+    public String pathToData = "";
 
     public ProgramArguments() {
     }
@@ -45,9 +42,14 @@ public class ProgramArguments {
                     updateKey = true;
                 } else if (args[i].equalsIgnoreCase("-fromDisk")) {
                     fromDisk = true;
+                } else if (args[i].equalsIgnoreCase("-pathToData")) {
+                    i++;
+                    pathToData = args[i];
                 } else if (args[i].equalsIgnoreCase("-onlyHarvest")) {
                     onlyHarvest = true;
                     saveToDisk = true;
+                } else if (args[i].equalsIgnoreCase("-onlyIdentifiers")) {
+                    onlyIdentifiers = true;
                 } else if (args[i].equalsIgnoreCase("-saveToDisk")) {
                     saveToDisk = true;
                 } else if (args[i].equalsIgnoreCase("-docId")) {

@@ -11,8 +11,8 @@
         <property name="separator" value=";" />
         <property name="xmlField" value="" />
         
-        <property name="baseUrl" value="http://aleph.nkp.cz:8991/OAI" />
-        <property name="set" value="PROKOP" />
+        <property name="baseUrl" value="http://aleph.nkp.cz/OAI" />
+        <property name="set" value="CNB" />
         <property name="metadataPrefix" value="marc21" />
         <property name="verb" value="ListRecords" />
         <property name="identifierPrefix" value="oai:aleph-nkp.cz:" />
@@ -25,7 +25,7 @@
         <property name="fastDateFormat" value="yyyy-MM-dd" />
         
         <property name="zdroj" value="Národní knihovna České republiky" />
-        <property name="base" value="NKC" />
+        <property name="base" value="CNB" />
         <property name="harvester" value="OAI" />
         <property name="originformat" value="marc21" />
     </properties>

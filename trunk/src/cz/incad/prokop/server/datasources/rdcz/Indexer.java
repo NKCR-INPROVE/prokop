@@ -92,7 +92,7 @@ public class Indexer implements DataSource {
             }
             logFileHandler = new FileHandler(this.homeDir + "logs" + File.separator + arguments.configFile + ".log");
             logFileHandler.setFormatter(new SimpleFormatter());
-            
+
             Logger.getLogger("cz.incad.prokop.server").addHandler(logFileHandler);
         } catch (IOException ex) {
             logger.log(Level.SEVERE, null, ex);
@@ -329,28 +329,39 @@ public class Indexer implements DataSource {
             rc.addRecord(null, sklizen, sklizen, Operation.UPDATE);
 
             rc = context.getAplikatorService().execute(new ProcessRecords(rc)).getRecordContainer();
+            try {
 
-            Record z = rc.getRecords().get(0).getEdited();
-            IDocument doc = DocumentFactory.newDocument(urlZdroje);
-            doc.addElement(DocumentFactory.newString("title", hlavninazev));
+                Record z = rc.getRecords().get(0).getEdited();
+                IDocument doc = DocumentFactory.newDocument(urlZdroje);
+                addFastElement(doc, "title", hlavninazev);
                 doc.addElement(DocumentFactory.newInteger("dbid", z.getPrimaryKey().getId()));
                 doc.addElement(DocumentFactory.newString("url", urlZdroje));
-                doc.addElement(DocumentFactory.newString("leader_format", "xx"));
-                doc.addElement(DocumentFactory.newString("druhdokumentu", typDokumentu));
-                doc.addElement(DocumentFactory.newString("autor", rs.getString("autor")));
-                if(!"".equals(rs.getString("ISSN"))){
-                    doc.addElement(DocumentFactory.newString("isxn", rs.getString("ISSN")));
-                }else if(!"".equals(rs.getString("ISBN"))){
-                    doc.addElement(DocumentFactory.newString("isxn", rs.getString("ISBN")));
-                }
-                doc.addElement(DocumentFactory.newString("ccnb", rs.getString("ccnb")));
-                doc.addElement(DocumentFactory.newString("zdroj", conf.getProperty("zdroj")));
-                doc.addElement(DocumentFactory.newString("base", conf.getProperty("base")));
-                doc.addElement(DocumentFactory.newString("harvester", conf.getProperty("harvester")));
-                doc.addElement(DocumentFactory.newString("originformat", conf.getProperty("originformat")));
-                doc.addElement(DocumentFactory.newString("data", xmlStr));
-            fastIndexer.add(doc, indexTypes);
+                addFastElement(doc, "druhdokumentu", typDokumentu);
 
+                addFastElement(doc, "autor", rs.getString("autor"));
+                addFastElement(doc, "isxn", rs.getString("ISSN"));
+                addFastElement(doc, "isxn", rs.getString("ISBN"));
+                addFastElement(doc, "ccnb", rs.getString("ccnb"));
+                addFastElement(doc, "zdroj", conf.getProperty("zdroj"));
+                addFastElement(doc, "base", conf.getProperty("base"));
+                addFastElement(doc, "harvester", conf.getProperty("harvester"));
+                addFastElement(doc, "originformat", conf.getProperty("originformat"));
+                addFastElement(doc, "data", xmlStr);
+                fastIndexer.add(doc, indexTypes);
+            } catch (Exception ex) {
+                logger.log(Level.SEVERE, "Cant procces record  " + urlZdroje, ex);
+            }
+
+        }
+    }
+
+    private void addFastElement(IDocument doc, String name, String value) {
+        try {
+            if (value != null) {
+                doc.addElement(DocumentFactory.newString(name, value));
+            }
+        } catch (Exception ex) {
+            logger.log(Level.FINE, "Cant add element  " + name, ex);
         }
     }
 
