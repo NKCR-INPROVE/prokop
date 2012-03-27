@@ -52,6 +52,7 @@ public class Zaznam extends Entity {
         urlZdroje = stringProperty("url");
         sourceXML = textProperty("sourceXML");
         sklizen = referenceProperty(Structure.sklizen, "sklizen");
+        addIndex("url_zaznam_idx", true, urlZdroje);
 
     }
 

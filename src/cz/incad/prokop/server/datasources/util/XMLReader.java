@@ -43,10 +43,8 @@ public class XMLReader {
     private XPath xpath;
     private Document doc;
     @SuppressWarnings("unused")
-    private Configuration configuration;
 
-    public XMLReader(Configuration _conf) {
-        configuration = _conf;
+    public XMLReader() {
     }
 
     public void loadXml(String xml) throws ParserConfigurationException, SAXException, IOException {

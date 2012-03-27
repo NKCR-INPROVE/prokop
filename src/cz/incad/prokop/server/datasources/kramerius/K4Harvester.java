@@ -4,7 +4,6 @@
  */
 package cz.incad.prokop.server.datasources.kramerius;
 
-import cz.incad.prokop.server.datasources.oai.*;
 import static org.aplikator.server.data.RecordUtils.newRecord;
 import static org.aplikator.server.data.RecordUtils.newSubrecord;
 
@@ -51,8 +50,6 @@ import cz.incad.prokop.server.datasources.util.XMLReader;
 import cz.incad.prokop.server.fast.FastIndexer;
 import cz.incad.prokop.server.fast.IndexTypes;
 import java.io.FileWriter;
-import java.util.logging.FileHandler;
-import java.util.logging.SimpleFormatter;
 
 /**
  *
@@ -111,7 +108,7 @@ public class K4Harvester implements DataSource {
         } catch (SecurityException ex) {
             logger.log(Level.SEVERE, null, ex);
         }
-        xmlReader = new XMLReader(conf);
+        xmlReader = new XMLReader();
         logger.info("Indexer initialized");
         sdfoai = new SimpleDateFormat(conf.getProperty("oaiDateFormat"));
         sdf = new SimpleDateFormat(conf.getProperty("filePathFormat"));
