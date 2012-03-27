@@ -2,8 +2,9 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package cz.incad.prokop.server.datasources.oai;
+package cz.incad.prokop.server.datasources.kramerius;
 
+import cz.incad.prokop.server.datasources.oai.*;
 import java.io.InputStream;
 import java.sql.PreparedStatement;
 import java.util.ArrayList;

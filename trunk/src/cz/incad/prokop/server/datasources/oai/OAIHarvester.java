@@ -104,7 +104,7 @@ public class OAIHarvester implements DataSource {
         } catch (SecurityException ex) {
             logger.log(Level.SEVERE, null, ex);
         }
-        xmlReader = new XMLReader(conf);
+        xmlReader = new XMLReader();
         logger.info("Indexer initialized");
         sdfoai = new SimpleDateFormat(conf.getProperty("oaiDateFormat"));
         sdf = new SimpleDateFormat(conf.getProperty("filePathFormat"));
@@ -240,7 +240,7 @@ public class OAIHarvester implements DataSource {
 
                 if (xmlReader.getNodeValue(node, "./header/@status").equals("deleted")) {
                     if (arguments.fullIndex) {
-                        logger.log(Level.FINE, "Spik deleted record when fullindex");
+                        logger.log(Level.FINE, "Skip deleted record when fullindex");
                         return;
                     }
                     it = IndexTypes.DELETED;
@@ -428,11 +428,13 @@ public class OAIHarvester implements DataSource {
     private String getRecords(String query) throws Exception {
         String urlString = conf.getProperty("baseUrl") + query;
         URL url = new URL(urlString.replace("\n", ""));
-        logger.log(Level.INFO, "url: {0}", url.toString());
+        logFile.newLine();
+        logFile.write("url: " + url.toString());
         try {
             xmlReader.readUrl(url.toString());
         } catch (Exception ex) {
-            logger.log(Level.INFO, "retrying url: {0}", url.toString());
+            logFile.newLine();
+            logFile.write("retrying url: " + url.toString());
             xmlReader.readUrl(url.toString());
         }
         String error = xmlReader.getNodeValue("//error/@code");
