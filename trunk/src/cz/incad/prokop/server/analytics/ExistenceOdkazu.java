@@ -22,19 +22,20 @@ import com.google.common.base.Objects;
 
 import cz.incad.prokop.server.Structure;
 
-public class ShodaUdaju implements Analytic {
+public class ExistenceOdkazu implements Analytic {
 
-    Logger log = Logger.getLogger(ShodaUdaju.class.getName());
+    Logger log = Logger.getLogger(ExistenceOdkazu.class.getName());
 
 
 
 
     private static final String query = "select zaz.Zaznam_ID,zaz.url, zaz.hlavniNazev, id.hodnota  from identifikator id left outer join zaznam zaz on id.zaznam = zaz.Zaznam_ID where id.typ = 'cCNB' order by id.hodnota, zaz.hlavniNazev";
 
+
     /*
-     *  SHODA ÚDAJŮ
-a)      Vypsat záznamy se shodným čČNB a rozdílným Názvem
-(non-Javadoc)
+     *  ODKAZY – existence platnost
+a)      Katalog NKCR – vypsat záznamy, které mají link do K4 a link není platný (error UUID). Report : ID záznamu/link/status
+
      * @see cz.incad.prokop.server.analytics.Analytic#analyze(java.lang.String, org.aplikator.client.data.Record, org.aplikator.server.Context)
      */
     @Override
