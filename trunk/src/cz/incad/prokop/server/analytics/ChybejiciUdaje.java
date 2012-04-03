@@ -1,27 +1,15 @@
 package cz.incad.prokop.server.analytics;
 
-import static org.aplikator.server.data.RecordUtils.newRecord;
-import static org.aplikator.server.data.RecordUtils.newSubrecord;
-
-import java.sql.Array;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Types;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.aplikator.client.data.Operation;
 import org.aplikator.client.data.Record;
-import org.aplikator.client.data.RecordContainer;
-import org.aplikator.client.rpc.impl.ProcessRecords;
 import org.aplikator.server.Context;
 import org.aplikator.server.persistence.PersisterFactory;
-import org.aplikator.server.util.Configurator;
-
-import com.google.common.base.Objects;
 
 import cz.incad.prokop.server.Structure;
 
@@ -36,7 +24,7 @@ public class ChybejiciUdaje implements Analytic {
     private static final String emptyCNBquery = "select zaz.Zaznam_ID,zaz.url, zaz.hlavniNazev, id.hodnota  from identifikator id left outer join zaznam zaz on id.zaznam = zaz.Zaznam_ID left outer join sklizen on (sklizen.sklizen_id=zaz.sklizen) left outer join zdroj on (sklizen.zdroj = zdroj.zdroj_id) where id.typ = 'cCNB' and (id.hodnota is null or id.hodnota = '') and zdroj.nazev in( %s ) order by  zaz.hlavniNazev";
     private static final String countCNBquery = "select count(*)  from  zaznam zaz left outer join sklizen on (sklizen.sklizen_id=zaz.sklizen) left outer join zdroj on (sklizen.zdroj = zdroj.zdroj_id) where exists ( select id.hodnota from identifikator id where id.zaznam = zaz.Zaznam_ID and id.typ = 'cCNB' and (id.hodnota is not null or not (id.hodnota = ''))) and zdroj.nazev in( %s ) order by  zaz.hlavniNazev";
 
-    private static final String PARAM = "'Aleph NKP', 'Aleph MZK', 'Aleph NKP CNB', 'Aleph NKP base CNB'";
+   // private static final String PARAM = "'Aleph NKP', 'Aleph MZK', 'Aleph NKP CNB', 'Aleph NKP base CNB'";
     /*
      *  CHYBĚJÍCÍ ÚDAJE
 a)      Statistika kolik má čČNB

@@ -30,8 +30,6 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import cz.incad.prokop.server.datasources.oai.Configuration;
-
 /**
  *
  * @author Alberto
@@ -42,7 +40,6 @@ public class XMLReader {
     public String separator = " - ";
     private XPath xpath;
     private Document doc;
-    @SuppressWarnings("unused")
 
     public XMLReader() {
     }
