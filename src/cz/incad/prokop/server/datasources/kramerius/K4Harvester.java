@@ -131,7 +131,7 @@ public class K4Harvester implements DataSource {
         } finally {
             //logFileHandler.close();
             //Logger.getLogger("cz.incad.prokop.server").removeHandler(logFileHandler);
-            
+
             try {
                 if (logFile != null) {
                     logFile.flush();
@@ -176,7 +176,7 @@ public class K4Harvester implements DataSource {
             } else {
                 update(from);
             }
-            
+
             logFile.newLine();
             logFile.write("Harvest success "+currentDocsSent+" records");
 
@@ -253,7 +253,7 @@ public class K4Harvester implements DataSource {
                     RecordContainer rc = new RecordContainer();
 
                     Record fr = newRecord(Structure.zaznam);
-                    
+
                     Structure.zaznam.sklizen.setValue(fr, sklizen.getPrimaryKey().getId());
                     String urlZdroje = conf.getProperty("baseUrl") + "?verb=GetRecord&identifier=" + identifier + "&metadataPrefix=" + metadataPrefix;
                     Structure.zaznam.urlZdroje.setValue(fr, urlZdroje);
@@ -287,7 +287,7 @@ public class K4Harvester implements DataSource {
                         String jmeno = xmlReader.getNodeValue(node, "./metadata/record/descriptor/modsCollection/mods/name[position()=" + (i + 1) + "]/namePart[@type='given']/text()");
                         Structure.autor.jmeno.setValue(autor, jmeno);
                         Structure.autor.nazev.setValue(autor, prijmeni + ", " + jmeno);
-                        String role = xmlReader.getNodeValue(node, "./metadata/record/descriptor/modsCollection/mods/name[position()=" + (i + 1) + "]/role/roleTerm[@type='text']/text()");
+                        //String role = xmlReader.getNodeValue(node, "./metadata/record/descriptor/modsCollection/mods/name[position()=" + (i + 1) + "]/role/roleTerm[@type='text']/text()");
                         Structure.autor.odpovednost.setValue(autor, jmeno);
                         autoriStr += prijmeni + ", " + jmeno + ";";
                         rc.addRecord(null, autor, autor, Operation.CREATE);
@@ -304,7 +304,7 @@ public class K4Harvester implements DataSource {
                     //Nazvy
                     NodeList nazvy = xmlReader.getListOfNodes(node, "./metadata/record/descriptor/modsCollection/mods/titleInfo");
                     for (int i = 0; i < nazvy.getLength(); i++) {
-                        Node nazev = nazvy.item(i);
+                        //Node nazev = nazvy.item(i);
                         Record j = newSubrecord(fr.getPrimaryKey(), Structure.zaznam.nazev);
                         //Structure.nazev.nazev.setValue(j, nazev);
                         //Structure.nazev.typNazvu.setValue(j, "Hlavní název");
@@ -334,9 +334,9 @@ public class K4Harvester implements DataSource {
                         //exsStr += exStr + ";";
                         rc.addRecord(null, ex, ex, Operation.CREATE);
                     }
-                    
-                    
-                    
+
+
+
                     rc.addRecord(null, sklizen, sklizen, Operation.UPDATE);
 
                     Structure.sklizen.pocet.setValue(sklizen, currentDocsSent++);
@@ -353,7 +353,7 @@ public class K4Harvester implements DataSource {
                         doc.addElement(DocumentFactory.newString("zdroj", conf.getProperty("zdroj")));
                         doc.addElement(DocumentFactory.newString("isxn",
                                 xmlReader.getNodeValue(node, "./metadata/record/descriptor/modsCollection/mods/identifier[@type='issn' or @type='isbn']/text()")));
-                        doc.addElement(DocumentFactory.newString("ccnb", 
+                        doc.addElement(DocumentFactory.newString("ccnb",
                                 xmlReader.getNodeValue(node, "./metadata/record/descriptor/modsCollection/mods/identifier[@type='cnb']/text()")));
                         doc.addElement(DocumentFactory.newString("base", conf.getProperty("base")));
                         doc.addElement(DocumentFactory.newString("harvester", conf.getProperty("harvester")));
@@ -509,6 +509,8 @@ public class K4Harvester implements DataSource {
         return hours + " hour(s) " + minutes + " minute(s) " + seconds + " second(s)";
     }
 
+
+    @SuppressWarnings("unused")
     private String typDokumentu(String leader) {
         if (leader != null && leader.length() > 9) {
             String code = leader.substring(6, 8);

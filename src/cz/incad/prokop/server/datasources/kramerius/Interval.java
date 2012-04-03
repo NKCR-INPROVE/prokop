@@ -1,6 +1,5 @@
 package cz.incad.prokop.server.datasources.kramerius;
 
-import cz.incad.prokop.server.datasources.oai.*;
 import java.util.Calendar;
 
 /**

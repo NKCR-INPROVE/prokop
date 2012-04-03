@@ -35,7 +35,6 @@ import org.xml.sax.InputSource;
 public class ReindexFast implements Executable {
 
     Logger logger = Logger.getLogger(ReindexFast.class.getName());
-    @SuppressWarnings("unused")
     private FastIndexer fastIndexer;
     Connection conn;
     DocumentBuilderFactory domFactory;
@@ -46,7 +45,7 @@ public class ReindexFast implements Executable {
         fastIndexer = new FastIndexer(config.getString("aplikator.fastHost"),
                 config.getString("aplikator.fastCollection"),
                 config.getInt("aplikator.fastBatchSize"));
-        
+
         domFactory = DocumentBuilderFactory.newInstance();
         domFactory.setNamespaceAware(false);
         try {
@@ -179,7 +178,7 @@ public class ReindexFast implements Executable {
                 doc.addElement(DocumentFactory.newInteger("dbid", zaznam_id));
                 doc.addElement(DocumentFactory.newString("url", rs.getString("url")));
                 addFastElement(doc, "druhdokumentu", rs.getString("typdokumentu"));
-                
+
                 getIdentifikator(zaznam_id, doc);
                 getAutori(zaznam_id, doc);
                 addFastElement(doc, "zdroj", rs.getString("nazev"));
