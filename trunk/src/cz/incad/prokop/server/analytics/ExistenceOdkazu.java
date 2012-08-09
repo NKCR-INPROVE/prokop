@@ -21,6 +21,7 @@ import org.aplikator.server.util.Configurator;
 import com.google.common.base.Objects;
 
 import cz.incad.prokop.server.Structure;
+import org.aplikator.shared.data.BinaryData;
 
 public class ExistenceOdkazu implements Analytic {
 
@@ -88,7 +89,9 @@ a)      Katalog NKCR – vypsat záznamy, které mají link do K4 a link není p
                 } catch (SQLException e) {}
             }
         }
-        Structure.analyza.vysledek.setValue(analyza, vysledek.toString());
+        BinaryData bd = new BinaryData();
+        bd.data = vysledek.toString().getBytes();
+        Structure.analyza.vysledek.setValue(analyza, bd);
 
         return;
     }

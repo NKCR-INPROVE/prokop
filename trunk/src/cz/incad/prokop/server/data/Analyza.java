@@ -13,6 +13,8 @@ import org.aplikator.server.descriptor.TextArea;
 import org.aplikator.server.descriptor.View;
 
 import cz.incad.prokop.server.Structure;
+import org.aplikator.server.descriptor.BinaryField;
+import org.aplikator.shared.data.BinaryData;
 
 public class Analyza extends Entity {
 
@@ -38,7 +40,7 @@ public class Analyza extends Entity {
     public Property<Date> spusteni;
     public Property<Date> ukonceni;
     public Property<String> stav;
-    public Property<String> vysledek;
+    public Property<BinaryData> vysledek;
     public Property<String> uzivatel;
     public Reference<Modul> modul;
 
@@ -51,7 +53,7 @@ public class Analyza extends Entity {
         spusteni = dateProperty("spusteni");
         ukonceni = dateProperty("ukonceni");
         stav = stringProperty("stav");
-        vysledek = textProperty("vysledek");
+        vysledek = binaryProperty("vysledek");
         uzivatel = stringProperty("uzivatel");
         modul = referenceProperty(Structure.modul, "modul");
     }
@@ -62,7 +64,7 @@ public class Analyza extends Entity {
         retval.addProperty(spusteni).addProperty(uzivatel).addProperty(ukonceni).addProperty(stav);
         retval.form(column(
                 row(spusteni,ukonceni, stav,uzivatel),
-                new TextArea(vysledek).setWidth("100em").setHeight("10em")
+                new BinaryField(vysledek)
             ));
         return retval;
     }

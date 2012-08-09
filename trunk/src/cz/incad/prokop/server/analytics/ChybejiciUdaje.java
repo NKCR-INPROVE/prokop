@@ -12,6 +12,7 @@ import org.aplikator.server.Context;
 import org.aplikator.server.persistence.PersisterFactory;
 
 import cz.incad.prokop.server.Structure;
+import org.aplikator.shared.data.BinaryData;
 
 public class ChybejiciUdaje implements Analytic {
 
@@ -96,7 +97,9 @@ b)      Vypsat záznamy z NKCR a MZK, které nemají čČNB(non-Javadoc)
                 } catch (SQLException e) {}
             }
         }
-        Structure.analyza.vysledek.setValue(analyza, vysledek.toString());
+        BinaryData bd = new BinaryData();
+        bd.data = vysledek.toString().getBytes();
+        Structure.analyza.vysledek.setValue(analyza, bd);
 
         return;
     }

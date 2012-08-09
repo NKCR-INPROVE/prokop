@@ -2,7 +2,7 @@
 
 <setup>
     <properties>
-        <property name="indexDirectory" value="/media/SAMSUNG/OAI/NKP/NKC/2010" />
+	<property name="indexDirectory" value="/home/prokop/Programs/harvest/NKP/NKC/2012" />
         <property name="updateTimeFile" value="nkc.time" />
         <property name="charset" value="UTF-8" />
         <property name="dateFormat" value="yyyy-MM-dd" />
@@ -11,7 +11,7 @@
         <property name="separator" value=";" />
         <property name="xmlField" value="" />
         
-        <property name="baseUrl" value="http://aleph.nkp.cz:8991/OAI" />
+        <property name="baseUrl" value="http://aleph.nkp.cz/OAI" />
         <property name="set" value="PROKOP" />
         <property name="metadataPrefix" value="marc21" />
         <property name="verb" value="ListRecords" />
@@ -19,7 +19,7 @@
         <property name="interval" value="day" comment="year|month|day|hour|minute|second" />
         
         <!-- fast properties -->
-        <property name="fastHost" value="albertoESPfedora.incad.cz:16100" />
+        <property name="fastHost" value="10.5.1.16:16100" />
         <property name="fastCollection" value="prokop" />
         <property name="fastBatchSize" value="500" />
         <property name="fastDateFormat" value="yyyy-MM-dd" />
