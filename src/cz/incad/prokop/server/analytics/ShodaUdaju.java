@@ -21,6 +21,7 @@ import org.aplikator.server.util.Configurator;
 import com.google.common.base.Objects;
 
 import cz.incad.prokop.server.Structure;
+import org.aplikator.shared.data.BinaryData;
 
 public class ShodaUdaju implements Analytic {
 
@@ -87,7 +88,9 @@ a)      Vypsat záznamy se shodným čČNB a rozdílným Názvem
                 } catch (SQLException e) {}
             }
         }
-        Structure.analyza.vysledek.setValue(analyza, vysledek.toString());
+        BinaryData bd = new BinaryData();
+        bd.data = vysledek.toString().getBytes();
+        Structure.analyza.vysledek.setValue(analyza, bd);
 
         return;
     }

@@ -251,7 +251,10 @@ public class OAIHarvester implements DataSource {
 
                     Record fr = newRecord(Structure.zaznam);
                     Structure.zaznam.sklizen.setValue(fr, sklizen.getPrimaryKey().getId());
-                    String urlZdroje = conf.getProperty("baseUrl") + "?verb=GetRecord&identifier=" + identifier + "&metadataPrefix=" + metadataPrefix;
+                    String urlZdroje = conf.getProperty("baseUrl") + 
+                            "?verb=GetRecord&identifier=" + identifier +
+                            "&metadataPrefix=" + metadataPrefix +
+                            "#set=" + conf.getProperty("set");
                     Structure.zaznam.urlZdroje.setValue(fr, urlZdroje);
                     String hlavninazev = xmlReader.getNodeValue(node, "./metadata/record/datafield[@tag='245']/subfield[@code='a']/text()");
                     Structure.zaznam.hlavniNazev.setValue(fr, hlavninazev);
