@@ -95,10 +95,7 @@ public class OAIHarvester implements DataSource {
             }
             logFile = new BufferedWriter(new FileWriter(this.homeDir + "logs" + File.separator + arguments.configFile + ".log"));
             errorLogFile = new BufferedWriter(new FileWriter(this.homeDir + "logs" + File.separator + arguments.configFile + ".error.log"));
-            //logFileHandler = new FileHandler(this.homeDir + "logs" + File.separator + arguments.configFile + ".log");
-            //logFileHandler.setFormatter(new SimpleFormatter());
 
-            //Logger.getLogger("cz.incad.prokop.server").addHandler(logFileHandler);
         } catch (IOException ex) {
             logger.log(Level.SEVERE, null, ex);
         } catch (SecurityException ex) {
@@ -447,19 +444,20 @@ public class OAIHarvester implements DataSource {
             String identifier;
             //saveToIndexDir(date, xml, xmlNumber);
 
+            if (arguments.saveToDisk) {
+                writeNodeToFile(xmlReader.getNodeElement(), 
+                        xmlReader.getNodeValue("//record[position()=1]/header/datestamp/text()"), 
+                        xmlReader.getNodeValue("//record[position()=1]/header/identifier/text()"));
+            }
             NodeList nodes = xmlReader.getListOfNodes("//record");
             if (arguments.onlyIdentifiers) {
                 //TODO
             } else {
                 for (int i = 0; i < nodes.getLength(); i++) {
-                    date = xmlReader.getNodeValue("//record[position()=" + (i + 1) + "]/header/datestamp/text()");
+//                    date = xmlReader.getNodeValue("//record[position()=" + (i + 1) + "]/header/datestamp/text()");
                     identifier = xmlReader.getNodeValue("//record[position()=" + (i + 1) + "]/header/identifier/text()");
                     if (!arguments.onlyHarvest) {
                         processRecord(nodes.item(i), identifier);
-                    }
-                    //processRecordAsXml(nodes.item(i), identifier);
-                    if (arguments.saveToDisk) {
-                        writeNodeToFile(nodes.item(i), date, identifier);
                     }
                     logger.log(Level.FINE, "number: {0} of {1}", new Object[]{(currentDocsSent), completeListSize});
                 }
@@ -493,13 +491,18 @@ public class OAIHarvester implements DataSource {
             if (children[i].isDirectory()) {
                 getRecordsFromDir(children[i]);
             } else {
-                xmlReader.loadXmlFromFile(children[i]);
-
                 String identifier;
-                identifier = xmlReader.getNodeValue("/record/header/identifier/text()");
-                processRecord(xmlReader.getNodeElement(), identifier);
-                //processRecordAsXml(xmlReader.getNodeElement(), identifier);
-                logger.log(Level.FINE, "number: {0}", currentDocsSent);
+                xmlReader.loadXmlFromFile(children[i]);
+                NodeList nodes = xmlReader.getListOfNodes("//record");
+                for (int j = 0; j < nodes.getLength(); j++) {
+                    //date = xmlReader.getNodeValue("//record[position()=" + (i + 1) + "]/header/datestamp/text()");
+                    identifier = xmlReader.getNodeValue("//record[position()=" + (j + 1) + "]/header/identifier/text()");
+                    
+                        processRecord(nodes.item(j), identifier);
+                    
+                    logger.log(Level.FINE, "number: {0}", currentDocsSent);
+                }
+                
             }
         }
     }
