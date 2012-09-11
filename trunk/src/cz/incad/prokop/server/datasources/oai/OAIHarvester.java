@@ -46,6 +46,9 @@ import cz.incad.prokop.server.datasources.util.XMLReader;
 import cz.incad.prokop.server.fast.FastIndexer;
 import cz.incad.prokop.server.fast.IndexTypes;
 import java.io.FileWriter;
+import java.io.InputStream;
+import java.io.StringReader;
+import javax.xml.transform.stream.StreamSource;
 
 /**
  *
@@ -62,6 +65,7 @@ public class OAIHarvester implements DataSource {
     private int interval;
     String completeListSize;
     int currentDocsSent = 0;
+    int currentIndex = 0;
     private FastIndexer fastIndexer;
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd/HH");
     SimpleDateFormat sdfoai;
@@ -144,6 +148,7 @@ public class OAIHarvester implements DataSource {
 
     private void harvest() {
         long startTime = (new Date()).getTime();
+        currentIndex = 0;
         try {
 
 
@@ -229,7 +234,7 @@ public class OAIHarvester implements DataSource {
         getRecords(from, until);
     }
 
-    private void processRecord(Node node, String identifier) throws Exception {
+    private void processRecord(Node node, String identifier, int recordNumber) throws Exception {
         if (node != null) {
             String error = xmlReader.getNodeValue(node, "/error/@code");
             if (error.equals("")) {
@@ -248,10 +253,10 @@ public class OAIHarvester implements DataSource {
 
                     Record fr = newRecord(Structure.zaznam);
                     Structure.zaznam.sklizen.setValue(fr, sklizen.getPrimaryKey().getId());
-                    String urlZdroje = conf.getProperty("baseUrl") + 
-                            "?verb=GetRecord&identifier=" + identifier +
-                            "&metadataPrefix=" + metadataPrefix +
-                            "#set=" + conf.getProperty("set");
+                    String urlZdroje = conf.getProperty("baseUrl")
+                            + "?verb=GetRecord&identifier=" + identifier
+                            + "&metadataPrefix=" + metadataPrefix
+                            + "#set=" + conf.getProperty("set");
                     Structure.zaznam.urlZdroje.setValue(fr, urlZdroje);
                     String hlavninazev = xmlReader.getNodeValue(node, "./metadata/record/datafield[@tag='245']/subfield[@code='a']/text()");
                     Structure.zaznam.hlavniNazev.setValue(fr, hlavninazev);
@@ -260,7 +265,8 @@ public class OAIHarvester implements DataSource {
                     if (leader != null && leader.length() > 9) {
                         Structure.zaznam.typDokumentu.setValue(fr, typDokumentu);
                     }
-                    String xmlStr = nodeToString(node);
+                    //String xmlStr = nodeToString(node);
+                    String xmlStr = nodeToString(xmlReader.getNodeElement(), recordNumber);
                     Structure.zaznam.sourceXML.setValue(fr, xmlStr);
                     rc.addRecord(null, fr, fr, Operation.CREATE);
 
@@ -445,8 +451,8 @@ public class OAIHarvester implements DataSource {
             //saveToIndexDir(date, xml, xmlNumber);
 
             if (arguments.saveToDisk) {
-                writeNodeToFile(xmlReader.getNodeElement(), 
-                        xmlReader.getNodeValue("//record[position()=1]/header/datestamp/text()"), 
+                writeNodeToFile(xmlReader.getNodeElement(),
+                        xmlReader.getNodeValue("//record[position()=1]/header/datestamp/text()"),
                         xmlReader.getNodeValue("//record[position()=1]/header/identifier/text()"));
             }
             NodeList nodes = xmlReader.getListOfNodes("//record");
@@ -454,11 +460,12 @@ public class OAIHarvester implements DataSource {
                 //TODO
             } else {
                 for (int i = 0; i < nodes.getLength(); i++) {
+                    if (!arguments.onlyHarvest && currentIndex>arguments.startIndex) {
 //                    date = xmlReader.getNodeValue("//record[position()=" + (i + 1) + "]/header/datestamp/text()");
-                    identifier = xmlReader.getNodeValue("//record[position()=" + (i + 1) + "]/header/identifier/text()");
-                    if (!arguments.onlyHarvest) {
-                        processRecord(nodes.item(i), identifier);
+                        identifier = xmlReader.getNodeValue("//record[position()=" + (i + 1) + "]/header/identifier/text()");
+                        processRecord(nodes.item(i), identifier, i+1);
                     }
+                    currentIndex++;
                     logger.log(Level.FINE, "number: {0} of {1}", new Object[]{(currentDocsSent), completeListSize});
                 }
             }
@@ -482,31 +489,62 @@ public class OAIHarvester implements DataSource {
         }
     }
 
+    private String readFileAsString(FileReader freader)
+            throws java.io.IOException {
+        StringBuilder fileData = new StringBuilder(1000);
+        BufferedReader reader = new BufferedReader(
+                freader);
+
+        char[] buf = new char[1024];
+
+        int numRead = 0;
+
+        while ((numRead = reader.read(buf)) != -1) {
+
+            String readData = String.valueOf(buf, 0, numRead);
+
+            fileData.append(readData);
+
+            buf = new char[1024];
+
+        }
+
+        reader.close();
+
+        return fileData.toString();
+
+    }
+
     private void getRecordsFromDir(File dir) throws Exception {
         File[] children = dir.listFiles();
         for (int i = 0; i < children.length; i++) {
             if (currentDocsSent >= arguments.maxDocuments && arguments.maxDocuments > 0) {
                 break;
             }
+            
             if (children[i].isDirectory()) {
                 getRecordsFromDir(children[i]);
             } else {
                 String identifier;
+//                String xmlText = readFileAsString(new FileReader(children[i]));
+//                xmlText = xmlText.replaceAll("<marc:record ", "<marc:record xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" ");
+//                xmlReader.loadXml(xmlText);
                 xmlReader.loadXmlFromFile(children[i]);
                 NodeList nodes = xmlReader.getListOfNodes("//record");
                 for (int j = 0; j < nodes.getLength(); j++) {
                     //date = xmlReader.getNodeValue("//record[position()=" + (i + 1) + "]/header/datestamp/text()");
-                    identifier = xmlReader.getNodeValue("//record[position()=" + (j + 1) + "]/header/identifier/text()");
-                    
-                        processRecord(nodes.item(j), identifier);
-                    
+                    if(currentIndex>arguments.startIndex){
+                        identifier = xmlReader.getNodeValue("//record[position()=" + (j + 1) + "]/header/identifier/text()");
+                        processRecord(nodes.item(j), identifier, j+1);
+                    }
+                    currentIndex++;
                     logger.log(Level.FINE, "number: {0}", currentDocsSent);
                 }
-                
+
             }
         }
     }
-
+    
     private void writeNodeToFile(Node node, String date, String identifier) throws Exception {
         String dirName = conf.getProperty("indexDirectory") + File.separatorChar + sdf.format(sdfoai.parse(date));
 
@@ -524,12 +562,28 @@ public class OAIHarvester implements DataSource {
         Result result = new StreamResult(file);
         xformer.transform(source, result);
     }
+    
+    private String nodeToString(Node node, int pos) throws Exception{
+        
+        String xslt = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><xsl:stylesheet version=\"1.0\" xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\"  >" +
+            "<xsl:output omit-xml-declaration=\"yes\" method=\"xml\" indent=\"yes\" encoding=\"UTF-8\" />"+
+            "<xsl:template  match=\"/\"><xsl:copy-of select=\"//record[position()=" + pos + "]\" /></xsl:template>" +
+                "</xsl:stylesheet>";
+        Transformer xformer = TransformerFactory.newInstance().newTransformer(new StreamSource(new StringReader(xslt)));
+        StringWriter sw = new StringWriter();
+
+        Source source = new DOMSource(node);
+        
+        xformer.transform(source, new StreamResult(sw));
+        return sw.toString();
+    }
 
     private String nodeToString(Node node) throws Exception {
 
         StringWriter sw = new StringWriter();
 
         Source source = new DOMSource(node);
+        
         xformer.transform(source, new StreamResult(sw));
         return sw.toString();
     }
