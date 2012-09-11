@@ -21,6 +21,7 @@ public class ProgramArguments {
     public String resumptionToken = "";
     public String metadataPrefix = "";
     public String pathToData = "";
+    public int startIndex = -1;
 
     public ProgramArguments() {
     }
@@ -61,6 +62,9 @@ public class ProgramArguments {
                 } else if (args[i].equalsIgnoreCase("-maxDocuments")) {
                     i++;
                     maxDocuments = Integer.parseInt(args[i]);
+                } else if (args[i].equalsIgnoreCase("-startIndex")) {
+                    i++;
+                    startIndex = Integer.parseInt(args[i]);
                 } else if (args[i].equalsIgnoreCase("-metadataPrefix")) {
                     i++;
                     metadataPrefix = args[i];
