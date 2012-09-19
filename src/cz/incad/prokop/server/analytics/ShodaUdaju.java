@@ -3,25 +3,31 @@ package cz.incad.prokop.server.analytics;
 import static org.aplikator.server.data.RecordUtils.newRecord;
 import static org.aplikator.server.data.RecordUtils.newSubrecord;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.Writer;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.google.common.io.Files;
 import org.aplikator.client.data.Operation;
 import org.aplikator.client.data.Record;
 import org.aplikator.client.data.RecordContainer;
 import org.aplikator.client.rpc.impl.ProcessRecords;
 import org.aplikator.server.Context;
+import org.aplikator.server.data.BinaryData;
 import org.aplikator.server.persistence.PersisterFactory;
 import org.aplikator.server.util.Configurator;
 
 import com.google.common.base.Objects;
 
 import cz.incad.prokop.server.Structure;
-import org.aplikator.shared.data.BinaryData;
 
 public class ShodaUdaju implements Analytic {
 
@@ -44,13 +50,19 @@ a)      Vypsat záznamy se shodným čČNB a rozdílným Názvem
         String userHome = Configurator.get().getConfig().getString(Configurator.HOME);
         String configFileName = userHome+System.getProperty("file.separator")+params;
         log.info("Random harvester config file name: "+configFileName);
-        StringBuilder vysledek = new StringBuilder();
         Radek prvni = null;
         Radek druhy = null;
         Connection conn = PersisterFactory.getPersister().getJDBCConnection();
         Statement st = null;
         ResultSet rs = null;
+        File tempFile = null;
         try{
+            File tempDir = Files.createTempDir();
+            tempFile = new File(tempDir, UUID.randomUUID().toString());
+            tempFile.createNewFile();
+            log.info("ShodaUdaju TEMPFILE:" + tempFile);
+            Writer vysledek = new FileWriter(tempFile);
+
             st = conn.createStatement();
             rs = st.executeQuery(query);
             while (rs.next()){
@@ -68,6 +80,12 @@ a)      Vypsat záznamy se shodným čČNB a rozdílným Názvem
                     }
                 }
                 prvni = druhy;
+            }
+            vysledek.close();
+
+            if (tempFile != null){
+                BinaryData bd  = new BinaryData("ShodaUdaju.txt", new FileInputStream(tempFile), tempFile.length());
+                Structure.analyza.vysledek.setValue(analyza, bd);
             }
         } catch (Exception ex){
             log.log(Level.SEVERE, "Chyba v analyze", ex);
@@ -88,11 +106,7 @@ a)      Vypsat záznamy se shodným čČNB a rozdílným Názvem
                 } catch (SQLException e) {}
             }
         }
-        BinaryData bd = new BinaryData();
-        bd.data = vysledek.toString().getBytes();
-        Structure.analyza.vysledek.setValue(analyza, bd);
 
-        return;
     }
 
     private static class Radek{

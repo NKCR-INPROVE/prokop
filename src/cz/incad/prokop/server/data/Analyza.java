@@ -6,15 +6,14 @@ import static org.aplikator.server.descriptor.Panel.row;
 import java.util.Date;
 
 import org.aplikator.client.data.ListItem;
+import org.aplikator.server.data.BinaryData;
 import org.aplikator.server.descriptor.Entity;
 import org.aplikator.server.descriptor.Property;
 import org.aplikator.server.descriptor.Reference;
-import org.aplikator.server.descriptor.TextArea;
 import org.aplikator.server.descriptor.View;
 
 import cz.incad.prokop.server.Structure;
 import org.aplikator.server.descriptor.BinaryField;
-import org.aplikator.shared.data.BinaryData;
 
 public class Analyza extends Entity {
 
