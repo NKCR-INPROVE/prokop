@@ -1,18 +1,21 @@
 package cz.incad.prokop.server.analytics;
 
+import java.io.*;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.google.common.io.Files;
 import org.aplikator.client.data.Record;
 import org.aplikator.server.Context;
+import org.aplikator.server.data.BinaryData;
 import org.aplikator.server.persistence.PersisterFactory;
 
 import cz.incad.prokop.server.Structure;
-import org.aplikator.shared.data.BinaryData;
 
 public class ChybejiciUdaje implements Analytic {
 
@@ -34,11 +37,16 @@ b)      Vypsat záznamy z NKCR a MZK, které nemají čČNB(non-Javadoc)
      */
     @Override
     public void analyze(String params, Record analyza, Context context) {
-        StringBuilder vysledek = new StringBuilder();
+        File tempFile = null;
         Connection conn = PersisterFactory.getPersister().getJDBCConnection();
         Statement st = null;
         ResultSet rs = null;
         try{
+            File tempDir = Files.createTempDir();
+            tempFile = new File(tempDir, UUID.randomUUID().toString());
+            tempFile.createNewFile();
+            log.info("ChybejiciUdaje TEMPFILE:" + tempFile);
+            Writer vysledek = new FileWriter(tempFile);
             vysledek.append("Analyzované zdroje: ").append(params).append("\n\n");
             log.info("Analyzovane zdroje:"+params);
             String sql = String.format(countCNBquery, params);
@@ -46,7 +54,7 @@ b)      Vypsat záznamy z NKCR a MZK, které nemají čČNB(non-Javadoc)
             log.info("Spusten dotaz na pocet zaznamu s cCNB");
             rs = st.executeQuery(sql);
             while (rs.next()){
-                vysledek.append("Počet záznamů s čČNB: ").append(rs.getInt(1)).append("\n").append("\n").append("Záznamy bez čČNB:").append("\n");
+                vysledek.append("Počet záznamů s čČNB: ").append(Integer.toString(rs.getInt(1))).append("\n").append("\n").append("Záznamy bez čČNB:").append("\n");
             }
             rs.close();
             st.close();
@@ -57,12 +65,12 @@ b)      Vypsat záznamy z NKCR a MZK, které nemají čČNB(non-Javadoc)
             rs = st.executeQuery(sql);
             int counter = 0;
             while (rs.next()){
-                vysledek.append(rs.getInt("Zaznam_ID")).append("\t").append(rs.getString("url")).append("\t").append(rs.getString("hlavniNazev")).append("\n");
+                vysledek.append(Integer.toString(rs.getInt("Zaznam_ID"))).append("\t").append(rs.getString("url")).append("\t").append(rs.getString("hlavniNazev")).append("\n");
                 counter++;
             }
             rs.close();
             st.close();
-            vysledek.append ("\nPočet záznamů bez čČNB: ").append(counter).append("\n");
+            vysledek.append ("\nPočet záznamů bez čČNB: ").append(Integer.toString(counter)).append("\n");
             log.info("Pocet zaznamu bez cCNB: "+counter);
 
             counter = 0;
@@ -72,12 +80,19 @@ b)      Vypsat záznamy z NKCR a MZK, které nemají čČNB(non-Javadoc)
             log.info("Spusten dotaz na seznam zaznamu s prazdnym cCNB");
             rs = st.executeQuery(sql);
             while (rs.next()){
-                vysledek.append(rs.getInt("Zaznam_ID")).append("\t").append(rs.getString("url")).append("\t").append(rs.getString("hlavniNazev")).append("\n");
+                vysledek.append(Integer.toString(rs.getInt("Zaznam_ID"))).append("\t").append(rs.getString("url")).append("\t").append(rs.getString("hlavniNazev")).append("\n");
                 counter++;
+                vysledek.flush();
             }
-            vysledek.append ("\nPočet záznamů s prázdným čČNB: ").append(counter).append("\n");
+            vysledek.append ("\nPočet záznamů s prázdným čČNB: ").append(Integer.toString(counter)).append("\n");
             log.info("Pocet zaznamu s prazdnym cCNB: "+counter);
             log.info("Analyza ukoncena");
+            vysledek.close();
+
+            if (tempFile != null){
+                BinaryData bd  = new BinaryData("ChybejiciUdaje.txt", new FileInputStream(tempFile), tempFile.length());
+                Structure.analyza.vysledek.setValue(analyza, bd);
+            }
         } catch (Exception ex){
             log.log(Level.SEVERE, "Chyba v analyze", ex);
         } finally{
@@ -97,12 +112,9 @@ b)      Vypsat záznamy z NKCR a MZK, které nemají čČNB(non-Javadoc)
                 } catch (SQLException e) {}
             }
         }
-        BinaryData bd = new BinaryData();
-        bd.data = vysledek.toString().getBytes();
-        Structure.analyza.vysledek.setValue(analyza, bd);
 
-        return;
     }
+
 
 
 
