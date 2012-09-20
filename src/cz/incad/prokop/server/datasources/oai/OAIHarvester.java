@@ -221,7 +221,7 @@ public class OAIHarvester implements DataSource {
             current = c_to.getTime();
         }
         update(sdfoai.format(c_from.getTime()), sdfoai.format(final_date));
-        if (!arguments.onlyHarvest) {
+        if (!arguments.dontIndex) {
             fastIndexer.sendPendingRecords();
         }
 
@@ -371,7 +371,7 @@ public class OAIHarvester implements DataSource {
                     rc.addRecord(null, sklizen, sklizen, Operation.UPDATE);
                     try {
                         rc = context.getAplikatorService().execute(new ProcessRecords(rc)).getRecordContainer();
-
+if(!arguments.dontIndex){
                         Record z = rc.getRecords().get(0).getEdited();
                         IDocument doc = DocumentFactory.newDocument(urlZdroje);
                         doc.addElement(DocumentFactory.newString("title", hlavninazev));
@@ -385,8 +385,10 @@ public class OAIHarvester implements DataSource {
                         doc.addElement(DocumentFactory.newString("base", conf.getProperty("base")));
                         doc.addElement(DocumentFactory.newString("harvester", conf.getProperty("harvester")));
                         doc.addElement(DocumentFactory.newString("originformat", conf.getProperty("originformat")));
-                        doc.addElement(DocumentFactory.newString("data", xmlStr));
+                        //doc.addElement(DocumentFactory.newString("data", xmlStr));
+                        doc.addElement(DocumentFactory.newString("data", "<record />"));
                         fastIndexer.add(doc, it);
+}
                     } catch (Exception ex) {
                         errorLogFile.newLine();
                         errorLogFile.write("Cant procces record  " + urlZdroje);
@@ -484,7 +486,7 @@ public class OAIHarvester implements DataSource {
         } else {
             getRecordsFromDir(new File(arguments.pathToData));
         }
-        if (!arguments.onlyHarvest) {
+        if (!arguments.dontIndex) {
             fastIndexer.sendPendingRecords();
         }
     }
