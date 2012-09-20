@@ -56,7 +56,7 @@ public class SpustitAnalyzu implements Executable {
 
             return new FunctionResult("Proběhla analýza pro modul " + modul.getValue(Structure.modul.nazev.getId()), true);
         } catch (Throwable t) {
-
+            log.log(Level.SEVERE, "Error analyzing: ", t);
             RecordContainer rc = new RecordContainer();
             Structure.analyza.stav.setValue(analyza, Analyza.Stav.CHYBA.getValue());
             rc.addRecord(null, analyza, analyza, Operation.UPDATE);

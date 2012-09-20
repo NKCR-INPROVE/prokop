@@ -18,6 +18,7 @@ public class ProgramArguments {
     public Boolean onlyHarvest = false;
     public Boolean saveToDisk = false;
     public Boolean onlyIdentifiers = false;
+    public Boolean dontIndex = false;
     public String resumptionToken = "";
     public String metadataPrefix = "";
     public String pathToData = "";
@@ -49,10 +50,13 @@ public class ProgramArguments {
                 } else if (args[i].equalsIgnoreCase("-onlyHarvest")) {
                     onlyHarvest = true;
                     saveToDisk = true;
+                    dontIndex = true;
                 } else if (args[i].equalsIgnoreCase("-onlyIdentifiers")) {
                     onlyIdentifiers = true;
                 } else if (args[i].equalsIgnoreCase("-saveToDisk")) {
                     saveToDisk = true;
+                } else if (args[i].equalsIgnoreCase("-dontIndex")) {
+                    dontIndex = true;
                 } else if (args[i].equalsIgnoreCase("-docId")) {
                     i++;
                     docId = args[i];

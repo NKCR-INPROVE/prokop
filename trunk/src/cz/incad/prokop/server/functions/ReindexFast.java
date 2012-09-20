@@ -94,9 +94,16 @@ public class ReindexFast implements Executable {
             psId.setInt(1, zaznam_id);
             ResultSet rs = psId.executeQuery();
             while (rs.next()) {
-                addFastElement(doc, "isxn", rs.getString("ISNN"));
-                addFastElement(doc, "isxn", rs.getString("ISBN"));
-                addFastElement(doc, "ccnb", rs.getString("ccnb"));
+                String typ = rs.getString("typ");
+                if(typ.equals("cCNB")){
+                    addFastElement(doc, "ccnb", rs.getString("hodnota"));
+                }else if(typ.equals("ISBN") || typ.equals("ISSN")){
+                    addFastElement(doc, "isxn", rs.getString("hodnota"));
+                }
+                //addFastElement(doc, rs.getString("typ").toLowerCase(), rs.getString("hodnota"));
+//                addFastElement(doc, "isxn", rs.getString("ISSN"));
+//                addFastElement(doc, "isxn", rs.getString("ISBN"));
+//                addFastElement(doc, "ccnb", rs.getString("ccnb"));
             }
         } catch (Exception ex) {
             logger.log(Level.WARNING, "Cant get identifikator for zaznam_id " + zaznam_id, ex);
@@ -108,8 +115,8 @@ public class ReindexFast implements Executable {
 
     private void getAutori(int zaznam_id, IDocument doc) {
         try {
-            psId.setInt(1, zaznam_id);
-            ResultSet rs = psId.executeQuery();
+            psAutori.setInt(1, zaznam_id);
+            ResultSet rs = psAutori.executeQuery();
             String autori = "";
             while (rs.next()) {
                 autori += rs.getString("nazev") + ";";
@@ -169,6 +176,7 @@ public class ReindexFast implements Executable {
             String sqlZaznam = "select * from zaznam, zdroj, sklizen where sklizen.ZDROJ=zdroj.ZDROJ_ID and zaznam.SKLIZEN=sklizen.SKLIZEN_ID";
             PreparedStatement ps = conn.prepareStatement(sqlZaznam);
             psId = conn.prepareStatement(sqlIdentifikator);
+            psAutori = conn.prepareStatement(sqlAutori);
             ResultSet rs = ps.executeQuery();
             int zaznam_id;
             while (rs.next()) {
@@ -182,10 +190,11 @@ public class ReindexFast implements Executable {
                 getIdentifikator(zaznam_id, doc);
                 getAutori(zaznam_id, doc);
                 addFastElement(doc, "zdroj", rs.getString("nazev"));
-                addFastElement(doc, "base", rs.getString("typzdroje"));
-                addFastElement(doc, "harvester", rs.getString("harvester"));
+                addFastElement(doc, "base", rs.getString("nazev"));
+                addFastElement(doc, "harvester", rs.getString("typZdroje"));
                 addFastElement(doc, "originformat", rs.getString("formatxml"));
-                String xmlStr = getClob(rs.getClob("sourcexml"));
+                //String xmlStr = getClob(rs.getClob("sourcexml"));
+                String xmlStr = "<record />";
                 addFastElement(doc, "data", xmlStr);
                 fastIndexer.add(doc, IndexTypes.INSERTED);
             }
