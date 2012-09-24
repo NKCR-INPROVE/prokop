@@ -36,7 +36,13 @@ public class PoctyExemplaru implements Analytic {
 
 
 
-    private static final String query = "select zaz.Zaznam_ID,zaz.url, zaz.hlavniNazev, id.hodnota  from identifikator id left outer join zaznam zaz on id.zaznam = zaz.Zaznam_ID where id.typ = 'cCNB' order by id.hodnota, zaz.hlavniNazev";
+    private static final String query = 
+            "select zaz.Zaznam_ID,zaz.url, zaz.hlavniNazev, zaznam " +
+            "from exemplar ex, zaznam zaz  " +
+            "left outer join sklizen on (sklizen.sklizen_id=zaz.sklizen) left outer join zdroj on (sklizen.zdroj = zdroj.zdroj_id) " +
+            "where ex.zaznam=zaz.zaznam_id and zdroj.NAZEV='Aleph NKP' " +
+            "group by ex.zaznam, zaz.zaznam_id, zaz.url, zaz.HLAVNINAZEV " +
+            "having count(zaznam)=1";
 
 
     /*
@@ -52,8 +58,6 @@ b)      MZK+NKCR+OLOMOUC – statistika počtu exemplářů. (2320 dokumentů 3X
         String userHome = Configurator.get().getConfig().getString(Configurator.HOME);
         String configFileName = userHome+System.getProperty("file.separator")+params;
         log.info("Random harvester config file name: "+configFileName);
-        Radek prvni = null;
-        Radek druhy = null;
         Connection conn = PersisterFactory.getPersister().getJDBCConnection();
         Statement st = null;
         ResultSet rs = null;
@@ -64,24 +68,17 @@ b)      MZK+NKCR+OLOMOUC – statistika počtu exemplářů. (2320 dokumentů 3X
             tempFile.createNewFile();
             log.info("Poctyexemplaru TEMPFILE:" + tempFile);
             Writer vysledek = new FileWriter(tempFile);
-
+            vysledek.append("NKCR: záznamy které mají pouze 1 exemplář")
+                        .append("\n");
             st = conn.createStatement();
             rs = st.executeQuery(query);
             while (rs.next()){
-                druhy = new Radek();
-                druhy.id = rs.getString("hodnota");
-                druhy.nazev = rs.getString("hlavniNazev");
-                druhy.text.append(rs.getInt("Zaznam_ID")).append("\t").append(rs.getString("url")).append("\t").append(rs.getString("hodnota")).append("\t").append(rs.getString("hlavniNazev")).append("\n");
-                if (prvni != null ){
-                    if (Objects.equal(prvni.id, druhy.id) && !Objects.equal(prvni.nazev,druhy.nazev)){
-                        if (!prvni.zapsan){
-                            vysledek.append(prvni.text);
-                        }
-                        vysledek.append(druhy.text);
-                        druhy.zapsan = true;
-                    }
-                }
-                prvni = druhy;
+                    vysledek.append(Integer.toString(rs.getInt("Zaznam_ID")))
+                        .append("\t").append(rs.getString("url"))
+                        .append("\t").append(rs.getString("hlavniNazev"))
+                        .append("\n");
+                
+                
             }
             vysledek.close();
 
