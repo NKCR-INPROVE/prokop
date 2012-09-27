@@ -34,8 +34,6 @@ public class PoctyExemplaru implements Analytic {
     Logger log = Logger.getLogger(PoctyExemplaru.class.getName());
 
 
-
-
     private static final String query = 
             "select zaz.Zaznam_ID,zaz.url, zaz.hlavniNazev, zaznam " +
             "from exemplar ex, zaznam zaz  " +
@@ -43,6 +41,14 @@ public class PoctyExemplaru implements Analytic {
             "where ex.zaznam=zaz.zaznam_id and zdroj.NAZEV='Aleph NKP' " +
             "group by ex.zaznam, zaz.zaznam_id, zaz.url, zaz.HLAVNINAZEV " +
             "having count(zaznam)=1";
+
+    private static final String query2 = 
+            "select count(c) as pocet, c as exemplaru from  " +
+            "    (select count(id.zaznam) as c, id.hodnota  " +
+            "    from identifikator id " +
+            "    where id.typ = 'cCNB' and (id.hodnota is not null or id.hodnota <> '') " +
+            "    group by hodnota) subquery " +
+            "group by c order by c";
 
 
     /*
@@ -68,6 +74,7 @@ b)      MZK+NKCR+OLOMOUC – statistika počtu exemplářů. (2320 dokumentů 3X
             tempFile.createNewFile();
             log.info("Poctyexemplaru TEMPFILE:" + tempFile);
             Writer vysledek = new FileWriter(tempFile);
+            log.info("NKCR: záznamy které mají pouze 1 exemplář");
             vysledek.append("NKCR: záznamy které mají pouze 1 exemplář")
                         .append("\n");
             st = conn.createStatement();
@@ -77,8 +84,17 @@ b)      MZK+NKCR+OLOMOUC – statistika počtu exemplářů. (2320 dokumentů 3X
                         .append("\t").append(rs.getString("url"))
                         .append("\t").append(rs.getString("hlavniNazev"))
                         .append("\n");
-                
-                
+            }
+            
+            rs.close();
+            
+            log.info("Statistika počtu exemplářů podle čČNB.");
+            vysledek.append("\n Statistika počtu exemplářů podle čČNB.\n");
+            rs = st.executeQuery(query2);
+            while (rs.next()){
+                    vysledek.append(Integer.toString(rs.getInt("pocet")))
+                        .append("\t").append(Integer.toString(rs.getInt("exemplaru")))
+                        .append("\n");
             }
             vysledek.close();
 
