@@ -1,0 +1,23 @@
+#summary Existující analytické moduly v systému Prokop
+
+
+==ODKAZY – existence platnost==
+
+  * Katalog NKCR – vypsat záznamy, které mají link do K4 a link není platný (error UUID). Report : ID záznamu/link/status
+ 
+
+==POČTY – exemplářů (je závislé na profilu OAI)==
+
+  * NKCR – které záznamy mají pouze 1 exemplář
+  * MZK+NKCR+OLOMOUC – statistika počtu exemplářů. (2320 dokumentů 3X, 123.445 2x … )
+ 
+
+==CHYBĚJÍCÍ ÚDAJE==
+
+  * Statistika kolik má čČNB
+  * Vypsat záznamy z NKCR a MZK, které nemají čČNB
+ 
+
+==SHODA ÚDAJŮ==
+
+  * Vypsat záznamy se shodným čČNB a rozdílným Názvem
