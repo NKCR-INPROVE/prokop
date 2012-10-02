@@ -1,0 +1,280 @@
+#summary Datová struktura aplikace Prokop
+ 
+{{{
+-- creating sequence for column Zdroj.Zdroj_ID --
+CREATE SEQUENCE Zdroj_ID_SEQUENCE INCREMENT BY 1 START WITH 1 MINVALUE 0 NOCYCLE NOCACHE NOORDER;
+
+-- creating sequence for column Sklizen.Sklizen_ID --
+CREATE SEQUENCE Sklizen_ID_SEQUENCE INCREMENT BY 1 START WITH 1 MINVALUE 0 NOCYCLE NOCACHE NOORDER;
+
+-- creating sequence for column Modul.Modul_ID --
+CREATE SEQUENCE Modul_ID_SEQUENCE INCREMENT BY 1 START WITH 1 MINVALUE 0 NOCYCLE NOCACHE NOORDER;
+
+-- creating sequence for column Analyza.Analyza_ID --
+CREATE SEQUENCE Analyza_ID_SEQUENCE INCREMENT BY 1 START WITH 1 MINVALUE 0 NOCYCLE NOCACHE NOORDER;
+
+-- creating sequence for column Autor.Autor_ID --
+CREATE SEQUENCE Autor_ID_SEQUENCE INCREMENT BY 1 START WITH 1 MINVALUE 0 NOCYCLE NOCACHE NOORDER;
+
+-- creating sequence for column Edice.Edice_ID --
+CREATE SEQUENCE Edice_ID_SEQUENCE INCREMENT BY 1 START WITH 1 MINVALUE 0 NOCYCLE NOCACHE NOORDER;
+
+-- creating sequence for column Exemplar.Exemplar_ID --
+CREATE SEQUENCE Exemplar_ID_SEQUENCE INCREMENT BY 1 START WITH 1 MINVALUE 0 NOCYCLE NOCACHE NOORDER;
+
+-- creating sequence for column Rozsah.Rozsah_ID --
+CREATE SEQUENCE Rozsah_ID_SEQUENCE INCREMENT BY 1 START WITH 1 MINVALUE 0 NOCYCLE NOCACHE NOORDER;
+
+-- creating sequence for column Identifikator.Identifikator_ID --
+CREATE SEQUENCE Identifikator_ID_SEQUENCE INCREMENT BY 1 START WITH 1 MINVALUE 0 NOCYCLE NOCACHE NOORDER;
+
+-- creating sequence for column Jazyk.Jazyk_ID --
+CREATE SEQUENCE Jazyk_ID_SEQUENCE INCREMENT BY 1 START WITH 1 MINVALUE 0 NOCYCLE NOCACHE NOORDER;
+
+-- creating sequence for column Vydani.Vydani_ID --
+CREATE SEQUENCE Vydani_ID_SEQUENCE INCREMENT BY 1 START WITH 1 MINVALUE 0 NOCYCLE NOCACHE NOORDER;
+
+-- creating sequence for column Periodicita.Periodicita_ID --
+CREATE SEQUENCE Periodicita_ID_SEQUENCE INCREMENT BY 1 START WITH 1 MINVALUE 0 NOCYCLE NOCACHE NOORDER;
+
+-- creating sequence for column Nazev.Nazev_ID --
+CREATE SEQUENCE Nazev_ID_SEQUENCE INCREMENT BY 1 START WITH 1 MINVALUE 0 NOCYCLE NOCACHE NOORDER;
+
+-- creating sequence for column DigitalniVerze.DigitalniVerze_ID --
+CREATE SEQUENCE DigitalniVerze_ID_SEQUENCE INCREMENT BY 1 START WITH 1 MINVALUE 0 NOCYCLE NOCACHE NOORDER;
+
+-- creating sequence for column Zaznam.Zaznam_ID --
+CREATE SEQUENCE Zaznam_ID_SEQUENCE INCREMENT BY 1 START WITH 1 MINVALUE 0 NOCYCLE NOCACHE NOORDER;
+
+-- creating table Zdroj --
+CREATE TABLE Zdroj (
+   Zdroj_ID INT NOT NULL,
+   UPDATE_TIMESTAMP TIMESTAMP,
+   typZdroje VARCHAR2(255 CHAR),
+   nazev VARCHAR2(255 CHAR),
+   formatXML VARCHAR2(255 CHAR),
+   trida VARCHAR2(255 CHAR),
+   parametry VARCHAR2(255 CHAR),
+   cron VARCHAR2(255 CHAR),
+ CONSTRAINT Zdroj_PK PRIMARY KEY (Zdroj_ID));
+
+-- creating table Sklizen --
+CREATE TABLE Sklizen (
+   Sklizen_ID INT NOT NULL,
+   UPDATE_TIMESTAMP TIMESTAMP,
+   spusteni TIMESTAMP,
+   ukonceni TIMESTAMP,
+   stav VARCHAR2(255 CHAR),
+   pocet NUMBER(38),
+   uzivatel VARCHAR2(255 CHAR),
+   zdroj INT,
+ CONSTRAINT Sklizen_PK PRIMARY KEY (Sklizen_ID));
+
+CREATE INDEX Sklizen_zdroj_REFIDX ON Sklizen (zdroj);
+
+-- creating table Modul --
+CREATE TABLE Modul (
+   Modul_ID INT NOT NULL,
+   UPDATE_TIMESTAMP TIMESTAMP,
+   typModulu VARCHAR2(255 CHAR),
+   nazev VARCHAR2(255 CHAR),
+   formatXML VARCHAR2(255 CHAR),
+   trida VARCHAR2(255 CHAR),
+   parametry VARCHAR2(255 CHAR),
+ CONSTRAINT Modul_PK PRIMARY KEY (Modul_ID));
+
+-- creating table Analyza --
+CREATE TABLE Analyza (
+   Analyza_ID INT NOT NULL,
+   UPDATE_TIMESTAMP TIMESTAMP,
+   spusteni TIMESTAMP,
+   ukonceni TIMESTAMP,
+   stav VARCHAR2(255 CHAR),
+   vysledek BLOB,
+   vysledek_MEDIUM BLOB,
+   vysledek_FULL BLOB,
+   vysledek_PROPS CLOB,
+   uzivatel VARCHAR2(255 CHAR),
+   modul INT,
+ CONSTRAINT Analyza_PK PRIMARY KEY (Analyza_ID));
+
+CREATE INDEX Analyza_modul_REFIDX ON Analyza (modul);
+
+-- creating table Autor --
+CREATE TABLE Autor (
+   Autor_ID INT NOT NULL,
+   UPDATE_TIMESTAMP TIMESTAMP,
+   prijmeni VARCHAR2(255 CHAR),
+   jmeno VARCHAR2(255 CHAR),
+   nazev VARCHAR2(512 CHAR),
+   datumNarozeni VARCHAR2(255 CHAR),
+   datumUmrti VARCHAR2(255 CHAR),
+   odpovednost VARCHAR2(255 CHAR),
+   zaznam INT,
+ CONSTRAINT Autor_PK PRIMARY KEY (Autor_ID));
+
+CREATE INDEX Autor_zaznam_REFIDX ON Autor (zaznam);
+
+-- creating table Edice --
+CREATE TABLE Edice (
+   Edice_ID INT NOT NULL,
+   UPDATE_TIMESTAMP TIMESTAMP,
+   nazev VARCHAR2(255 CHAR),
+   cisloCasti VARCHAR2(255 CHAR),
+   nazevCasti VARCHAR2(255 CHAR),
+   svazek VARCHAR2(255 CHAR),
+   issn VARCHAR2(255 CHAR),
+   zaznam INT,
+ CONSTRAINT Edice_PK PRIMARY KEY (Edice_ID));
+
+CREATE INDEX Edice_zaznam_REFIDX ON Edice (zaznam);
+
+-- creating table Exemplar --
+CREATE TABLE Exemplar (
+   Exemplar_ID INT NOT NULL,
+   UPDATE_TIMESTAMP TIMESTAMP,
+   signatura VARCHAR2(255 CHAR),
+   carovyKod VARCHAR2(255 CHAR),
+   popis VARCHAR2(255 CHAR),
+   svazek VARCHAR2(255 CHAR),
+   rocnik VARCHAR2(255 CHAR),
+   cislo VARCHAR2(255 CHAR),
+   rok VARCHAR2(255 CHAR),
+   zaznam INT,
+ CONSTRAINT Exemplar_PK PRIMARY KEY (Exemplar_ID));
+
+CREATE INDEX Exemplar_zaznam_REFIDX ON Exemplar (zaznam);
+
+-- creating table Rozsah --
+CREATE TABLE Rozsah (
+   Rozsah_ID INT NOT NULL,
+   UPDATE_TIMESTAMP TIMESTAMP,
+   strankovani VARCHAR2(255 CHAR),
+   vybaveni VARCHAR2(255 CHAR),
+   rozmer VARCHAR2(255 CHAR),
+   zaznam INT,
+ CONSTRAINT Rozsah_PK PRIMARY KEY (Rozsah_ID));
+
+CREATE INDEX Rozsah_zaznam_REFIDX ON Rozsah (zaznam);
+
+-- creating table Identifikator --
+CREATE TABLE Identifikator (
+   Identifikator_ID INT NOT NULL,
+   UPDATE_TIMESTAMP TIMESTAMP,
+   typ VARCHAR2(255 CHAR),
+   hodnota VARCHAR2(255 CHAR),
+   zaznam INT,
+ CONSTRAINT Identifikator_PK PRIMARY KEY (Identifikator_ID));
+
+CREATE INDEX Identifikator_zaznam_REFIDX ON Identifikator (zaznam);
+
+-- creating table Jazyk --
+CREATE TABLE Jazyk (
+   Jazyk_ID INT NOT NULL,
+   UPDATE_TIMESTAMP TIMESTAMP,
+   kod VARCHAR2(255 CHAR),
+   zaznam INT,
+ CONSTRAINT Jazyk_PK PRIMARY KEY (Jazyk_ID));
+
+CREATE INDEX Jazyk_zaznam_REFIDX ON Jazyk (zaznam);
+
+-- creating table Vydani --
+CREATE TABLE Vydani (
+   Vydani_ID INT NOT NULL,
+   UPDATE_TIMESTAMP TIMESTAMP,
+   oznaceni VARCHAR2(255 CHAR),
+   nakladatel VARCHAR2(255 CHAR),
+   misto VARCHAR2(255 CHAR),
+   datum VARCHAR2(255 CHAR),
+   zaznam INT,
+ CONSTRAINT Vydani_PK PRIMARY KEY (Vydani_ID));
+
+CREATE INDEX Vydani_zaznam_REFIDX ON Vydani (zaznam);
+
+-- creating table Periodicita --
+CREATE TABLE Periodicita (
+   Periodicita_ID INT NOT NULL,
+   UPDATE_TIMESTAMP TIMESTAMP,
+   typ VARCHAR2(255 CHAR),
+   platnost VARCHAR2(255 CHAR),
+   zaznam INT,
+ CONSTRAINT Periodicita_PK PRIMARY KEY (Periodicita_ID));
+
+CREATE INDEX Periodicita_zaznam_REFIDX ON Periodicita (zaznam);
+
+-- creating table Nazev --
+CREATE TABLE Nazev (
+   Nazev_ID INT NOT NULL,
+   UPDATE_TIMESTAMP TIMESTAMP,
+   typNazvu VARCHAR2(255 CHAR),
+   nazev VARCHAR2(2048 CHAR),
+   zaznam INT,
+ CONSTRAINT Nazev_PK PRIMARY KEY (Nazev_ID));
+
+CREATE INDEX Nazev_zaznam_REFIDX ON Nazev (zaznam);
+
+-- creating table DigitalniVerze --
+CREATE TABLE DigitalniVerze (
+   DigitalniVerze_ID INT NOT NULL,
+   UPDATE_TIMESTAMP TIMESTAMP,
+   url VARCHAR2(255 CHAR),
+   zaznam INT,
+ CONSTRAINT DigitalniVerze_PK PRIMARY KEY (DigitalniVerze_ID));
+
+CREATE INDEX DigitalniVerze_zaznam_REFIDX ON DigitalniVerze (zaznam);
+
+-- creating table Zaznam --
+CREATE TABLE Zaznam (
+   Zaznam_ID INT NOT NULL,
+   UPDATE_TIMESTAMP TIMESTAMP,
+   typDokumentu VARCHAR2(255 CHAR),
+   hlavniNazev VARCHAR2(2048 CHAR),
+   url VARCHAR2(255 CHAR),
+   sourceXML CLOB,
+   sklizen INT,
+ CONSTRAINT Zaznam_PK PRIMARY KEY (Zaznam_ID));
+
+CREATE INDEX Zaznam_sklizen_REFIDX ON Zaznam (sklizen);
+
+CREATE UNIQUE INDEX url_zaznam_idx ON Zaznam (url);
+
+-- creating foreign key constraint Sklizen_zdroj_FK --
+ALTER TABLE Sklizen ADD CONSTRAINT Sklizen_zdroj_FK FOREIGN KEY (zdroj) REFERENCES Zdroj (Zdroj_ID);
+
+-- creating foreign key constraint Analyza_modul_FK --
+ALTER TABLE Analyza ADD CONSTRAINT Analyza_modul_FK FOREIGN KEY (modul) REFERENCES Modul (Modul_ID);
+
+-- creating foreign key constraint Identifikator_zaznam_FK --
+ALTER TABLE Identifikator ADD CONSTRAINT Identifikator_zaznam_FK FOREIGN KEY (zaznam) REFERENCES Zaznam (Zaznam_ID);
+
+-- creating foreign key constraint Autor_zaznam_FK --
+ALTER TABLE Autor ADD CONSTRAINT Autor_zaznam_FK FOREIGN KEY (zaznam) REFERENCES Zaznam (Zaznam_ID);
+
+-- creating foreign key constraint Jazyk_zaznam_FK --
+ALTER TABLE Jazyk ADD CONSTRAINT Jazyk_zaznam_FK FOREIGN KEY (zaznam) REFERENCES Zaznam (Zaznam_ID);
+
+-- creating foreign key constraint Nazev_zaznam_FK --
+ALTER TABLE Nazev ADD CONSTRAINT Nazev_zaznam_FK FOREIGN KEY (zaznam) REFERENCES Zaznam (Zaznam_ID);
+
+-- creating foreign key constraint Vydani_zaznam_FK --
+ALTER TABLE Vydani ADD CONSTRAINT Vydani_zaznam_FK FOREIGN KEY (zaznam) REFERENCES Zaznam (Zaznam_ID);
+
+-- creating foreign key constraint Rozsah_zaznam_FK --
+ALTER TABLE Rozsah ADD CONSTRAINT Rozsah_zaznam_FK FOREIGN KEY (zaznam) REFERENCES Zaznam (Zaznam_ID);
+
+-- creating foreign key constraint Periodicita_zaznam_FK --
+ALTER TABLE Periodicita ADD CONSTRAINT Periodicita_zaznam_FK FOREIGN KEY (zaznam) REFERENCES Zaznam (Zaznam_ID);
+
+-- creating foreign key constraint Edice_zaznam_FK --
+ALTER TABLE Edice ADD CONSTRAINT Edice_zaznam_FK FOREIGN KEY (zaznam) REFERENCES Zaznam (Zaznam_ID);
+
+-- creating foreign key constraint Exemplar_zaznam_FK --
+ALTER TABLE Exemplar ADD CONSTRAINT Exemplar_zaznam_FK FOREIGN KEY (zaznam) REFERENCES Zaznam (Zaznam_ID);
+
+-- creating foreign key constraint DigitalniVerze_zaznam_FK --
+ALTER TABLE DigitalniVerze ADD CONSTRAINT DigitalniVerze_zaznam_FK FOREIGN KEY (zaznam) REFERENCES Zaznam (Zaznam_ID);
+
+-- creating foreign key constraint Zaznam_sklizen_FK --
+ALTER TABLE Zaznam ADD CONSTRAINT Zaznam_sklizen_FK FOREIGN KEY (sklizen) REFERENCES Sklizen (Sklizen_ID);
+
+}}}
