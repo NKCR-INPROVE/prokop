@@ -7,7 +7,7 @@ Datová struktura systému Prokop je tvořena třemi částmi:
   * `Zaznam` (a navazující opakovaná pole) - centrální úložiště sklizených dat z jednotlivých datových zdrojů
   * `Modul+Analyza` - definice analytických modulů a úložiště výsledků provedených analýz
 
-Popis definice vlastních datových zdrojů a analytických modulů je na stránce ZdrojeAModuly .
+Popis definice vlastních datových zdrojů a analytických modulů je na stránce [ZdrojeModuly Zdroje a moduly].
 
 http://prokop.googlecode.com/svn/wiki/DatovaStrukturaProkop.png
  
