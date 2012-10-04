@@ -2,6 +2,10 @@
 
 = Datové zdroje =
 
+Datový zdroj pro sklízení záznamů je definován jako jeden záznam v entitě [http://code.google.com/p/prokop/source/browse/trunk/src/cz/incad/prokop/server/data/Zdroj.java Zdroj]. Vlastní výkonný kód zdroje je definován názvem spustitelné třídy v poli `trida`, této třídě jsou předány parametry z pole `parametry`. Určená spustitelná třída sklízí záznamy z fyzického datového zdroje (např. pomocí OAI-PMH), pomocí interního API systému Prokop je ukládá jako záznamy do entity [http://code.google.com/p/prokop/source/browse/trunk/src/cz/incad/prokop/server/data/Zaznam.java Zaznam] (a jejích podřízených opakovaných polí). Celkový výsledek průběhu jedné sklizně je nakonec zapsán do entity [http://code.google.com/p/prokop/source/browse/trunk/src/cz/incad/prokop/server/data/Sklizen.java Sklizen].
+
 = Analytické moduly =
 
-Seznam existujících anayltických modulů je na stránce [AnalytickeModuly Analytické moduly].
+Analytický modul je definován záznamem v entitě [http://code.google.com/p/prokop/source/browse/trunk/src/cz/incad/prokop/server/data/Modul.java Modul]. Vlastní výkonný kód modulu je definován názvem spustitelné třídy v poli `trida`, této třídě jsou předány parametry z pole `parametry`. Spustitelná třída analyzuje záznamy v entitě [http://code.google.com/p/prokop/source/browse/trunk/src/cz/incad/prokop/server/data/Zaznam.java Zaznam] a celkový výsledek analýzy uloží jako zaznam v entitě [http://code.google.com/p/prokop/source/browse/trunk/src/cz/incad/prokop/server/data/Analyza.java Analyza].
+
+Seznam existujících analytických modulů je na stránce [AnalytickeModuly Analytické moduly].
