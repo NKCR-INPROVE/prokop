@@ -1,7 +1,19 @@
 #summary Datová struktura aplikace Prokop
 
-http://code.google.com/p/prokop/source/browse/wiki/DatovaStrukturaProkop.png
+=Datová struktura=
+
+Datová struktura systému Prokop je tvořena třemi částmi: 
+  * `Zdroj+Sklizen` - definice externích datových zdrojů a výsledků jednotlivých sklizní dat  
+  * `Zaznam` (a navazující opakovaná pole) - centrální úložiště sklizených dat z jednotlivých datových zdrojů
+  * `Modul+Analyza` - definice analytických modulů a úložiště výsledků provedených analýz
+
+Popis definice vlastních datových zdrojů a analytických modulů je na stránce ZdrojeAModuly .
+
+http://prokop.googlecode.com/svn/wiki/DatovaStrukturaProkop.png
  
+
+==Úplný DDL skript==
+
 {{{
 -- creating sequence for column Zdroj.Zdroj_ID --
 CREATE SEQUENCE Zdroj_ID_SEQUENCE INCREMENT BY 1 START WITH 1 MINVALUE 0 NOCYCLE NOCACHE NOORDER;
