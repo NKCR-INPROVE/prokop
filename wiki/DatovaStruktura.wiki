@@ -1,4 +1,6 @@
 #summary Datová struktura aplikace Prokop
+
+http://code.google.com/p/prokop/source/browse/wiki/DatovaStrukturaProkop.png
  
 {{{
 -- creating sequence for column Zdroj.Zdroj_ID --
