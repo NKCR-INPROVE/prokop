@@ -3,3 +3,5 @@
 = Datové zdroje =
 
 = Analytické moduly =
+
+Seznam existujících anayltických modulů je na stránce [AnalytickeModuly Analytické moduly].
