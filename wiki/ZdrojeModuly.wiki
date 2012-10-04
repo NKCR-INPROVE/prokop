@@ -1,0 +1,5 @@
+#summary Definice vlastních datových zdrojů a analytických modulů.
+
+= Datové zdroje =
+
+= Analytické moduly =
