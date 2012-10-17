@@ -23,7 +23,7 @@
     </prerequisites>
 
     <properties>
-        <gwt.version>2.4.0</gwt.version>
+        <gwt.version>2.5.0-rc2</gwt.version>
         <maven.compiler.source>1.6</maven.compiler.source>
         <maven.compiler.target>1.6</maven.compiler.target>
         <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
@@ -37,13 +37,18 @@
             <artifactId>aplikator</artifactId>
             <version>0.3-SNAPSHOT</version>
         </dependency>
-
         <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>2.5</version>
+            <scope>provided</scope>
+        </dependency>
+        <!--dependency>
             <groupId>com.google.gwt</groupId>
             <artifactId>gwt-user</artifactId>
             <version>${gwt.version}</version>
             <scope>provided</scope>
-        </dependency>
+        </dependency-->
 
         <dependency>
             <groupId>postgresql</groupId>
@@ -104,7 +109,7 @@
                     <webappDirectory>${basedir}/war</webappDirectory>
                     <runTarget>Prokop.html</runTarget>
                 </configuration>
-                <dependencies>
+                <!--dependencies>
                     <dependency>
                         <groupId>com.google.gwt</groupId>
                         <artifactId>gwt-user</artifactId>
@@ -115,7 +120,7 @@
                         <artifactId>gwt-dev</artifactId>
                         <version>${gwt.version}</version>
                     </dependency>
-                </dependencies>
+                </dependencies-->
 
                 <executions>
                     <execution>
