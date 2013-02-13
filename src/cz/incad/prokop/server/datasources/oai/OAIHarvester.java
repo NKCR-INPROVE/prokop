@@ -342,6 +342,23 @@ public class OAIHarvester implements DataSource {
                         Structure.nazev.typNazvu.setValue(j, "Alternativní název");
                         rc.addRecord(null, j, j, Operation.CREATE);
                     }
+                    
+                    //Vydani
+                    String vydaniX = "./metadata/record/datafield[@tag='260']";
+                    NodeList vydani = xmlReader.getListOfNodes(node, vydaniX);
+                    for (int i = 0; i < vydani.getLength(); i++) {
+                        
+                        Record j = newSubrecord(fr.getPrimaryKey(), Structure.zaznam.vydani);
+                                
+                        Structure.vydani.misto.setValue(j, 
+                                xmlReader.getNodeValue(node, vydaniX + "[position()=" + (i + 1) + "]/subfield[@code='a']/text()"));
+                        Structure.vydani.nakladatel.setValue(j, 
+                                xmlReader.getNodeValue(node, vydaniX + "[position()=" + (i + 1) + "]/subfield[@code='b']/text()"));
+                        Structure.vydani.datum.setValue(j, 
+                                xmlReader.getNodeValue(node, vydaniX + "[position()=" + (i + 1) + "]/subfield[@code='c']/text()"));
+                        
+                        rc.addRecord(null, j, j, Operation.CREATE);
+                    }
 
 
                     //Zpracování exemplářů - ITM

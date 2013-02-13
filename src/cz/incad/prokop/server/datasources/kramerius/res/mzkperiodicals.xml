@@ -2,7 +2,7 @@
 
 <setup>
     <properties>
-        <property name="indexDirectory" value="/media/SW_Preload/Datos/Prokop/OAI/MZK/K4/periodical" />
+        <property name="indexDirectory" value="/home/prokop/.prokop/OAI/MZK/K4/periodical" />
         <property name="updateTimeFile" value="mzkperiodicals.time" />
         <property name="charset" value="UTF-8" />
         <property name="dateFormat" value="yyyy-MM-dd" />
