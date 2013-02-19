@@ -16,10 +16,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.google.common.io.Files;
-import org.aplikator.client.data.Operation;
-import org.aplikator.client.data.Record;
-import org.aplikator.client.data.RecordContainer;
-import org.aplikator.client.rpc.impl.ProcessRecords;
+import org.aplikator.client.shared.data.Operation;
+import org.aplikator.client.shared.data.Record;
+import org.aplikator.client.shared.data.RecordContainer;
+import org.aplikator.client.shared.rpc.impl.ProcessRecords;
 import org.aplikator.server.Context;
 import org.aplikator.server.persistence.PersisterFactory;
 import org.aplikator.server.util.Configurator;
@@ -149,7 +149,7 @@ b)      MZK+NKCR+OLOMOUC – statistika počtu exemplářů. (2320 dokumentů 3X
         Structure.sklizen.pocet.setValue(sklizen, i);  //aktualizovat hodnotu o počtu sklizených titulů v záznamu sklizně
         rc.addRecord(null, sklizen, sklizen, Operation.UPDATE); //přidat záznam sklizně do kontejneru pro aktualizaci
 
-        rc = context.getAplikatorService().execute(new ProcessRecords(rc)).getRecordContainer();  //příkaz ProcessRecords uloží všechny záznamy v kontejenru do databáze (v jediné nové transakci) a vrátí zpět kontejner s aktualizovanými daty (tedy dočasné primární klíče nahradí skutečnými)
+        rc = context.getAplikatorService().processRecords(rc);  //příkaz ProcessRecords uloží všechny záznamy v kontejenru do databáze (v jediné nové transakci) a vrátí zpět kontejner s aktualizovanými daty (tedy dočasné primární klíče nahradí skutečnými)
 
     }
 

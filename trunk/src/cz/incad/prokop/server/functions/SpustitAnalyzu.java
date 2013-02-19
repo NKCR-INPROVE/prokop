@@ -7,10 +7,10 @@ import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.aplikator.client.data.Operation;
-import org.aplikator.client.data.Record;
-import org.aplikator.client.data.RecordContainer;
-import org.aplikator.client.rpc.impl.ProcessRecords;
+import org.aplikator.client.shared.data.Operation;
+import org.aplikator.client.shared.data.Record;
+import org.aplikator.client.shared.data.RecordContainer;
+import org.aplikator.client.shared.rpc.impl.ProcessRecords;
 import org.aplikator.server.Context;
 import org.aplikator.server.function.Executable;
 import org.aplikator.server.function.FunctionParameters;
@@ -44,7 +44,7 @@ public class SpustitAnalyzu implements Executable {
             Structure.analyza.spusteni.setValue(analyza, new Date());
             Structure.analyza.stav.setValue(analyza, Analyza.Stav.ZAHAJENA.getValue());
             rc.addRecord(null, analyza, analyza, Operation.CREATE);
-            rc = context.getAplikatorService().execute(new ProcessRecords(rc)).getRecordContainer();
+            rc = context.getAplikatorService().processRecords(rc);
 
             an.analyze(parametryAnalyzy, rc.getRecords().get(0).getEdited(), context);
 
@@ -52,7 +52,7 @@ public class SpustitAnalyzu implements Executable {
             Structure.analyza.stav.setValue(analyza, Analyza.Stav.UKONCENA.getValue());
             Structure.analyza.ukonceni.setValue(analyza, new Date());
             rc.addRecord(null, analyza, analyza, Operation.UPDATE);
-            rc = context.getAplikatorService().execute(new ProcessRecords(rc)).getRecordContainer();
+            rc = context.getAplikatorService().processRecords(rc);
 
             return new FunctionResult("Proběhla analýza pro modul " + modul.getValue(Structure.modul.nazev.getId()), true);
         } catch (Throwable t) {
@@ -60,7 +60,7 @@ public class SpustitAnalyzu implements Executable {
             RecordContainer rc = new RecordContainer();
             Structure.analyza.stav.setValue(analyza, Analyza.Stav.CHYBA.getValue());
             rc.addRecord(null, analyza, analyza, Operation.UPDATE);
-            rc = context.getAplikatorService().execute(new ProcessRecords(rc)).getRecordContainer();
+            rc = context.getAplikatorService().processRecords(rc);
 
             return new FunctionResult("Analýza pro modul " + modul.getValue(Structure.modul.nazev.getId()) + "selhala: " + t, false);
         }

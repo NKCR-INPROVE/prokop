@@ -23,7 +23,8 @@
     </prerequisites>
 
     <properties>
-        <gwt.version>2.5.0-rc2</gwt.version>
+        <gwt.version>2.5.0</gwt.version>
+        <errai.version>2.2.0.Final</errai.version>
         <maven.compiler.source>1.6</maven.compiler.source>
         <maven.compiler.target>1.6</maven.compiler.target>
         <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
@@ -43,12 +44,19 @@
             <version>2.5</version>
             <scope>provided</scope>
         </dependency>
-        <!--dependency>
+        <dependency>
+            <groupId>org.jboss.errai</groupId>
+            <artifactId>errai-jaxrs-client</artifactId>
+            <version>${errai.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>com.google.gwt</groupId>
             <artifactId>gwt-user</artifactId>
             <version>${gwt.version}</version>
             <scope>provided</scope>
-        </dependency-->
+        </dependency>
+
 
         <dependency>
             <groupId>postgresql</groupId>

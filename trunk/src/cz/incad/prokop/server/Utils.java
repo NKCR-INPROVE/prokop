@@ -1,6 +1,6 @@
 package cz.incad.prokop.server;
 
-import org.aplikator.client.data.ListItem;
+import org.aplikator.client.shared.data.ListItem;
 import org.aplikator.server.descriptor.ListProvider;
 
 public class Utils {

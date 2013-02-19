@@ -10,7 +10,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.google.common.io.Files;
-import org.aplikator.client.data.Record;
+import org.aplikator.client.shared.data.Record;
 import org.aplikator.server.Context;
 import org.aplikator.server.data.BinaryData;
 import org.aplikator.server.persistence.PersisterFactory;

@@ -1,6 +1,6 @@
 package cz.incad.prokop.server.datasources;
 
-import org.aplikator.client.data.Record;
+import org.aplikator.client.shared.data.Record;
 import org.aplikator.server.Context;
 
 public interface DataSource {
