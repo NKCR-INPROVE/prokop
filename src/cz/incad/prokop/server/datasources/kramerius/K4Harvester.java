@@ -31,10 +31,10 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.aplikator.client.data.Operation;
-import org.aplikator.client.data.Record;
-import org.aplikator.client.data.RecordContainer;
-import org.aplikator.client.rpc.impl.ProcessRecords;
+import org.aplikator.client.shared.data.Operation;
+import org.aplikator.client.shared.data.Record;
+import org.aplikator.client.shared.data.RecordContainer;
+import org.aplikator.client.shared.rpc.impl.ProcessRecords;
 import org.aplikator.server.Context;
 import org.aplikator.server.util.Configurator;
 import org.w3c.dom.Node;
@@ -341,7 +341,7 @@ public class K4Harvester implements DataSource {
 
                     Structure.sklizen.pocet.setValue(sklizen, currentDocsSent++);
                     try {
-                        rc = context.getAplikatorService().execute(new ProcessRecords(rc)).getRecordContainer();
+                        rc = context.getAplikatorService().processRecords(rc);
 
                         Record z = rc.getRecords().get(0).getEdited();
                         IDocument doc = DocumentFactory.newDocument(urlZdroje);

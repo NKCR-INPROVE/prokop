@@ -7,10 +7,10 @@ import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.aplikator.client.data.Operation;
-import org.aplikator.client.data.Record;
-import org.aplikator.client.data.RecordContainer;
-import org.aplikator.client.rpc.impl.ProcessRecords;
+import org.aplikator.client.shared.data.Operation;
+import org.aplikator.client.shared.data.Record;
+import org.aplikator.client.shared.data.RecordContainer;
+import org.aplikator.client.shared.rpc.impl.ProcessRecords;
 import org.aplikator.server.Context;
 import org.aplikator.server.function.Executable;
 import org.aplikator.server.function.FunctionParameters;
@@ -45,7 +45,7 @@ public class SkliditZdroj implements Executable {
             Structure.sklizen.spusteni.setValue(sklizen, new Date());
             Structure.sklizen.stav.setValue(sklizen, Sklizen.Stav.ZAHAJEN.getValue());
             rc.addRecord(null, sklizen, sklizen, Operation.CREATE);
-            rc = context.getAplikatorService().execute(new ProcessRecords(rc)).getRecordContainer();
+            rc = context.getAplikatorService().processRecords(rc);
 
             int sklizeno = ds.harvest(parametrySklizne, rc.getRecords().get(0).getEdited(), context);
 
@@ -53,7 +53,7 @@ public class SkliditZdroj implements Executable {
             Structure.sklizen.stav.setValue(sklizen, Sklizen.Stav.UKONCEN.getValue());
             Structure.sklizen.ukonceni.setValue(sklizen, new Date());
             rc.addRecord(null, sklizen, sklizen, Operation.UPDATE);
-            rc = context.getAplikatorService().execute(new ProcessRecords(rc)).getRecordContainer();
+            rc = context.getAplikatorService().processRecords(rc);
 
             return new FunctionResult("Sklizeno " + sklizeno + " záznamů ze zdroje " + zdroj.getValue(Structure.zdroj.nazev.getId()), true);
         } catch (Throwable t) {
@@ -61,7 +61,7 @@ public class SkliditZdroj implements Executable {
             RecordContainer rc = new RecordContainer();
             Structure.sklizen.stav.setValue(sklizen, Sklizen.Stav.CHYBA.getValue());
             rc.addRecord(null, sklizen, sklizen, Operation.UPDATE);
-            rc = context.getAplikatorService().execute(new ProcessRecords(rc)).getRecordContainer();
+            rc = context.getAplikatorService().processRecords(rc);
 
             return new FunctionResult("Sklizeň zdroje " + zdroj.getValue(Structure.zdroj.nazev.getId()) + "selhala: " + t, false);
         }

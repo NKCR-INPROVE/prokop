@@ -5,7 +5,7 @@ import static org.aplikator.server.descriptor.Panel.row;
 
 import java.util.Date;
 
-import org.aplikator.client.data.ListItem;
+import org.aplikator.client.shared.data.ListItem;
 import org.aplikator.server.descriptor.Entity;
 import org.aplikator.server.descriptor.ListProvider;
 import org.aplikator.server.descriptor.Property;

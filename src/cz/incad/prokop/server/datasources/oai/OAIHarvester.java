@@ -27,10 +27,10 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.aplikator.client.data.Operation;
-import org.aplikator.client.data.Record;
-import org.aplikator.client.data.RecordContainer;
-import org.aplikator.client.rpc.impl.ProcessRecords;
+import org.aplikator.client.shared.data.Operation;
+import org.aplikator.client.shared.data.Record;
+import org.aplikator.client.shared.data.RecordContainer;
+import org.aplikator.client.shared.rpc.impl.ProcessRecords;
 import org.aplikator.server.Context;
 import org.aplikator.server.util.Configurator;
 import org.w3c.dom.Node;
@@ -387,25 +387,25 @@ public class OAIHarvester implements DataSource {
                     Structure.sklizen.pocet.setValue(sklizen, currentDocsSent++);
                     rc.addRecord(null, sklizen, sklizen, Operation.UPDATE);
                     try {
-                        rc = context.getAplikatorService().execute(new ProcessRecords(rc)).getRecordContainer();
-if(!arguments.dontIndex){
-                        Record z = rc.getRecords().get(0).getEdited();
-                        IDocument doc = DocumentFactory.newDocument(urlZdroje);
-                        doc.addElement(DocumentFactory.newString("title", hlavninazev));
-                        doc.addElement(DocumentFactory.newInteger("dbid", z.getPrimaryKey().getId()));
-                        doc.addElement(DocumentFactory.newString("url", urlZdroje));
-                        doc.addElement(DocumentFactory.newString("druhdokumentu", typDokumentu));
-                        doc.addElement(DocumentFactory.newString("autor", autoriStr));
-                        doc.addElement(DocumentFactory.newString("zdroj", conf.getProperty("zdroj")));
-                        doc.addElement(DocumentFactory.newString("isxn", isxn));
-                        doc.addElement(DocumentFactory.newString("ccnb", cnbStr));
-                        doc.addElement(DocumentFactory.newString("base", conf.getProperty("base")));
-                        doc.addElement(DocumentFactory.newString("harvester", conf.getProperty("harvester")));
-                        doc.addElement(DocumentFactory.newString("originformat", conf.getProperty("originformat")));
-                        //doc.addElement(DocumentFactory.newString("data", xmlStr));
-                        doc.addElement(DocumentFactory.newString("data", "<record />"));
-                        fastIndexer.add(doc, it);
-}
+                        rc = context.getAplikatorService().processRecords(rc);
+                        if(!arguments.dontIndex){
+                            Record z = rc.getRecords().get(0).getEdited();
+                            IDocument doc = DocumentFactory.newDocument(urlZdroje);
+                            doc.addElement(DocumentFactory.newString("title", hlavninazev));
+                            doc.addElement(DocumentFactory.newInteger("dbid", z.getPrimaryKey().getId()));
+                            doc.addElement(DocumentFactory.newString("url", urlZdroje));
+                            doc.addElement(DocumentFactory.newString("druhdokumentu", typDokumentu));
+                            doc.addElement(DocumentFactory.newString("autor", autoriStr));
+                            doc.addElement(DocumentFactory.newString("zdroj", conf.getProperty("zdroj")));
+                            doc.addElement(DocumentFactory.newString("isxn", isxn));
+                            doc.addElement(DocumentFactory.newString("ccnb", cnbStr));
+                            doc.addElement(DocumentFactory.newString("base", conf.getProperty("base")));
+                            doc.addElement(DocumentFactory.newString("harvester", conf.getProperty("harvester")));
+                            doc.addElement(DocumentFactory.newString("originformat", conf.getProperty("originformat")));
+                            //doc.addElement(DocumentFactory.newString("data", xmlStr));
+                            doc.addElement(DocumentFactory.newString("data", "<record />"));
+                            fastIndexer.add(doc, it);
+                        }
                     } catch (Exception ex) {
                         errorLogFile.newLine();
                         errorLogFile.write("Cant procces record  " + urlZdroje);

@@ -40,10 +40,10 @@ import java.util.logging.SimpleFormatter;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import org.aplikator.client.data.Operation;
-import org.aplikator.client.data.Record;
-import org.aplikator.client.data.RecordContainer;
-import org.aplikator.client.rpc.impl.ProcessRecords;
+import org.aplikator.client.shared.data.Operation;
+import org.aplikator.client.shared.data.Record;
+import org.aplikator.client.shared.data.RecordContainer;
+import org.aplikator.client.shared.rpc.impl.ProcessRecords;
 import org.aplikator.server.Context;
 import org.aplikator.server.util.Configurator;
 import org.w3c.dom.Document;
@@ -69,7 +69,7 @@ public class Indexer implements DataSource {
     FileHandler logFileHandler;
 
     @Override
-    public int harvest(String params, org.aplikator.client.data.Record sklizen, Context ctx) {
+    public int harvest(String params, org.aplikator.client.shared.data.Record sklizen, Context ctx) {
         context = ctx;
 
         this.sklizen = sklizen;
@@ -328,7 +328,7 @@ public class Indexer implements DataSource {
             Structure.sklizen.pocet.setValue(sklizen, processed++);
             rc.addRecord(null, sklizen, sklizen, Operation.UPDATE);
 
-            rc = context.getAplikatorService().execute(new ProcessRecords(rc)).getRecordContainer();
+            rc = context.getAplikatorService().processRecords(rc);
             try {
 
                 Record z = rc.getRecords().get(0).getEdited();
