@@ -30,7 +30,9 @@ public class Zaznam extends Entity {
     public Property<String> urlZdroje;
     public Property<String> sourceXML;
     public Reference<Sklizen> sklizen;
+    public Property<String> uzivatel;
 
+    
     public Zaznam() {
         super("Zaznam","Zaznam","Zaznam_ID");
         initFields();
@@ -52,6 +54,7 @@ public class Zaznam extends Entity {
         urlZdroje = stringProperty("url");
         sourceXML = textProperty("sourceXML");
         sklizen = referenceProperty(Structure.sklizen, "sklizen");
+        uzivatel = stringProperty("uzivatel");
         addIndex("url_zaznam_idx", true, urlZdroje);
 
     }

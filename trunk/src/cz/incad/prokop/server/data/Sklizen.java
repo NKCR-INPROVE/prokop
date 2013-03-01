@@ -53,6 +53,7 @@ public class Sklizen extends Entity {
         stav = stringProperty("stav").setListProvider(new ListProvider.Default<String>(Stav.values()));
         pocet = integerProperty("pocet");
         uzivatel = stringProperty("uzivatel");
+
         zdroj = referenceProperty(Structure.zdroj, "zdroj");
     }
 
