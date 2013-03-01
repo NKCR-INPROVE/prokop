@@ -3,10 +3,13 @@ package cz.incad.prokop.server;
 import org.aplikator.server.descriptor.Application;
 
 import cz.incad.prokop.server.data.*;
+import cz.incad.prokop.server.data.triggers.SklizenTrigger;
+import cz.incad.prokop.server.data.triggers.ZaznamTrigger;
 
 public class Structure extends Application {
 
     public static final Zdroj zdroj = new Zdroj();
+        
     public static final Sklizen sklizen = new Sklizen();
 
 
@@ -32,6 +35,7 @@ public class Structure extends Application {
     static {
         zdroj.sklizen = zdroj.reverseCollectionProperty("sklizen", sklizen, sklizen.zdroj);
         modul.analyza = modul.reverseCollectionProperty("analyza", analyza, analyza.modul);
+        zaznam.setPersistersTriggers(new ZaznamTrigger());
     }
 
 }
