@@ -15,10 +15,10 @@ import org.aplikator.server.persistence.PersisterTriggers;
  *
  * @author pavels
  */
-public class ZaznamTrigger implements PersisterTriggers {
+public class ZaznamTrigger extends PersisterTriggers.Default {
 
     @Override
-    public Record beforeCreate(Record record, Context ctx) {
+    public void beforeCreate(Record record, Context ctx) {
         System.out.println("Before create trigger");
         HttpServletRequest request = ctx.getHttpServletRequest();
         String remoteUser = request.getRemoteUser();
@@ -28,32 +28,7 @@ public class ZaznamTrigger implements PersisterTriggers {
         } else {
             uzivatel.setValue(record, " ---- ");
         }
-        return record;
     }
 
-    @Override
-    public Record afterCreate(Record record, Context ctx) {
-        return record;
-    }
 
-    @Override
-    public Record beforeUpdate(Record record, Context ctx) {
-        return record;
-    }
-
-    @Override
-    public Record afterUpdate(Record record, Context ctx) {
-        return record;
-    }
-
-    @Override
-    public Record beforeDelete(Record record, Context ctx) {
-        return record;
-    }
-
-    @Override
-    public Record afterDelete(Record record, Context ctx) {
-        return record;
-    }
-    
 }
