@@ -10,7 +10,7 @@
     <Arg>
      <New class="com.jolbox.bonecp.BoneCPDataSource">
                  <Set name="driverClass">oracle.jdbc.driver.OracleDriver</Set>
-                 <Set name="jdbcUrl">jdbc:oracle:thin:@//oracv.incad.cz:1521/INCAD.incad.cz</Set>
+                 <Set name="jdbcUrl">jdbc:oracle:thin:@//oratest.incad.cz:1521/ORCL</Set>
                  <Set name="username">DEV_PROKOP</Set>
                  <Set name="password">prokop</Set>
      </New>
@@ -36,7 +36,7 @@
     <Set name="userRealm">
         <New class="org.mortbay.jetty.security.HashUserRealm">
          <Set name="name">protected</Set>
-            <Set name="config"><SystemProperty name="jetty.home" default="."/>/war/etc/realm.properties</Set>
+            <Set name="config"><SystemProperty name="jetty.home" default="."/>/etc/realm.properties</Set>
         </New>
     </Set>
   </Get>
