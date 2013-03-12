@@ -28,12 +28,15 @@ import org.aplikator.server.util.Configurator;
 import com.google.common.base.Objects;
 
 import cz.incad.prokop.server.Structure;
+import cz.incad.prokop.server.utils.JDBCQueryTemplate;
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.List;
 
 public class ExistenceOdkazu implements Analytic {
 
     Logger log = Logger.getLogger(ExistenceOdkazu.class.getName());
-
-
 
 
     private static final String query = "select zaz.Zaznam_ID,zaz.url, zaz.hlavniNazev, id.hodnota  from identifikator id left outer join zaznam zaz on id.zaznam = zaz.Zaznam_ID where id.typ = 'cCNB' order by id.hodnota, zaz.hlavniNazev";
@@ -51,91 +54,152 @@ a)      Katalog NKCR – vypsat záznamy, které mají link do K4 a link není p
         String userHome = Configurator.get().getConfig().getString(Configurator.HOME);
         String configFileName = userHome+System.getProperty("file.separator")+params;
         log.info("Random harvester config file name: "+configFileName);
-        Radek prvni = null;
-        Radek druhy = null;
         Connection conn = PersisterFactory.getPersister().getJDBCConnection();
-        Statement st = null;
-        ResultSet rs = null;
+
         File tempFile = null;
+        Writer tempFileWriter = null;
+
         try{
-            File tempDir = Files.createTempDir();
-            tempFile = new File(tempDir, UUID.randomUUID().toString());
-            tempFile.createNewFile();
+            tempFile = createTempFile();
             log.info("ExistenceOdkazu TEMPFILE:" + tempFile);
-            Writer vysledek = new FileWriter(tempFile);
+            tempFileWriter = new FileWriter(tempFile);
 
-            st = conn.createStatement();
-            rs = st.executeQuery(query);
-            while (rs.next()){
-                druhy = new Radek();
-                druhy.id = rs.getString("hodnota");
-                druhy.nazev = rs.getString("hlavniNazev");
-                druhy.text.append(rs.getInt("Zaznam_ID")).append("\t").append(rs.getString("url")).append("\t").append(rs.getString("hodnota")).append("\t").append(rs.getString("hlavniNazev")).append("\n");
-                if (prvni != null ){
-                    if (Objects.equal(prvni.id, druhy.id) && !Objects.equal(prvni.nazev,druhy.nazev)){
-                        if (!prvni.zapsan){
-                            vysledek.append(prvni.text);
-                        }
-                        vysledek.append(druhy.text);
-                        druhy.zapsan = true;
+            final Writer vysledek = tempFileWriter;
+
+            List<Integer> result = new JDBCQueryTemplate<Integer>(conn) {
+                @Override
+                public boolean handleRow(ResultSet rs, List<Integer> returnsList) throws SQLException {
+                    //String analyzaId = rs.getString("analyzaID");
+                    String urlString = rs.getString("URL");
+                    String zaznamId = rs.getString("Zaznam_ID");
+                    String hodnota = rs.getString("hodnota");
+                    String hlNazev = rs.getString("hlavniNazev");
+                    
+                    Result res = null;
+                    try {
+                        res = testURL(urlString);
+                        Integer count  = 0;
+                        if (!returnsList.isEmpty()) {
+                            count = returnsList.get(0);
+                        } 
+                        count = res.isLinkBroken() ? count : count +1;
+                        returnsList.set(0, count);
+                    } catch (IOException ex) {
+                        // cannot test url: log this event
+                        try { vysledek.append("ID:"+zaznamId+"\tURL:"+urlString+"\tError:"+ex.getMessage()).append("\n"); } catch(IOException ex2) {  Logger.getLogger(ExistenceOdkazu.class.getName()).log(Level.SEVERE, null, ex2);}
+                        Logger.getLogger(ExistenceOdkazu.class.getName()).log(Level.SEVERE, null, ex);
                     }
+                    
+                    if (res != null) {
+                        try {
+                            vysledek.append("ID:"+zaznamId+"\tURL:"+urlString+"\t"+res.toTabbedString()).append("\n");
+                        } catch (IOException ex) {
+                           Logger.getLogger(ExistenceOdkazu.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
+                    return super.handleRow(rs, returnsList); 
                 }
-                prvni = druhy;
-            }
-            vysledek.close();
-
+            }.executeQuery(query);
+            
+            Integer count = result.isEmpty() ? 0 : result.get(0);
+            vysledek.append ("\nPočet záznamů s chybným url: ").append(""+count).append("\n");
+            log.info("Analyza ukoncena");
+            vysledek.flush();
+            
             if (tempFile != null){
                 BinaryData bd  = new BinaryData("ExistenceOdkazu.txt", new FileInputStream(tempFile), tempFile.length());
                 Structure.analyza.vysledek.setValue(analyza, bd);
             }
+
         } catch (Exception ex){
             log.log(Level.SEVERE, "Chyba v analyze", ex);
-        } finally{
-            if (rs != null){
-                try {
-                    rs.close();
-                } catch (SQLException e) {}
+        } finally {
+            if (tempFileWriter != null) { 
+                try { 
+                    tempFileWriter.close();
+                } catch (IOException ex) {
+                    Logger.getLogger(ExistenceOdkazu.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
-            if (st != null){
-                try {
-                    st.close();
-                } catch (SQLException e) {}
+        }           
+    }
+
+    public static Result testURL(String url) throws IOException {
+        HttpURLConnection httpUrlConn = (HttpURLConnection) (new URL(url)).openConnection();
+        httpUrlConn.setReadTimeout(2500);
+        httpUrlConn.setConnectTimeout(2500);
+        // jak na to ?
+        httpUrlConn.setInstanceFollowRedirects(true);
+        int respCode = httpUrlConn.getResponseCode();
+        String respMessage = httpUrlConn.getResponseMessage();
+        
+        return new Result(respMessage, respCode, httpUrlConn.getURL());
+    }
+
+    private File createTempFile() throws IOException {
+        File tempFile;
+        File tempDir = Files.createTempDir();
+        tempFile = new File(tempDir, UUID.randomUUID().toString());
+        tempFile.createNewFile();
+        return tempFile;
+    }
+
+    public static class Result {
+
+        private int responseCode = -1;
+        private String errMessage;
+        private URL url;
+        
+        public Result(String errMessage, int respCode, URL url) {
+            this.errMessage = errMessage;
+            this.responseCode = respCode;
+            this.url = url;
+        }
+
+        public int getResponseCode() {
+            return responseCode;
+        }
+
+        public String getErrMessage() {
+            return errMessage;
+        }
+        
+        public boolean isOkCode() {
+            return this.responseCode == 200;
+        }
+
+        @Override
+        public String toString() {
+            return "Result{" + "responseCode=" + responseCode + ", errMessage=" + errMessage + '}';
+        }
+    
+        public String toTabbedString() {
+            return "ResponseCode:"+this.responseCode+"\tResultMessage:"+this.errMessage;
+        }
+        
+        public boolean containsK4ErrorParam() {
+            boolean errorParam = false;
+            String q = this.url.getQuery();
+            String[] splitted = q.split("&");
+            for (String par : splitted) {
+                par = par.trim();
+                if (par.startsWith("error=uuid_not_found")) {
+                    errorParam = true;
+                    break;
+                }
             }
-            if (conn != null){
-                try {
-                    conn.close();
-                } catch (SQLException e) {}
-            }
+            return errorParam;
+        }
+        
+        
+        public boolean isLinkBroken() {
+            return ((!isOkCode())  ||  containsK4ErrorParam());
         }
     }
-
-    private static class Radek{
-        public String id;
-        public String nazev;
-        public StringBuilder text = new StringBuilder();
-        public boolean zapsan = false;
+    
+    public static void main(String[] args) throws IOException, IOException {
+        Result result = testURL("http://vmkramerius:8080/search/i.jsp?pid=uuid:4a7ec660-af36-11dd-a782-000d606f5dca");
+        //Result result = testURL("http://194.108.215.227:8080/search/i.jsp?pid=uuid:4a7ec660-af36-11dd-a782-000d606f5dc6");
+        System.out.println("result = "+result.isLinkBroken());
     }
-
-    @SuppressWarnings("unused")
-    private void importRecord(Record sklizen, Context context, int i) {
-        RecordContainer rc = new RecordContainer(); //nový prázdný kontejner
-
-        Record zaznam = newRecord(Structure.zaznam); //nový záznam pro tabulku zaznam
-        Structure.zaznam.hlavniNazev.setValue(zaznam, "Náhodný název " + Math.random());//nastavit hodnoty v polích nového záznamu
-        Structure.zaznam.sklizen.setValue(zaznam, sklizen.getPrimaryKey().getId());//nastavit referenci na související záznam sklizně
-        Structure.zaznam.sourceXML.setValue(zaznam, "<xml>Náhodné xml " + Math.random() + " </xml>");
-        rc.addRecord(null, zaznam, zaznam, Operation.CREATE);//přidat záznam do kontejneru
-
-        Record identifikator = newSubrecord(zaznam.getPrimaryKey(), Structure.zaznam.identifikator);//nový záznam pro opakované pole (tabulku) identifikátor
-        Structure.identifikator.hodnota.setValue(identifikator, "Náhodný id " + Math.random());//opět nastavit hodnoty v záznamu opakovaného pole
-        Structure.identifikator.typ.setValue(identifikator, "ISSN");
-        rc.addRecord(null, identifikator, identifikator, Operation.CREATE);//přidat záznam opakovaného pole do kontejneru
-
-        Structure.sklizen.pocet.setValue(sklizen, i);  //aktualizovat hodnotu o počtu sklizených titulů v záznamu sklizně
-        rc.addRecord(null, sklizen, sklizen, Operation.UPDATE); //přidat záznam sklizně do kontejneru pro aktualizaci
-
-        rc = context.getAplikatorService().processRecords(rc);  //příkaz ProcessRecords uloží všechny záznamy v kontejenru do databáze (v jediné nové transakci) a vrátí zpět kontejner s aktualizovanými daty (tedy dočasné primární klíče nahradí skutečnými)
-
-    }
-
 }
