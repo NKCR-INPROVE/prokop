@@ -407,6 +407,7 @@ public class OAIHarvester implements DataSource {
                             fastIndexer.add(doc, it);
                         }
                     } catch (Exception ex) {
+                        currentDocsSent--;
                         errorLogFile.newLine();
                         errorLogFile.write("Cant procces record  " + urlZdroje);
                         logger.log(Level.WARNING, "Cant procces record  " + urlZdroje, ex);
