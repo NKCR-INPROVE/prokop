@@ -12,7 +12,7 @@
         <property name="xmlField" value="" />
         
         <property name="baseUrl" value="http://aleph.nkp.cz/OAI" />
-        <property name="set" value="NKC" />
+        <property name="set" value="NKC-VDK" />
         <property name="metadataPrefix" value="marc21" />
         <property name="verb" value="ListRecords" />
         <property name="identifierPrefix" value="oai:aleph-nkp.cz:" />
