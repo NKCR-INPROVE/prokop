@@ -30,5 +30,11 @@ public class ZaznamTrigger extends PersisterTriggers.Default {
         }
     }
 
+    @Override
+    public void afterLoad(Record record, Context ctx) {
+        record.setPreview("<b>"+record.getValue(Structure.zaznam.hlavniNazev.getId())
+                +"</b> ("+record.getValue(Structure.zaznam.typDokumentu.getId())+")<br>"
+                +record.getValue(Structure.zaznam.urlZdroje.getId()));
+    }
 
 }
