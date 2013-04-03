@@ -67,6 +67,13 @@
 
 
         <dependency>
+            <groupId>com.typesafe.akka</groupId>
+            <artifactId>akka-actor_2.10</artifactId>
+            <version>2.1.2</version>
+        </dependency>
+
+
+        <dependency>
             <groupId>com.fastsearch</groupId>
             <artifactId>esp-contentapi</artifactId>
             <version>5.1.1.55</version>
@@ -89,6 +96,15 @@
             <version>1.6</version>
         </dependency>
     </dependencies>
+
+    <repositories>
+        <repository>
+            <id>typesafe</id>
+            <name>Typesafe Repository</name>
+            <url>http://repo.typesafe.com/typesafe/releases/</url>
+        </repository>
+    </repositories>
+
 
     <build>
         <outputDirectory>war/WEB-INF/classes</outputDirectory>
