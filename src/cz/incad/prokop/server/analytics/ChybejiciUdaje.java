@@ -22,8 +22,6 @@ public class ChybejiciUdaje implements Analytic {
     Logger log = Logger.getLogger(ChybejiciUdaje.class.getName());
 
 
-
-
     private static final String noCNBquery = "select zaz.Zaznam_ID,zaz.url, zaz.hlavniNazev  from  zaznam zaz left outer join sklizen on (sklizen.sklizen_id=zaz.sklizen) left outer join zdroj on (sklizen.zdroj = zdroj.zdroj_id) where not exists ( select id.hodnota from identifikator id where id.zaznam = zaz.Zaznam_ID and id.typ = 'cCNB') and zdroj.nazev in( %s ) order by  zaz.hlavniNazev";
     private static final String emptyCNBquery = "select zaz.Zaznam_ID,zaz.url, zaz.hlavniNazev, id.hodnota  from identifikator id left outer join zaznam zaz on id.zaznam = zaz.Zaznam_ID left outer join sklizen on (sklizen.sklizen_id=zaz.sklizen) left outer join zdroj on (sklizen.zdroj = zdroj.zdroj_id) where id.typ = 'cCNB' and (id.hodnota is null or id.hodnota = '') and zdroj.nazev in( %s ) order by  zaz.hlavniNazev";
     private static final String countCNBquery = "select count(*)  from  zaznam zaz left outer join sklizen on (sklizen.sklizen_id=zaz.sklizen) left outer join zdroj on (sklizen.zdroj = zdroj.zdroj_id) where exists ( select id.hodnota from identifikator id where id.zaznam = zaz.Zaznam_ID and id.typ = 'cCNB' and (id.hodnota is not null or not (id.hodnota = ''))) and zdroj.nazev in( %s ) order by  zaz.hlavniNazev";
@@ -38,6 +36,10 @@ b)      Vypsat záznamy z NKCR a MZK, které nemají čČNB(non-Javadoc)
     @Override
     public void analyze(String params, Record analyza, Context context) {
         File tempFile = null;
+        log.info("params  = "+params);
+        log.info("analyza = "+analyza);
+        log.info("Context = "+context);
+        
         Connection conn = PersisterFactory.getPersister().getJDBCConnection();
         Statement st = null;
         ResultSet rs = null;
