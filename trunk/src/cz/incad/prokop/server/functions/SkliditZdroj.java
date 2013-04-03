@@ -24,6 +24,8 @@ public class SkliditZdroj implements Executable {
 
     Logger log = Logger.getLogger(SkliditZdroj.class.getName());
 
+    
+    
     @Override
     public FunctionResult execute(FunctionParameters functionParameters, Context context) {
         Record zdroj = functionParameters.getClientContext().getCurrentRecord();
@@ -65,6 +67,11 @@ public class SkliditZdroj implements Executable {
 
             return new FunctionResult("Sklizeň zdroje " + zdroj.getValue(Structure.zdroj.nazev.getId()) + "selhala: " + t, false);
         }
+    }
+
+    @Override
+    public FunctionResult execute(FunctionParameters parameters) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 }

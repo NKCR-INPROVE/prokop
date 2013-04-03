@@ -48,12 +48,14 @@ public class SpustitAnalyzu implements Executable {
 
             an.analyze(parametryAnalyzy, rc.getRecords().get(0).getEdited(), context);
 
+            /*
             rc = new RecordContainer();
             Structure.analyza.stav.setValue(analyza, Analyza.Stav.UKONCENA.getValue());
             Structure.analyza.ukonceni.setValue(analyza, new Date());
             rc.addRecord(null, analyza, analyza, Operation.UPDATE);
             rc = context.getAplikatorService().processRecords(rc);
-
+            */
+            
             return new FunctionResult("Proběhla analýza pro modul " + modul.getValue(Structure.modul.nazev.getId()), true);
         } catch (Throwable t) {
             log.log(Level.SEVERE, "Error analyzing: ", t);
@@ -64,6 +66,11 @@ public class SpustitAnalyzu implements Executable {
 
             return new FunctionResult("Analýza pro modul " + modul.getValue(Structure.modul.nazev.getId()) + "selhala: " + t, false);
         }
+    }
+
+    @Override
+    public FunctionResult execute(FunctionParameters parameters) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 }

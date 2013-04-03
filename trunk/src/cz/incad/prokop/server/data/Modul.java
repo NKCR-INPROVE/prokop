@@ -11,6 +11,7 @@ import org.aplikator.server.descriptor.RepeatedForm;
 import org.aplikator.server.descriptor.View;
 
 import cz.incad.prokop.server.functions.SpustitAnalyzu;
+import cz.incad.prokop.server.functions.ZastavitAnalyzu;
 
 public class Modul extends Entity {
 
@@ -22,6 +23,7 @@ public class Modul extends Entity {
     public Collection<Analyza> analyza;
 
     public Function spustitAnalyzu = new Function("SpustitAnalyzu", "SpustitAnalyzu", new SpustitAnalyzu());
+    public Function zastavitAnalyzu = new Function("ZastavitAnalyzu", "ZastavitAnalyzu", new ZastavitAnalyzu());
 
     public Modul() {
         super("Modul","Modul","Modul_ID");

@@ -13,5 +13,6 @@
   <!-- Other module inherits                                      -->
   <inherits name='org.aplikator.Aplikator'/>
 
-
+  <inherits name="com.google.gwt.logging.Logging"/>
+    
 </module>

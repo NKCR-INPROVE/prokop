@@ -206,4 +206,9 @@ public class ReindexFast implements Executable {
             disconnect();
         }
     }
+
+    @Override
+    public FunctionResult execute(FunctionParameters parameters) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }
