@@ -1,14 +1,15 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-package cz.incad.prokop.server.analytics.akka;
+package cz.incad.prokop.server.analytics.akka.links;
 
 import akka.actor.UntypedActor;
-import cz.incad.prokop.server.analytics.akka.messages.URLRequest;
-import cz.incad.prokop.server.analytics.akka.messages.URLResponse;
+import cz.incad.prokop.server.analytics.akka.links.messages.URLRequest;
+import cz.incad.prokop.server.analytics.akka.links.messages.URLResponse;
+import cz.incad.prokop.server.utils.IOUtils;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -16,9 +17,9 @@ import java.util.logging.Logger;
  *
  * @author pavels
  */
-public class URLConnector extends UntypedActor {
+public class URLConnectWorker extends UntypedActor {
     
-    static final Logger LOGGER = Logger.getLogger(URLConnector.class.getName());
+    static final Logger LOGGER = Logger.getLogger(URLConnectWorker.class.getName());
     private int counter =0;
     
     @Override
@@ -33,22 +34,27 @@ public class URLConnector extends UntypedActor {
         }
     }
     
-    private URLResponse connect(String url, int zaznamId) {
-        System.out.println("testing  url "+url+" for zaznamID "+zaznamId);
+    private URLResponse connect(String urlString, int zaznamId) {
+        System.out.println("testing  url "+urlString+" for zaznamID "+zaznamId);
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
         HttpURLConnection httpUrlConn = null;
+        URL url = null;
         try {
-            httpUrlConn = (HttpURLConnection) (new URL(url)).openConnection();
+            url = new URL(urlString);
+            httpUrlConn = (HttpURLConnection) (url).openConnection();
             httpUrlConn.setReadTimeout(2500);
             httpUrlConn.setConnectTimeout(2500);
             // jak na to ?
             httpUrlConn.setInstanceFollowRedirects(true);
             int respCode = httpUrlConn.getResponseCode();
             String respMessage = httpUrlConn.getResponseMessage();
+            InputStream is = httpUrlConn.getInputStream();
+            IOUtils.copyStreams(is, bos);
             
-            return new URLResponse(respCode,respMessage, httpUrlConn.getURL(), zaznamId);
+            return new URLResponse(respCode,respMessage, url, httpUrlConn.getURL(), zaznamId, bos.toByteArray());
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, ex.getMessage(),ex);
-            return new URLResponse(-1,ex.getMessage(), httpUrlConn.getURL(), zaznamId);
+            return new URLResponse(-1,ex.getMessage(),url, httpUrlConn.getURL(), zaznamId, bos.toByteArray());
         } finally {
             if (httpUrlConn != null) {
                 httpUrlConn.disconnect();

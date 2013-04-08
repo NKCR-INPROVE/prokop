@@ -1,0 +1,18 @@
+ODKAZY – existence platnost
+Katalog NKCR – vypsat záznamy, které mají link do K4,K3  a link není platný (error UUID). 
+Report : ID záznamu/link/status
+
+------ 
+Hlavni aktor prochazi tabulku odkazu (DIGITALNIVERZE), sbira data z atributu URL a generuje dotazy pro actora 
+URLConnectWorker. Ten ma za ukol vytvorit konekci na z dane url a ziskat data (redirectovana url, response code, atd..). 
+Vysledek posila hlavnimu actoru, ktery toto transformuje do dotazu pro jednotlive validatory(Common, K4, K3Handle). Vysledek validace je 
+nasledne posbiran a ulozen do tmp souboru. 
+
+Popis actoru:
+
+URLValidationMaster - Hlavni actor - koordinuje praci. 
+URLConnectWorker - Prijima pozadavky na pripojeni se k dane url (URLRequest), spoji se a vygeneruje vyslednou zpravu (URLResponse)
+
+CommonLinkValidate - Validator. Zkouma, jestli pri dotazu neprisel nejaky chybovy status kod (jiny nez 200)
+K3HandleValidate - Validator K3 handle. Zkouma platnost linku ve tvaru handlu pro K3  
+K4 - Validator pro K4. Zkouma, zda K4 link je platny.

@@ -80,8 +80,6 @@ public class Zaznam extends Entity {
                 repeated(digitalniVerze),
                 ReferenceField.reference(sklizen, Structure.sklizen.spusteni,Structure.sklizen.stav),
                 new TextArea(sourceXML).setWidth("100em")
-
-
             ));
         return retval;
     }
