@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package cz.incad.prokop.server.analytics.akka.messages;
+package cz.incad.prokop.server.analytics.akka.links.messages;
 
 public class ResponseValidation {
 

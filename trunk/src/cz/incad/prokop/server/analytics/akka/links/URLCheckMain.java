@@ -1,8 +1,4 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-package cz.incad.prokop.server.analytics.akka;
+package cz.incad.prokop.server.analytics.akka.links;
 
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
@@ -10,7 +6,7 @@ import akka.actor.PoisonPill;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
 import akka.actor.UntypedActorFactory;
-import cz.incad.prokop.server.analytics.akka.messages.StartValidation;
+import cz.incad.prokop.server.analytics.akka.messages.StartAnalyze;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
@@ -23,7 +19,7 @@ import java.util.logging.Logger;
  *
  * @author pavels
  */
-public class URLValidation  {
+public class URLCheckMain  {
     
     
     
@@ -48,7 +44,7 @@ public class URLValidation  {
         });
         Props props = new Props(new UntypedActorFactory() {
             public UntypedActor create() {
-                return new URLValidationMaster(con, tmpFile);
+                return new URLValidationMaster(tmpFile);
             }
         });
         
@@ -57,13 +53,13 @@ public class URLValidation  {
 
         
         // start the calculation
-        master.tell(new StartValidation(query3),null);
+        master.tell(new StartAnalyze(null),null);
         
     }
     
     public static void main(String[] args) throws ClassNotFoundException, SQLException, IOException {
-        URLValidation urlVal = new URLValidation();
-        urlVal.validate(getLocalConnection());
+        URLCheckMain urlVal = new URLCheckMain();
+        urlVal.validate(getRemoteConnection());
     }
     
     public static Connection getRemoteConnection() throws ClassNotFoundException, SQLException {
@@ -79,4 +75,5 @@ public class URLValidation  {
         Class.forName(driverClass);
         return DriverManager.getConnection(url, "DEV_PROKOP", "prokop");
     }
+    
 }

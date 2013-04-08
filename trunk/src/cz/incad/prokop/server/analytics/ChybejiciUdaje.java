@@ -1,5 +1,10 @@
 package cz.incad.prokop.server.analytics;
 
+import akka.actor.ActorRef;
+import akka.actor.ActorSystem;
+import akka.actor.Props;
+import akka.actor.UntypedActor;
+import akka.actor.UntypedActorFactory;
 import java.io.*;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -16,6 +21,15 @@ import org.aplikator.server.data.BinaryData;
 import org.aplikator.server.persistence.PersisterFactory;
 
 import cz.incad.prokop.server.Structure;
+import static cz.incad.prokop.server.analytics.ExistenceOdkazu.getConnection;
+import static cz.incad.prokop.server.analytics.ExistenceOdkazu.getTmpFile;
+import cz.incad.prokop.server.analytics.akka.links.URLValidationMaster;
+import cz.incad.prokop.server.analytics.akka.messages.StartAnalyze;
+import cz.incad.prokop.server.analytics.akka.missing.MissingMaster;
+import cz.incad.prokop.server.data.Analyza;
+import java.util.Date;
+import org.aplikator.client.shared.data.Operation;
+import org.aplikator.client.shared.data.RecordContainer;
 
 public class ChybejiciUdaje implements Analytic {
 
@@ -34,7 +48,56 @@ b)      Vypsat záznamy z NKCR a MZK, které nemají čČNB(non-Javadoc)
      * @see cz.incad.prokop.server.analytics.Analytic#analyze(java.lang.String, org.aplikator.client.data.Record, org.aplikator.server.Context)
      */
     @Override
-    public void analyze(String params, Record analyza, Context context) {
+    public void analyze(final String params, final Record analyza, final Context context) {
+        try {
+                final File file = getTmpFile();
+                final Connection conn = getConnection();
+
+                ActorSystem system = ActorSystem.create("missing");
+                system.registerOnTermination(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        BinaryData bd;
+                        try {
+                            RecordContainer rc = new RecordContainer();
+                            Structure.analyza.stav.setValue(analyza, Analyza.Stav.UKONCENA.getValue());
+                            Structure.analyza.ukonceni.setValue(analyza, new Date());
+                            
+                            /*
+                            bd = new BinaryData("ExistenceOdkazu.txt", new FileInputStream(file), file.length());
+                            Structure.analyza.vysledek.setValue(analyza, bd);
+                            */
+                            
+                            rc.addRecord(null, analyza, analyza, Operation.UPDATE);
+                            rc = context.getAplikatorService().processRecords(rc);
+ 
+                            Logger.getLogger(ExistenceOdkazu.class.getName()).log(Level.INFO, "Analyza skoncena");
+                        } catch (Exception ex) {
+                            Logger.getLogger(ExistenceOdkazu.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
+                });
+
+                Props props = new Props(new UntypedActorFactory() {
+                    public UntypedActor create() throws Exception{
+                        return new MissingMaster(file);
+                    }
+                });
+
+                // create the master
+                ActorRef master = system.actorOf(props, "master");
+
+                // start the calculation
+                master.tell(new StartAnalyze(params),null);
+                
+            } catch(IOException ex) {
+                Logger.getLogger(ExistenceOdkazu.class.getName()).log(Level.SEVERE,ex.getMessage(), ex);
+            }
+
+        
+        
+        /*
         File tempFile = null;
         log.info("params  = "+params);
         log.info("analyza = "+analyza);
@@ -92,6 +155,7 @@ b)      Vypsat záznamy z NKCR a MZK, které nemají čČNB(non-Javadoc)
             vysledek.close();
 
             if (tempFile != null){
+                System.out.println("TEMP FILE :"+tempFile.getAbsolutePath());
                 BinaryData bd  = new BinaryData("ChybejiciUdaje.txt", new FileInputStream(tempFile), tempFile.length());
                 Structure.analyza.vysledek.setValue(analyza, bd);
             }
@@ -114,7 +178,7 @@ b)      Vypsat záznamy z NKCR a MZK, které nemají čČNB(non-Javadoc)
                 } catch (SQLException e) {}
             }
         }
-
+        */
     }
 
 

@@ -6,8 +6,8 @@ import akka.actor.Props;
 import akka.actor.UntypedActor;
 import akka.actor.UntypedActorFactory;
 import cz.incad.prokop.server.Structure;
-import cz.incad.prokop.server.analytics.akka.URLValidationMaster;
-import cz.incad.prokop.server.analytics.akka.messages.StartValidation;
+import cz.incad.prokop.server.analytics.akka.links.URLValidationMaster;
+import cz.incad.prokop.server.analytics.akka.messages.StartAnalyze;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -64,8 +64,6 @@ public class ExistenceOdkazu implements Analytic {
                     public void run() {
                         BinaryData bd;
                         try {
-                  
- 
                             RecordContainer rc = new RecordContainer();
                             Structure.analyza.stav.setValue(analyza, Analyza.Stav.UKONCENA.getValue());
                             Structure.analyza.ukonceni.setValue(analyza, new Date());
@@ -85,7 +83,7 @@ public class ExistenceOdkazu implements Analytic {
 
                 Props props = new Props(new UntypedActorFactory() {
                     public UntypedActor create() throws Exception{
-                        return new URLValidationMaster(conn, file);
+                        return new URLValidationMaster(file);
                     }
                 });
 
@@ -93,7 +91,7 @@ public class ExistenceOdkazu implements Analytic {
                 ActorRef master = system.actorOf(props, "master");
 
                 // start the calculation
-                master.tell(new StartValidation(query3),null);
+                master.tell(new StartAnalyze(params),null);
                 
             } catch(IOException ex) {
                 Logger.getLogger(ExistenceOdkazu.class.getName()).log(Level.SEVERE,ex.getMessage(), ex);

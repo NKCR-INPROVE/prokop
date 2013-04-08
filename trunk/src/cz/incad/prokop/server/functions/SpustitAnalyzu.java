@@ -56,7 +56,7 @@ public class SpustitAnalyzu implements Executable {
             rc = context.getAplikatorService().processRecords(rc);
             */
             
-            return new FunctionResult("Proběhla analýza pro modul " + modul.getValue(Structure.modul.nazev.getId()), true);
+            return new FunctionResult("Analýza pro modul " + modul.getValue(Structure.modul.nazev.getId())+" bezi na pozadi. Pri dobehnuti bude zaznam upraven.", true);
         } catch (Throwable t) {
             log.log(Level.SEVERE, "Error analyzing: ", t);
             RecordContainer rc = new RecordContainer();

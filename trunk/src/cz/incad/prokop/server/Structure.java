@@ -37,5 +37,4 @@ public class Structure extends Application {
         modul.analyza = modul.reverseCollectionProperty("analyza", analyza, analyza.modul);
         zaznam.setPersistersTriggers(new ZaznamTrigger());
     }
-
 }

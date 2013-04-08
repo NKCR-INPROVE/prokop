@@ -1,0 +1,4 @@
+CHYBĚJÍCÍ ÚDAJE
+Statistika kolik má čČNB
+Vypsat záznamy z NKCR a MZK, které nemají čČNB
+
