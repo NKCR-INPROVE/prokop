@@ -1,21 +1,11 @@
 package cz.incad.prokop.server.data;
 
+import cz.incad.prokop.server.Structure;
+import org.aplikator.server.descriptor.*;
+
 import static org.aplikator.server.descriptor.Panel.column;
 import static org.aplikator.server.descriptor.Panel.row;
 import static org.aplikator.server.descriptor.RepeatedForm.repeated;
-
-import org.aplikator.client.shared.data.Record;
-import org.aplikator.server.Context;
-import org.aplikator.server.descriptor.Collection;
-import org.aplikator.server.descriptor.Entity;
-import org.aplikator.server.descriptor.Property;
-import org.aplikator.server.descriptor.Reference;
-import org.aplikator.server.descriptor.ReferenceField;
-import org.aplikator.server.descriptor.TextArea;
-import org.aplikator.server.descriptor.View;
-
-import cz.incad.prokop.server.Structure;
-import org.aplikator.server.persistence.PersisterTriggers;
 
 public class Zaznam extends Entity {
     public Property<String> typDokumentu;
@@ -79,7 +69,7 @@ public class Zaznam extends Entity {
                 repeated(exemplar),
                 repeated(digitalniVerze),
                 ReferenceField.reference(sklizen, Structure.sklizen.spusteni,Structure.sklizen.stav),
-                new TextArea(sourceXML).setWidth("100em")
+                new TextArea(sourceXML).setSize(12)
             ));
         return retval;
     }

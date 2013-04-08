@@ -1,30 +1,23 @@
 package cz.incad.prokop.server.data;
 
-import static org.aplikator.server.descriptor.Panel.column;
-import static org.aplikator.server.descriptor.Panel.row;
-
-import org.aplikator.server.descriptor.Collection;
-import org.aplikator.server.descriptor.Entity;
-import org.aplikator.server.descriptor.Function;
-import org.aplikator.server.descriptor.Property;
-import org.aplikator.server.descriptor.RepeatedForm;
-import org.aplikator.server.descriptor.View;
-
 import cz.incad.prokop.server.functions.SpustitAnalyzu;
 import cz.incad.prokop.server.utils.JDBCQueryTemplate;
 import cz.incad.prokop.server.utils.PersisterUtils;
+import org.aplikator.client.shared.data.ListItem;
+import org.aplikator.client.shared.data.Record;
+import org.aplikator.server.Context;
+import org.aplikator.server.descriptor.*;
+import org.aplikator.server.descriptor.wizards.WizardView;
+import org.aplikator.server.persistence.PersisterTriggers;
+
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Set;
-import org.aplikator.client.shared.data.ListItem;
-import org.aplikator.client.shared.data.Record;
-import org.aplikator.server.Context;
-import org.aplikator.server.DescriptorRegistry;
-import org.aplikator.server.descriptor.ListProvider;
-import org.aplikator.server.descriptor.wizards.WizardView;
-import org.aplikator.server.persistence.PersisterTriggers;
+
+import static org.aplikator.server.descriptor.Panel.column;
+import static org.aplikator.server.descriptor.Panel.row;
 
 public class Modul extends Entity {
 
@@ -89,7 +82,7 @@ public class Modul extends Entity {
         vw.addProperty(vstupniHodnota);
         vw.form(column(
                 row(vstupniHodnota)
-        ));
+        ), true);
         //spustitAnalyzu.reg
         spustitAnalyzu.registerWizard(Function.DEFAULT_WIZARD_KEY, vw);
     }
