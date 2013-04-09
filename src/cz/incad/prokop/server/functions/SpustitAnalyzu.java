@@ -1,24 +1,22 @@
 package cz.incad.prokop.server.functions;
 
-import static org.aplikator.server.data.RecordUtils.getValue;
-import static org.aplikator.server.data.RecordUtils.newSubrecord;
-
-import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
+import cz.incad.prokop.server.Structure;
+import cz.incad.prokop.server.analytics.Analytic;
+import cz.incad.prokop.server.data.Analyza;
 import org.aplikator.client.shared.data.Operation;
 import org.aplikator.client.shared.data.Record;
 import org.aplikator.client.shared.data.RecordContainer;
-import org.aplikator.client.shared.rpc.impl.ProcessRecords;
 import org.aplikator.server.Context;
 import org.aplikator.server.function.Executable;
 import org.aplikator.server.function.FunctionParameters;
 import org.aplikator.server.function.FunctionResult;
 
-import cz.incad.prokop.server.Structure;
-import cz.incad.prokop.server.analytics.Analytic;
-import cz.incad.prokop.server.data.Analyza;
+import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static org.aplikator.server.data.RecordUtils.getValue;
+import static org.aplikator.server.data.RecordUtils.newSubrecord;
 
 public class SpustitAnalyzu implements Executable {
 
@@ -68,9 +66,6 @@ public class SpustitAnalyzu implements Executable {
         }
     }
 
-    @Override
-    public FunctionResult execute(FunctionParameters parameters) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+
 
 }

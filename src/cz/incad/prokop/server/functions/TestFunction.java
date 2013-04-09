@@ -1,11 +1,11 @@
 package cz.incad.prokop.server.functions;
 
-import java.util.logging.Logger;
-
 import org.aplikator.server.Context;
 import org.aplikator.server.function.Executable;
 import org.aplikator.server.function.FunctionParameters;
 import org.aplikator.server.function.FunctionResult;
+
+import java.util.logging.Logger;
 
 public class TestFunction implements Executable {
 
@@ -22,9 +22,6 @@ public class TestFunction implements Executable {
         }
     }
 
-    @Override
-    public FunctionResult execute(FunctionParameters parameters) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+
 
 }
