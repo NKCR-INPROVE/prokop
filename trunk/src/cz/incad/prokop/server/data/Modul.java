@@ -7,7 +7,7 @@ import org.aplikator.client.shared.data.ListItem;
 import org.aplikator.client.shared.data.Record;
 import org.aplikator.server.Context;
 import org.aplikator.server.descriptor.*;
-import org.aplikator.server.descriptor.wizards.WizardView;
+import org.aplikator.server.descriptor.Wizard;
 import org.aplikator.server.persistence.PersisterTriggers;
 
 import java.sql.Connection;
@@ -69,7 +69,8 @@ public class Modul extends Entity {
     
     /** Vstupni analyza - funkce a wizard */
     public Function spustitAnalyzu = new Function("SpustitAnalyzu", "SpustitAnalyzu", new SpustitAnalyzu()); {
-        Property<String> vstupniHodnota = stringProperty("Vstupni parametr", 10);
+        Wizard wizard = new Wizard(spustitAnalyzu);
+        Property<String> vstupniHodnota = wizard.stringProperty("Vstupni parametr", 10);
         
         vstupniHodnota.setListProvider(new ListProvider<String>() {
 
@@ -78,13 +79,10 @@ public class Modul extends Entity {
                 return readItems();
             }
         });
-        WizardView vw = new WizardView(this);
-        vw.addProperty(vstupniHodnota);
-        vw.form(column(
+
+        wizard.form(column(
                 row(vstupniHodnota)
         ), true);
-        //spustitAnalyzu.reg
-        spustitAnalyzu.registerWizard(Function.DEFAULT_WIZARD_KEY, vw);
     }
 
     
