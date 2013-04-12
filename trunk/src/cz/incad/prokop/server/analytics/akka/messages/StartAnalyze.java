@@ -4,19 +4,21 @@
  */
 package cz.incad.prokop.server.analytics.akka.messages;
 
+import org.aplikator.client.shared.data.Record;
+
 /**
  *
  * @author pavels
  */
 public class StartAnalyze {
  
-    private String params;
+    private Record params;
 
-    public StartAnalyze(String params) {
+    public StartAnalyze(Record params) {
         this.params = params;
     }
 
-    public String getParams() {
+    public Record getParams() {
         return params;
     }
 

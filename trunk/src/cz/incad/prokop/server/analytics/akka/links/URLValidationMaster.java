@@ -14,6 +14,7 @@ import cz.incad.prokop.server.analytics.akka.links.validations.K3HandleValidate;
 import cz.incad.prokop.server.analytics.akka.links.validations.K4Validate;
 import cz.incad.prokop.server.utils.JDBCQueryTemplate;
 import cz.incad.prokop.server.utils.PersisterUtils;
+import cz.incad.prokop.server.utils.TestConnectionUtils;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -28,15 +29,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.aplikator.client.shared.data.Record;
 
 public class URLValidationMaster extends UntypedActor {
     
 
-    private static final String query = "select zaz.Zaznam_ID,zaz.url, zaz.hlavniNazev, id.hodnota  from identifikator id left outer join zaznam zaz on id.zaznam = zaz.Zaznam_ID where id.typ = 'cCNB' order by id.hodnota, zaz.hlavniNazev";
-    private static final String query2 ="select * from DEV_PROKOP.DIGITALNIVERZE as dg\n" +
-                                        " join DEV_PROKOP.ZAZNAM zaznam on(dg.zaznam=zaznam.zaznam_id)\n";
-    private static final String query3 ="select URL, ZAZNAM as ZAZNAM_ID from DEV_PROKOP.DIGITALNIVERZE";
+    private static final String linksQuery ="select ZN.URL, ZAZNAM as ZAZNAM_ID from DEV_PROKOP.DIGITALNIVERZE dg "
+            + " join zaznam zn on (dg.zaznam=zn.zaznam_id)  where sklizen in ";
 
+    
     LoggingAdapter log = Logging.getLogger(getContext().system(), this);
     
     
@@ -88,7 +89,8 @@ public class URLValidationMaster extends UntypedActor {
         if (message instanceof StartAnalyze) {
             StartAnalyze stv = (StartAnalyze) message;
             try {
-                processTable(PersisterUtils.getConnection(), query3);
+                processTable(PersisterUtils.getConnection(), stv.getParams());
+                //processTable(TestConnectionUtils.getConnection(), stv.getParams());
             } catch(SQLException ex) {
                 log.error(ex.getMessage());
                 getContext().system().shutdown();
@@ -140,40 +142,38 @@ public class URLValidationMaster extends UntypedActor {
         }
     }
     
-    private int processTable(Connection conn, String query) throws SQLException {
+    private int processTable(Connection conn,  Record params) throws SQLException {
+        System.out.println("params : "+params);
+        String value = (String) params.getValue("Property:Wizard:SpustitAnalyzu_default-wizard.zdroj");
+        
+        List<Integer> sklizne = PersisterUtils.sklizneFromSource(conn, Integer.valueOf(value));
+        ArrayList<Integer> ids = new ArrayList<Integer>();
+        StringBuilder builder = new StringBuilder("(");
+        for (int i = 0; i < sklizne.size(); i++) {
+            if (i>0) builder.append(',');
+            builder.append("?");
+            ids.add(sklizne.get(i));
+        }
+        builder.append(")");
+        
+        
         List<Integer> result = new JDBCQueryTemplate<Integer>(conn, true) {
             @Override
             public boolean handleRow(ResultSet rs, List<Integer> returnsList) throws SQLException {
                 sentURLRequests++;
                 String urlString = rs.getString("URL");
+                System.out.println(" found url "+urlString);
                 int zaznamId = rs.getInt("Zaznam_ID");
-                // sending url reqest
                 URLRequest req = new URLRequest(urlString, zaznamId);
-                //only for test
+                System.out.println("Sending url request ");
                 mappers.get("connector").tell(req, getSelf());
-                if (sentURLRequests > 100) return false;
-                else return true;
+                return true;
             }
-        }.executeQuery(query);
-
+        }.executeQuery(linksQuery+builder.toString(), ids.toArray(new Integer[ids.size()]));
+        
+        System.out.println("Executing sql :"+linksQuery+" with params :"+builder.toString());
         Integer count = result.isEmpty() ? 0 : result.get(0);
         return count;
     }
-
-    /*
-    public static Connection getRemoteConnection() throws ClassNotFoundException, SQLException {
-        String driverClass = "oracle.jdbc.OracleDriver";
-        String url = "jdbc:oracle:thin:@//oratest.incad.cz:1521/orcl";
-        Class.forName(driverClass);
-        return DriverManager.getConnection(url, "DEV_PROKOP", "prokop");
-    }
-
-    public static Connection getLocalConnection() throws ClassNotFoundException, SQLException {
-        String driverClass = "oracle.jdbc.OracleDriver";
-        String url = "jdbc:oracle:thin:@//localhost:1521/orcl";
-        Class.forName(driverClass);
-        return DriverManager.getConnection(url, "DEV_PROKOP", "prokop");
-    }*/
-
 }
 

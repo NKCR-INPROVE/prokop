@@ -31,6 +31,30 @@ import org.aplikator.server.data.BinaryData;
 
 public class PoctyExemplaru implements Analytic {
 
+    @Override
+    public boolean isRunning() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public String getDescription() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public String[] getWizardKeys() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void stopAnalyze() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    
+    
+    
+    
     Logger log = Logger.getLogger(PoctyExemplaru.class.getName());
 
 
@@ -59,7 +83,7 @@ b)      MZK+NKCR+OLOMOUC – statistika počtu exemplářů. (2320 dokumentů 3X
      * @see cz.incad.prokop.server.analytics.Analytic#analyze(java.lang.String, org.aplikator.client.data.Record, org.aplikator.server.Context)
      */
     @Override
-    public void analyze(String params, Record analyza, Context context) {
+    public void analyze(org.aplikator.client.shared.data.Record params, Record modul, Record analyza, Context ctx) {
         //ukázka, jak použít parametry
         String userHome = Configurator.get().getConfig().getString(Configurator.HOME);
         String configFileName = userHome+System.getProperty("file.separator")+params;

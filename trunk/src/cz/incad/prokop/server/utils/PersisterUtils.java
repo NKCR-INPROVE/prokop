@@ -10,7 +10,12 @@
  */
 package cz.incad.prokop.server.utils;
 
+import cz.incad.prokop.server.data.Modul;
 import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
+import org.aplikator.client.shared.data.ListItem;
 import org.aplikator.server.persistence.PersisterFactory;
 
 /**
@@ -24,4 +29,34 @@ public class PersisterUtils {
         return conn;
     }
 
+    public static List<Integer> sklizneFromSource(Connection conn, Integer zdroj, boolean closeConnection) {
+        List<Integer> sklizne = new JDBCQueryTemplate<Integer>(conn, closeConnection) {
+            @Override
+            public boolean handleRow(ResultSet rs, List<Integer> returnsList) throws SQLException {
+                int aInt = rs.getInt("sklizen_id");
+                returnsList.add(aInt);
+                return super.handleRow(rs, returnsList); //To change body of generated methods, choose Tools | Templates.
+            }
+        }.executeQuery("select sklizen_id from sklizen  where zdroj=?", zdroj);
+        return sklizne;
+    }    
+    public static List<Integer> sklizneFromSource(Connection conn, Integer zdroj) {
+        return sklizneFromSource(conn, zdroj, false);
+    }
+    
+    
+
+    
+    
+    public static String separatedList(List<Integer> retList) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < retList.size(); i++) {
+            if (i > 0) builder.append(",");
+            builder.append(retList.get(i));
+        }
+        String separted = builder.toString();
+        return separted;
+    }
+
+    
 }

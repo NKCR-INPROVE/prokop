@@ -28,10 +28,21 @@ import java.util.logging.Logger;
  * @author Pavel Stastny <pavel.stastny at gmail.com>
  */
 public class NoCNBWorker extends UntypedActor {
-   
-    private static final String noCNBquery = "select zaz.Zaznam_ID,zaz.url, zaz.hlavniNazev  from  zaznam zaz left outer join sklizen on (sklizen.sklizen_id=zaz.sklizen) left outer join zdroj on (sklizen.zdroj = zdroj.zdroj_id) where not exists ( select id.hodnota from identifikator id where id.zaznam = zaz.Zaznam_ID and id.typ = 'cCNB') and zdroj.nazev in( '%s' ) order by  zaz.hlavniNazev";
-  
 
+    /*
+    private static final String noCNBquery = "select zaz.Zaznam_ID,zaz.url, zaz.hlavniNazev  "
+            + "from  zaznam zaz left outer join "
+            + "sklizen on (sklizen.sklizen_id=zaz.sklizen) "
+            + "left outer join zdroj on (sklizen.zdroj = zdroj.zdroj_id) "
+            + "where not exists ( select id.hodnota from identifikator id where id.zaznam = zaz.Zaznam_ID and id.typ = 'cCNB') "
+            + "and zdroj.nazev in( '%s' ) order by  zaz.hlavniNazev";
+      */
+
+    private static final String noCNBquery = "select zaz.Zaznam_ID,zaz.url, zaz.hlavniNazev  "+
+                                             " from  zaznam zaz "+
+                                            " where not exists ( select id.hodnota from identifikator id where id.zaznam = zaz.Zaznam_ID and id.typ = 'cCNB') "+
+                                            " and zaz.sklizen in(%s) order by  zaz.hlavniNazev";
+    
     public NoCNBWorker() {}
     
     
@@ -39,8 +50,11 @@ public class NoCNBWorker extends UntypedActor {
     public void onReceive(Object mess) throws Exception {
         if (mess instanceof StartAnalyze) {
             StartAnalyze sta = (StartAnalyze) mess;
-            String sql = String.format(noCNBquery, sta.getParams());
-            System.out.println("NoCNB executing query :"+sql);
+            
+            String value = (String) sta.getParams().getValue("Property:Wizard:SpustitAnalyzu_default-wizard.zdroj");
+            List<Integer> sklizne = PersisterUtils.sklizneFromSource(getConnection(), Integer.valueOf(value));
+            String sql = String.format(noCNBquery, PersisterUtils.separatedList(sklizne));
+           
             List<String> ret = new JDBCQueryTemplate<String>(getConnection(),true) {
                 @Override
                 public boolean handleRow(ResultSet rs, List<String> returnsList) throws SQLException {

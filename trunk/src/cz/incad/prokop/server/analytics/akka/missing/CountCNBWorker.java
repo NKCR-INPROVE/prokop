@@ -31,15 +31,12 @@ import org.aplikator.server.persistence.PersisterFactory;
  */
 public class CountCNBWorker extends UntypedActor {
 
-    private static final String sklizne = "select SKLIZEN_ID from SKLIZEN " +
-        "join ZDROJ on (SKLIZEN.ZDROJ = ZDROJ.ZDROJ_ID) where nazev in ('%s')";
     
     private static final String countCNBquery = "select count(*)  from  zaznam zaz "
             + "where exists ( select id.hodnota from identifikator id where id.zaznam = zaz.Zaznam_ID and id.typ = 'cCNB' and (id.hodnota is not null or not (id.hodnota = ''))) "
             + "and zaz.sklizen in( %s ) order by  zaz.hlavniNazev";
 
 
-    private Connection conn;
 
     public CountCNBWorker() {
     }
@@ -55,18 +52,12 @@ public class CountCNBWorker extends UntypedActor {
     public void onReceive(Object mess) throws Exception {
         if (mess instanceof StartAnalyze) {
             StartAnalyze sta = (StartAnalyze) mess;
+           
+            System.out.println("sta : "+sta.getParams());
+            String value = (String) sta.getParams().getValue("Property:Wizard:SpustitAnalyzu_default-wizard.zdroj");
+            List<Integer> sklizne = PersisterUtils.sklizneFromSource(getConnection(), Integer.valueOf(value));
             
-            String sql = String.format(sklizne, sta.getParams());
-            System.out.println("SQL :"+sql);
-            List<Integer> retList = new JDBCQueryTemplate<Integer>(getConnection(), true) {
-
-                @Override
-                public boolean handleRow(ResultSet rs, List<Integer> returnsList) throws SQLException {
-                    returnsList.add(rs.getInt("SKLIZEN_ID"));
-                    return super.handleRow(rs, returnsList); //To change body of generated methods, choose Tools | Templates.
-                }
-            }.executeQuery(sql);
-            sql = String.format(countCNBquery, separatedList(retList));
+            String sql = String.format(countCNBquery, separatedList(sklizne));
             System.out.println("SQL :"+sql);
 
             System.out.println("COUNT CNB : Executing query :"+sql);

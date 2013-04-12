@@ -33,7 +33,6 @@ public class Analyza extends Entity {
         public String getName() {
             return value;
         }
-
     }
 
     public Property<Date> spusteni;
@@ -42,6 +41,7 @@ public class Analyza extends Entity {
     public Property<BinaryData> vysledek;
     public Property<String> uzivatel;
     public Reference<Modul> modul;
+    public Property<String> zdroj;
 
     public Analyza() {
         super("Analyza","Analyza","Analyza_ID");
@@ -54,6 +54,7 @@ public class Analyza extends Entity {
         stav = stringProperty("stav");
         vysledek = binaryProperty("vysledek");
         uzivatel = stringProperty("uzivatel");
+        //zdroj = stringProperty("zdroj");
         modul = referenceProperty(Structure.modul, "modul");
     }
 
