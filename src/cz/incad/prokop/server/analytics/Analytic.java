@@ -5,6 +5,17 @@ import org.aplikator.server.Context;
 
 public interface Analytic {
 
-    public void analyze(String params, Record analyza, Context ctx );
+    /** spusti analyzu */
+    public void analyze(org.aplikator.client.shared.data.Record params, Record modul, Record analyza, Context ctx);
+    
+    /** zastavi analyzu */
+    public void stopAnalyze();
+    
+    /** vraci true, pokud bezi */
+    public boolean isRunning();
+    
+    public String getDescription();
 
+    /** vraci klice pro wizardy, ktere se maji pouzit */
+    public String[] getWizardKeys();
 }

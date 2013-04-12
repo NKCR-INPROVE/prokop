@@ -1,0 +1,3 @@
+POČTY – exemplářů (je závislé na profilu OAI)
+NKCR – které záznamy mají pouze 1 exemplář
+MZK+NKCR+OLOMOUC – statistika počtu exemplářů. (2320 dokumentů 3X, 123.445 2x … )

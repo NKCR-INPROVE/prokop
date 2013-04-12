@@ -12,8 +12,11 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.aplikator.client.shared.data.Record;
+import org.aplikator.server.descriptor.Property;
 
 /**
  *
@@ -23,13 +26,7 @@ public class URLCheckMain  {
     
     
     
-    private static final String query = "select zaz.Zaznam_ID,zaz.url, zaz.hlavniNazev, id.hodnota  from identifikator id left outer join zaznam zaz on id.zaznam = zaz.Zaznam_ID where id.typ = 'cCNB' order by id.hodnota, zaz.hlavniNazev";
-    private static final String query2 ="select * from DEV_PROKOP.DIGITALNIVERZE as dg\n" +
-                                        " join DEV_PROKOP.ZAZNAM zaznam on(dg.zaznam=zaznam.zaznam_id)\n";
-    private static final String query3 ="select URL, ZAZNAM as ZAZNAM_ID from DEV_PROKOP.DIGITALNIVERZE";
-    
-    
-    public void validate(final Connection con) throws IOException {
+    public void validate() throws IOException {
         
         final File tmpFile = new File("output.csv");
         tmpFile.createNewFile();
@@ -50,16 +47,16 @@ public class URLCheckMain  {
         
         // create the master
         final ActorRef master = system.actorOf(props, "master");
-
-        
-        // start the calculation
-        master.tell(new StartAnalyze(null),null);
-        
+        System.out.println("master:"+master.path().toString());
+        ActorRef actorFor = system.actorFor("user/master");
+        System.out.println("master 2:"+actorFor);
+        System.out.println("master 2 path :"+actorFor.path().toString());
+        actorFor.tell(PoisonPill.getInstance(), null);
     }
     
     public static void main(String[] args) throws ClassNotFoundException, SQLException, IOException {
         URLCheckMain urlVal = new URLCheckMain();
-        urlVal.validate(getRemoteConnection());
+        urlVal.validate();
     }
     
     public static Connection getRemoteConnection() throws ClassNotFoundException, SQLException {
