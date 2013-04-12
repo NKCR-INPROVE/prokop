@@ -6,30 +6,27 @@ import akka.actor.UntypedActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import cz.incad.prokop.server.analytics.akka.links.messages.ResponseValidation;
-import cz.incad.prokop.server.analytics.akka.messages.StartAnalyze;
 import cz.incad.prokop.server.analytics.akka.links.messages.URLRequest;
 import cz.incad.prokop.server.analytics.akka.links.messages.URLResponse;
 import cz.incad.prokop.server.analytics.akka.links.validations.CommonLinkValidate;
 import cz.incad.prokop.server.analytics.akka.links.validations.K3HandleValidate;
 import cz.incad.prokop.server.analytics.akka.links.validations.K4Validate;
+import cz.incad.prokop.server.analytics.akka.messages.StartAnalyze;
 import cz.incad.prokop.server.utils.JDBCQueryTemplate;
 import cz.incad.prokop.server.utils.PersisterUtils;
-import cz.incad.prokop.server.utils.TestConnectionUtils;
+import org.aplikator.client.shared.data.Record;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.aplikator.client.shared.data.Record;
 
 public class URLValidationMaster extends UntypedActor {
     
@@ -162,14 +159,14 @@ public class URLValidationMaster extends UntypedActor {
             public boolean handleRow(ResultSet rs, List<Integer> returnsList) throws SQLException {
                 sentURLRequests++;
                 String urlString = rs.getString("URL");
-                System.out.println(" found url "+urlString);
+                System.out.println(" found url " + urlString);
                 int zaznamId = rs.getInt("Zaznam_ID");
                 URLRequest req = new URLRequest(urlString, zaznamId);
                 System.out.println("Sending url request ");
                 mappers.get("connector").tell(req, getSelf());
                 return true;
             }
-        }.executeQuery(linksQuery+builder.toString(), ids.toArray(new Integer[ids.size()]));
+        }.executeQuery(linksQuery + builder.toString(), ids.toArray(new Object[ids.size()]));
         
         System.out.println("Executing sql :"+linksQuery+" with params :"+builder.toString());
         Integer count = result.isEmpty() ? 0 : result.get(0);
