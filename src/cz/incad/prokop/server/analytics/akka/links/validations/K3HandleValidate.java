@@ -9,6 +9,7 @@ import cz.incad.prokop.server.analytics.akka.links.messages.ResponseValidation;
 import cz.incad.prokop.server.analytics.akka.links.messages.URLResponse;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.logging.Logger;
 
 
 /**
@@ -17,6 +18,9 @@ import java.net.URL;
  */
 public class K3HandleValidate extends UntypedActor{
 
+    public static final Logger LOGGER = Logger.getLogger(K3HandleValidate.class.getName());
+            
+    
     public static final String DESCRIPTION="K3 validace";
     
     @Override
@@ -26,7 +30,7 @@ public class K3HandleValidate extends UntypedActor{
             URL sourceURL = response.getSourceURL();
             boolean valid = true;
             if (sourceURL.getPath().contains("/handle/")) {
-                System.out.println(" k3 handle ");
+                LOGGER.info("K3 validation "+response.getSourceURL().toString());
                 String path = response.getUrl().getPath();
                 valid =  (!path.endsWith("ERR_NotFound.do"));
             }

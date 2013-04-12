@@ -2,6 +2,7 @@ package cz.incad.prokop.server.analytics;
 
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
+import akka.actor.PoisonPill;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
 import akka.actor.UntypedActorFactory;
@@ -23,22 +24,38 @@ import cz.incad.prokop.server.data.Analyza;
 import java.util.Date;
 import org.aplikator.client.shared.data.Operation;
 import org.aplikator.client.shared.data.RecordContainer;
+import org.aplikator.server.data.RecordUtils;
 
 
 public class ExistenceOdkazu implements Analytic {
 
+    public static ActorSystem EXISTENCE_ODKAZU_ACTOR_SYSTEM = null;
+    
+    
+    @Override
+    public boolean isRunning() {
+        return ((EXISTENCE_ODKAZU_ACTOR_SYSTEM != null) && (!EXISTENCE_ODKAZU_ACTOR_SYSTEM.isTerminated()));
+     }
 
-    private static final String query = "select zaz.Zaznam_ID,zaz.url, zaz.hlavniNazev, id.hodnota  from identifikator id left outer join zaznam zaz on id.zaznam = zaz.Zaznam_ID where id.typ = 'cCNB' order by id.hodnota, zaz.hlavniNazev";
-    private static final String query2 ="select * from DEV_PROKOP.DIGITALNIVERZE as dg\n" +
-                                        " join DEV_PROKOP.ZAZNAM zaznam on(dg.zaznam=zaznam.zaznam_id)\n";
-
-    private static final String query3 ="select URL, ZAZNAM as ZAZNAM_ID from DEV_PROKOP.DIGITALNIVERZE";
-
- 
-    public static Connection getConnection() {
-        Connection conn = PersisterFactory.getPersister().getJDBCConnection();
-        return conn;
+    @Override
+    public void stopAnalyze() {
+        if (isRunning()) {
+            EXISTENCE_ODKAZU_ACTOR_SYSTEM.actorFor("user/master").tell(PoisonPill.getInstance(), null);
+        }
     }
+
+    
+    @Override
+    public String getDescription() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public String[] getWizardKeys() {
+       if (this.isRunning()) return new String[] {};
+        else return new String[] {"default-wizard"};
+     }
+
 
     public static File getTmpFile() throws IOException {
         return File.createTempFile("output", "csv");
@@ -51,14 +68,13 @@ public class ExistenceOdkazu implements Analytic {
      * @see cz.incad.prokop.server.analytics.Analytic#analyze(java.lang.String, org.aplikator.client.data.Record, org.aplikator.server.Context)
      */
     @Override
-    public void analyze(final String params, final Record analyza, final Context context) {
+    public void analyze(final org.aplikator.client.shared.data.Record params, final Record modul, final Record analyza, final Context ctx) {
  
             try {
                 final File file = getTmpFile();
-                final Connection conn = getConnection();
 
-                ActorSystem system = ActorSystem.create("validaton");
-                system.registerOnTermination(new Runnable() {
+                EXISTENCE_ODKAZU_ACTOR_SYSTEM = ActorSystem.create("validaton");
+                EXISTENCE_ODKAZU_ACTOR_SYSTEM.registerOnTermination(new Runnable() {
 
                     @Override
                     public void run() {
@@ -72,8 +88,13 @@ public class ExistenceOdkazu implements Analytic {
                             Structure.analyza.vysledek.setValue(analyza, bd);
 
                             rc.addRecord(null, analyza, analyza, Operation.UPDATE);
-                            rc = context.getAplikatorService().processRecords(rc);
- 
+                            rc = ctx.getAplikatorService().processRecords(rc);
+
+                            
+                            Structure.modul.parametry.setValue(modul, "");
+                            rc.addRecord(null, modul, modul, Operation.UPDATE);
+                            
+                            
                             Logger.getLogger(ExistenceOdkazu.class.getName()).log(Level.INFO, "Analyza skoncena");
                         } catch (FileNotFoundException ex) {
                             Logger.getLogger(ExistenceOdkazu.class.getName()).log(Level.SEVERE, null, ex);
@@ -88,8 +109,7 @@ public class ExistenceOdkazu implements Analytic {
                 });
 
                 // create the master
-                ActorRef master = system.actorOf(props, "master");
-
+                ActorRef master = EXISTENCE_ODKAZU_ACTOR_SYSTEM.actorOf(props, "master");
                 // start the calculation
                 master.tell(new StartAnalyze(params),null);
                 
