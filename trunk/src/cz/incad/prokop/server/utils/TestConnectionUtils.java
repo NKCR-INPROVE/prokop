@@ -44,7 +44,7 @@ public class TestConnectionUtils {
     }
 
     public static Connection getConnection() throws ClassNotFoundException, ClassNotFoundException, SQLException {
-        //return getRemoteConnection();
-        return getLocalConnection();
+        return getRemoteConnection();
+        //return getLocalConnection();
     }
 }

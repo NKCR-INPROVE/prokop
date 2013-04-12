@@ -8,7 +8,7 @@
  * a copy of the GNU General Public License along with this program. If not,
  * see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.prokop.server.analytics.akka.missing;
+package cz.incad.prokop.server.analytics.akka.countexemplars;
 
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
@@ -26,33 +26,30 @@ import org.aplikator.client.shared.data.Record;
  *
  * @author Pavel Stastny <pavel.stastny at gmail.com>
  */
-public class MissingMain {
-
+public class CountExemplarsMain {
+    
     public static void main(String[] args) throws IOException {
-        
-        Record record = new Record();
-        record.setValue("Property:Wizard:SpustitAnalyzu_default-wizard.zdroj", "2");
-
         System.setProperty("missing.debug", "true");
-        new MissingMain().validate(record);
+        CountExemplarsMain main = new CountExemplarsMain();
+        main.validate();
     }
-
-    public void validate(Record record) throws IOException {
-        
+    
+    
+    
+    public void validate() throws IOException {
         final File tmpFile = new File("output.csv");
         tmpFile.createNewFile();
-        
-        final ActorSystem system = ActorSystem.create("missing");
+
+        final ActorSystem system = ActorSystem.create("countexemplars");
         system.registerOnTermination(new Runnable() {
 
             @Override
             public void run() {
-                System.out.println("OUTPUT FILE = "+tmpFile.getAbsolutePath());
             }
         });
         Props props = new Props(new UntypedActorFactory() {
             public UntypedActor create() {
-                return new MissingMaster(tmpFile);
+                return new CountExemplarsMaster();
             }
         });
         
@@ -61,8 +58,9 @@ public class MissingMain {
 
         
         // start the calculation
-        master.tell(new StartAnalyze(null),null);
-        
+
+        Record record = new Record();
+        record.setValue("Property:Wizard:SpustitAnalyzu_default-wizard.zdroj", "2");
+        master.tell(new StartAnalyze(record),null);
     }
-    
 }

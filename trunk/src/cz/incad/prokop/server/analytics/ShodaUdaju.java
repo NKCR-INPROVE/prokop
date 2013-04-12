@@ -33,9 +33,28 @@ public class ShodaUdaju implements Analytic {
 
     Logger log = Logger.getLogger(ShodaUdaju.class.getName());
 
+    @Override
+    public boolean isRunning() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 
+    @Override
+    public String getDescription() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 
+    @Override
+    public String[] getWizardKeys() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 
+    @Override
+    public void stopAnalyze() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    
+    
     private static final String query = "select zaz.Zaznam_ID,zaz.url, zaz.hlavniNazev, id.hodnota  from identifikator id left outer join zaznam zaz on id.zaznam = zaz.Zaznam_ID where id.typ = 'cCNB' order by id.hodnota, zaz.hlavniNazev";
 
     /*
@@ -45,7 +64,7 @@ a)      Vypsat záznamy se shodným čČNB a rozdílným Názvem
      * @see cz.incad.prokop.server.analytics.Analytic#analyze(java.lang.String, org.aplikator.client.data.Record, org.aplikator.server.Context)
      */
     @Override
-    public void analyze(String params, Record analyza, Context context) {
+    public void analyze(org.aplikator.client.shared.data.Record params, Record modul, Record analyza, Context ctx) {
         //ukázka, jak použít parametry
         String userHome = Configurator.get().getConfig().getString(Configurator.HOME);
         String configFileName = userHome+System.getProperty("file.separator")+params;

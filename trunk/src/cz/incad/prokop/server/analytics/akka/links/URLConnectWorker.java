@@ -24,9 +24,11 @@ public class URLConnectWorker extends UntypedActor {
     
     @Override
     public void onReceive(Object message) throws Exception {
+        System.out.println("Receive message");
         if (message instanceof URLRequest) {
             this.counter ++;
             URLRequest req = (URLRequest) message;
+            LOGGER.info("receive request :"+req.getUrl());
             getSender().tell(connect(req.getUrl(), req.getZaznamId()),getSelf());
             
         } else {
