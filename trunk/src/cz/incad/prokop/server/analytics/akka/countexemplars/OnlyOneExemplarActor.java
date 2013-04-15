@@ -12,7 +12,10 @@ package cz.incad.prokop.server.analytics.akka.countexemplars;
 
 import akka.actor.UntypedActor;
 import cz.incad.prokop.server.analytics.akka.countexemplars.messages.CountExemplarsResults;
+import cz.incad.prokop.server.analytics.akka.countexemplars.messages.OnlyOneExemplarResult;
 import cz.incad.prokop.server.analytics.akka.messages.StartAnalyze;
+import cz.incad.prokop.server.analytics.akka.messages.StoppedWork;
+import cz.incad.prokop.server.analytics.akka.missing.NoCNBWorker;
 import cz.incad.prokop.server.data.Modul;
 import cz.incad.prokop.server.utils.JDBCQueryTemplate;
 import cz.incad.prokop.server.utils.PersisterUtils;
@@ -20,10 +23,13 @@ import cz.incad.prokop.server.utils.TestConnectionUtils;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.aplikator.client.shared.data.ListItem;
 import org.aplikator.client.shared.data.Record;
 
@@ -43,19 +49,13 @@ public class OnlyOneExemplarActor extends UntypedActor{
             "having count(zaznam)=1";
 
     
-    
-    
-    
 
     
     @Override
     public void onReceive(Object message) throws Exception {
         if (message instanceof StartAnalyze) {
-            System.out.println("Only one example started");
-
             StartAnalyze stv = (StartAnalyze) message;
-            
-            List<Map<Integer, String>> retList = new JDBCQueryTemplate<Map<Integer, String>>(TestConnectionUtils.getConnection(),true) {
+            List<Map<Integer, String>> retList = new JDBCQueryTemplate<Map<Integer, String>>(PersisterUtils.getConnection(),true) {
 
                 public boolean handleRow(ResultSet rs, List<Map<Integer, String>> returnsList) throws SQLException {
                     Map<Integer, String> m = new HashMap<Integer, String>();
@@ -66,13 +66,14 @@ public class OnlyOneExemplarActor extends UntypedActor{
             }.executeQuery("select Nazev, Zdroj_id from DEV_PROKOP.ZDROJ");
  
 
+            Map<String, List<String>> result = new HashMap<String, List<String>>(); 
             for (Map<Integer, String> map : retList) {
                 Set<Integer> keys = map.keySet();
                 String name = map.get(keys.iterator().next());
                 if (name.equals(KEY)) {
-                    List<Integer> sklizneFromSource = PersisterUtils.sklizneFromSource(TestConnectionUtils.getConnection(), Integer.valueOf(keys.iterator().next()));
+                    List<Integer> sklizneFromSource = PersisterUtils.sklizneFromSource(PersisterUtils.getConnection(), Integer.valueOf(keys.iterator().next()));
                     String sql = String.format(query, PersisterUtils.separatedList(sklizneFromSource));
-                    List<String> list = new JDBCQueryTemplate<String>(TestConnectionUtils.getConnection(), true) {
+                    List<String> list = new JDBCQueryTemplate<String>(PersisterUtils.getConnection(), true) {
 
                         @Override
                         public boolean handleRow(ResultSet rs, List<String> returnsList) throws SQLException {
@@ -84,15 +85,14 @@ public class OnlyOneExemplarActor extends UntypedActor{
                             return super.handleRow(rs, returnsList); //To change body of generated methods, choose Tools | Templates.
                         }
                     }.executeQuery(sql);
-                    
-                    getSender().tell(new CountExemplarsResults(list), getSelf());
+                    result.put(name, list);
                 }
-                
             }
-            
+            getSender().tell(new OnlyOneExemplarResult(result), getSelf());
         } else {
             unhandled(message);
         }
     }
     
+
 }

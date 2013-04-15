@@ -1,39 +1,39 @@
 package cz.incad.prokop.server.analytics;
 
-import static org.aplikator.server.data.RecordUtils.newRecord;
-import static org.aplikator.server.data.RecordUtils.newSubrecord;
+import akka.actor.ActorRef;
+import akka.actor.ActorSystem;
+import akka.actor.PoisonPill;
+import akka.actor.Props;
+import akka.actor.UntypedActor;
+import akka.actor.UntypedActorFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileWriter;
-import java.io.Writer;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.google.common.io.Files;
 import org.aplikator.client.shared.data.Operation;
 import org.aplikator.client.shared.data.Record;
 import org.aplikator.client.shared.data.RecordContainer;
-import org.aplikator.client.shared.rpc.impl.ProcessRecords;
 import org.aplikator.server.Context;
-import org.aplikator.server.persistence.PersisterFactory;
-import org.aplikator.server.util.Configurator;
-
-import com.google.common.base.Objects;
 
 import cz.incad.prokop.server.Structure;
+import static cz.incad.prokop.server.analytics.ExistenceOdkazu.getTmpFile;
+import cz.incad.prokop.server.analytics.akka.countexemplars.CountExemplarsMaster;
+import cz.incad.prokop.server.analytics.akka.messages.StartAnalyze;
+import cz.incad.prokop.server.data.Analyza;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.Date;
 import org.aplikator.server.data.BinaryData;
 
 public class PoctyExemplaru implements Analytic {
 
+    private static ActorSystem POCTY_EXEMPLARU_ACTOR_SYSTEM = null;
+
     @Override
     public boolean isRunning() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return ((POCTY_EXEMPLARU_ACTOR_SYSTEM != null) && (!POCTY_EXEMPLARU_ACTOR_SYSTEM.isTerminated()));
     }
 
     @Override
@@ -42,139 +42,77 @@ public class PoctyExemplaru implements Analytic {
     }
 
     @Override
-    public String[] getWizardKeys() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
     public void stopAnalyze() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        if (isRunning()) {
+            POCTY_EXEMPLARU_ACTOR_SYSTEM.actorFor("user/master").tell(PoisonPill.getInstance(), null);
+        }
     }
 
     
-    
-    
-    
-    Logger log = Logger.getLogger(PoctyExemplaru.class.getName());
+    @Override
+    public String[] getWizardKeys() {
+        return new String[] {};
+    }
 
-
-    private static final String query = 
-            "select zaz.Zaznam_ID,zaz.url, zaz.hlavniNazev, zaznam " +
-            "from exemplar ex, zaznam zaz  " +
-            "left outer join sklizen on (sklizen.sklizen_id=zaz.sklizen) left outer join zdroj on (sklizen.zdroj = zdroj.zdroj_id) " +
-            "where ex.zaznam=zaz.zaznam_id and zdroj.NAZEV='Aleph NKP' " +
-            "group by ex.zaznam, zaz.zaznam_id, zaz.url, zaz.HLAVNINAZEV " +
-            "having count(zaznam)=1";
-
-    private static final String query2 = 
-            "select count(c) as pocet, c as exemplaru from  " +
-            "    (select count(id.zaznam) as c, id.hodnota  " +
-            "    from identifikator id " +
-            "    where id.typ = 'cCNB' and (id.hodnota is not null or id.hodnota <> '') " +
-            "    group by hodnota) subquery " +
-            "group by c order by c";
+    public static File getTmpFile() throws IOException {
+        return File.createTempFile("output", "txt");
+    }
 
 
     /*
      *   POČTY – exemplářů (je závislé na profilu OAI)
-a)      NKCR – které záznamy mají pouze 1 exemplář
-b)      MZK+NKCR+OLOMOUC – statistika počtu exemplářů. (2320 dokumentů 3X, 123.445 2x … )
- (non-Javadoc)
+     a)      NKCR – které záznamy mají pouze 1 exemplář
+     b)      MZK+NKCR+OLOMOUC – statistika počtu exemplářů. (2320 dokumentů 3X, 123.445 2x … )
+     (non-Javadoc)
      * @see cz.incad.prokop.server.analytics.Analytic#analyze(java.lang.String, org.aplikator.client.data.Record, org.aplikator.server.Context)
      */
     @Override
-    public void analyze(org.aplikator.client.shared.data.Record params, Record modul, Record analyza, Context ctx) {
-        //ukázka, jak použít parametry
-        String userHome = Configurator.get().getConfig().getString(Configurator.HOME);
-        String configFileName = userHome+System.getProperty("file.separator")+params;
-        log.info("Random harvester config file name: "+configFileName);
-        Connection conn = PersisterFactory.getPersister().getJDBCConnection();
-        Statement st = null;
-        ResultSet rs = null;
-        File tempFile = null;
-        try{
-            File tempDir = Files.createTempDir();
-            tempFile = new File(tempDir, UUID.randomUUID().toString());
-            tempFile.createNewFile();
-            log.info("Poctyexemplaru TEMPFILE:" + tempFile);
-            Writer vysledek = new FileWriter(tempFile);
-            log.info("NKCR: záznamy které mají pouze 1 exemplář");
-            vysledek.append("NKCR: záznamy které mají pouze 1 exemplář")
-                        .append("\n");
-            st = conn.createStatement();
-            rs = st.executeQuery(query);
-            while (rs.next()){
-                    vysledek.append(Integer.toString(rs.getInt("Zaznam_ID")))
-                        .append("\t").append(rs.getString("url"))
-                        .append("\t").append(rs.getString("hlavniNazev"))
-                        .append("\n");
-            }
-            
-            rs.close();
-            
-            log.info("Statistika počtu exemplářů podle čČNB.");
-            vysledek.append("\n Statistika počtu exemplářů podle čČNB.\n");
-            rs = st.executeQuery(query2);
-            while (rs.next()){
-                    vysledek.append(Integer.toString(rs.getInt("pocet")))
-                        .append("\t").append(Integer.toString(rs.getInt("exemplaru")))
-                        .append("\n");
-            }
-            vysledek.close();
+    public void analyze(final org.aplikator.client.shared.data.Record params, final Record modul, final Record analyza, final Context ctx) {
 
-            if (tempFile != null){
-                BinaryData bd  = new BinaryData("PoctyExemplaru.txt", new FileInputStream(tempFile), tempFile.length());
-                Structure.analyza.vysledek.setValue(analyza, bd);
-            }
-        } catch (Exception ex){
-            log.log(Level.SEVERE, "Chyba v analyze", ex);
-        } finally{
-            if (rs != null){
-                try {
-                    rs.close();
-                } catch (SQLException e) {}
-            }
-            if (st != null){
-                try {
-                    st.close();
-                } catch (SQLException e) {}
-            }
-            if (conn != null){
-                try {
-                    conn.close();
-                } catch (SQLException e) {}
-            }
+        try {
+            final File file = getTmpFile();
+
+            POCTY_EXEMPLARU_ACTOR_SYSTEM = ActorSystem.create("validaton");
+            POCTY_EXEMPLARU_ACTOR_SYSTEM.registerOnTermination(new Runnable() {
+                @Override
+                public void run() {
+                    BinaryData bd;
+                    try {
+                        RecordContainer rc = new RecordContainer();
+                        Structure.analyza.stav.setValue(analyza, Analyza.Stav.UKONCENA.getValue());
+                        Structure.analyza.ukonceni.setValue(analyza, new Date());
+
+                        bd = new BinaryData("PoctyExemplaru.txt", new FileInputStream(file), file.length());
+                        Structure.analyza.vysledek.setValue(analyza, bd);
+
+                        rc.addRecord(null, analyza, analyza, Operation.UPDATE);
+
+
+                        Structure.modul.parametry.setValue(modul, "");
+                        rc.addRecord(null, modul, modul, Operation.UPDATE);
+
+                        rc = ctx.getAplikatorService().processRecords(rc);
+                        Logger.getLogger(ExistenceOdkazu.class.getName()).log(Level.INFO, "Analyza skoncena");
+                    } catch (FileNotFoundException ex) {
+                        Logger.getLogger(ExistenceOdkazu.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            });
+
+            Props props = new Props(new UntypedActorFactory() {
+                public UntypedActor create() throws Exception {
+                    return new CountExemplarsMaster(file);
+                }
+            });
+
+            // create the master
+            ActorRef master = POCTY_EXEMPLARU_ACTOR_SYSTEM.actorOf(props, "master");
+            // start the calculation
+            master.tell(new StartAnalyze(params), null);
+
+        } catch (IOException ex) {
+            Logger.getLogger(ExistenceOdkazu.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         }
 
     }
-
-    private static class Radek{
-        public String id;
-        public String nazev;
-        public StringBuilder text = new StringBuilder();
-        public boolean zapsan = false;
-    }
-
-    @SuppressWarnings("unused")
-    private void importRecord(Record sklizen, Context context, int i) {
-        RecordContainer rc = new RecordContainer(); //nový prázdný kontejner
-
-        Record zaznam = newRecord(Structure.zaznam); //nový záznam pro tabulku zaznam
-        Structure.zaznam.hlavniNazev.setValue(zaznam, "Náhodný název " + Math.random());//nastavit hodnoty v polích nového záznamu
-        Structure.zaznam.sklizen.setValue(zaznam, sklizen.getPrimaryKey().getId());//nastavit referenci na související záznam sklizně
-        Structure.zaznam.sourceXML.setValue(zaznam, "<xml>Náhodné xml " + Math.random() + " </xml>");
-        rc.addRecord(null, zaznam, zaznam, Operation.CREATE);//přidat záznam do kontejneru
-
-        Record identifikator = newSubrecord(zaznam.getPrimaryKey(), Structure.zaznam.identifikator);//nový záznam pro opakované pole (tabulku) identifikátor
-        Structure.identifikator.hodnota.setValue(identifikator, "Náhodný id " + Math.random());//opět nastavit hodnoty v záznamu opakovaného pole
-        Structure.identifikator.typ.setValue(identifikator, "ISSN");
-        rc.addRecord(null, identifikator, identifikator, Operation.CREATE);//přidat záznam opakovaného pole do kontejneru
-
-        Structure.sklizen.pocet.setValue(sklizen, i);  //aktualizovat hodnotu o počtu sklizených titulů v záznamu sklizně
-        rc.addRecord(null, sklizen, sklizen, Operation.UPDATE); //přidat záznam sklizně do kontejneru pro aktualizaci
-
-        rc = context.getAplikatorService().processRecords(rc);  //příkaz ProcessRecords uloží všechny záznamy v kontejenru do databáze (v jediné nové transakci) a vrátí zpět kontejner s aktualizovanými daty (tedy dočasné primární klíče nahradí skutečnými)
-
-    }
-
 }

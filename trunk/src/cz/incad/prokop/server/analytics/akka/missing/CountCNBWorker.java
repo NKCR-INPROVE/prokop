@@ -12,6 +12,7 @@ package cz.incad.prokop.server.analytics.akka.missing;
 
 import akka.actor.UntypedActor;
 import cz.incad.prokop.server.analytics.akka.messages.StartAnalyze;
+import cz.incad.prokop.server.analytics.akka.messages.StoppedWork;
 import cz.incad.prokop.server.analytics.akka.missing.messages.CountCNBResult;
 import cz.incad.prokop.server.utils.JDBCQueryTemplate;
 import cz.incad.prokop.server.utils.PersisterUtils;
@@ -55,7 +56,7 @@ public class CountCNBWorker extends UntypedActor {
            
             System.out.println("sta : "+sta.getParams());
             String value = (String) sta.getParams().getValue("Property:Wizard:SpustitAnalyzu_default-wizard.zdroj");
-            List<Integer> sklizne = PersisterUtils.sklizneFromSource(getConnection(), Integer.valueOf(value));
+            List<Integer> sklizne = PersisterUtils.sklizneFromSource(getConnection(), Integer.valueOf(value), true);
             
             String sql = String.format(countCNBquery, separatedList(sklizne));
             System.out.println("SQL :"+sql);
