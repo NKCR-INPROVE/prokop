@@ -12,6 +12,7 @@ package cz.incad.prokop.server.analytics.akka.missing;
 
 import akka.actor.UntypedActor;
 import cz.incad.prokop.server.analytics.akka.messages.StartAnalyze;
+import cz.incad.prokop.server.analytics.akka.messages.StoppedWork;
 import cz.incad.prokop.server.analytics.akka.missing.messages.NoCNBResult;
 import cz.incad.prokop.server.utils.JDBCQueryTemplate;
 import cz.incad.prokop.server.utils.PersisterUtils;
@@ -52,7 +53,7 @@ public class NoCNBWorker extends UntypedActor {
             StartAnalyze sta = (StartAnalyze) mess;
             
             String value = (String) sta.getParams().getValue("Property:Wizard:SpustitAnalyzu_default-wizard.zdroj");
-            List<Integer> sklizne = PersisterUtils.sklizneFromSource(getConnection(), Integer.valueOf(value));
+            List<Integer> sklizne = PersisterUtils.sklizneFromSource(getConnection(), Integer.valueOf(value), true);
             String sql = String.format(noCNBquery, PersisterUtils.separatedList(sklizne));
            
             List<String> ret = new JDBCQueryTemplate<String>(getConnection(),true) {

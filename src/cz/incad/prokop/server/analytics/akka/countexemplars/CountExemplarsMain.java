@@ -20,6 +20,8 @@ import cz.incad.prokop.server.analytics.akka.messages.StartAnalyze;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.aplikator.client.shared.data.Record;
 
 /**
@@ -49,7 +51,12 @@ public class CountExemplarsMain {
         });
         Props props = new Props(new UntypedActorFactory() {
             public UntypedActor create() {
-                return new CountExemplarsMaster();
+                try {
+                    return new CountExemplarsMaster(File.createTempFile("out", "txt"));
+                } catch (IOException ex) {
+                    Logger.getLogger(CountExemplarsMain.class.getName()).log(Level.SEVERE, null, ex);
+                    return null;
+                }
             }
         });
         

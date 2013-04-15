@@ -66,20 +66,21 @@ public class MissingMaster extends UntypedActor {
             this.noCnbResult = nocnb;
             System.out.println("NOCNB = "+nocnb.getNoCNB());
             this.resultCounter --;
+            System.out.println("Counter = "+this.resultCounter);
             this.checkStop();
         } else if (mess instanceof EmptyCNBResult ){
-            System.out.println("REceive result rom emtpyCNB");
             EmptyCNBResult empty = (EmptyCNBResult) mess;
+            System.out.println("REceive result rom emtpyCNB "+empty.getEmptyCNB());
             this.emptyCNBResult = empty;
-            System.out.println("empty "+empty.getEmptyCNB());
             this.resultCounter --;
+            System.out.println("Counter = "+this.resultCounter);
             this.checkStop();            
         } else if (mess instanceof CountCNBResult ){
             System.out.println("Receive result from countCNB");
             CountCNBResult count = (CountCNBResult) mess;
             this.countCNBResult = count;
-            System.out.println("Count c "+count.getCount());
             this.resultCounter --;
+            System.out.println("Counter = "+this.resultCounter);
             this.checkStop();
         } else {
             unhandled(mess);

@@ -41,7 +41,7 @@ public class ChybejiciUdaje implements Analytic {
     @Override
     public void stopAnalyze() {
         if (isRunning()) {
-            CHYBEJICI_UDAJE_ACTOR_SYSTEM.actorFor("master").tell(PoisonPill.getInstance(), null);
+            CHYBEJICI_UDAJE_ACTOR_SYSTEM.actorFor("user/master").tell(PoisonPill.getInstance(), null);
         }
     }
 

@@ -1,5 +1,11 @@
 package cz.incad.prokop.server.analytics;
 
+import akka.actor.ActorRef;
+import akka.actor.ActorSystem;
+import akka.actor.PoisonPill;
+import akka.actor.Props;
+import akka.actor.UntypedActor;
+import akka.actor.UntypedActorFactory;
 import static org.aplikator.server.data.RecordUtils.newRecord;
 import static org.aplikator.server.data.RecordUtils.newSubrecord;
 
@@ -28,14 +34,27 @@ import org.aplikator.server.util.Configurator;
 import com.google.common.base.Objects;
 
 import cz.incad.prokop.server.Structure;
+import static cz.incad.prokop.server.analytics.PoctyExemplaru.getTmpFile;
+import cz.incad.prokop.server.analytics.akka.countexemplars.CountExemplarsMaster;
+import cz.incad.prokop.server.analytics.akka.equality.EqualityMaster;
+import cz.incad.prokop.server.analytics.akka.messages.StartAnalyze;
+import cz.incad.prokop.server.data.Analyza;
+import cz.incad.prokop.server.utils.TestConnectionUtils;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.util.Date;
 
 public class ShodaUdaju implements Analytic {
 
-    Logger log = Logger.getLogger(ShodaUdaju.class.getName());
+    static Logger log = Logger.getLogger(ShodaUdaju.class.getName());
+
+    private static ActorSystem SHODA_UDAJU_ACTOR_SYSTEM = null;
+
 
     @Override
     public boolean isRunning() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return ((SHODA_UDAJU_ACTOR_SYSTEM != null) && (!SHODA_UDAJU_ACTOR_SYSTEM.isTerminated()));
     }
 
     @Override
@@ -45,17 +64,18 @@ public class ShodaUdaju implements Analytic {
 
     @Override
     public String[] getWizardKeys() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return new String[0];
     }
 
     @Override
     public void stopAnalyze() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        if (isRunning()) {
+            SHODA_UDAJU_ACTOR_SYSTEM.actorFor("user/master").tell(PoisonPill.getInstance(), null);
+        }
     }
 
     
     
-    private static final String query = "select zaz.Zaznam_ID,zaz.url, zaz.hlavniNazev, id.hodnota  from identifikator id left outer join zaznam zaz on id.zaznam = zaz.Zaznam_ID where id.typ = 'cCNB' order by id.hodnota, zaz.hlavniNazev";
 
     /*
      *  SHODA ÚDAJŮ
@@ -64,66 +84,50 @@ a)      Vypsat záznamy se shodným čČNB a rozdílným Názvem
      * @see cz.incad.prokop.server.analytics.Analytic#analyze(java.lang.String, org.aplikator.client.data.Record, org.aplikator.server.Context)
      */
     @Override
-    public void analyze(org.aplikator.client.shared.data.Record params, Record modul, Record analyza, Context ctx) {
-        //ukázka, jak použít parametry
-        String userHome = Configurator.get().getConfig().getString(Configurator.HOME);
-        String configFileName = userHome+System.getProperty("file.separator")+params;
-        log.info("Random harvester config file name: "+configFileName);
-        Radek prvni = null;
-        Radek druhy = null;
-        Connection conn = PersisterFactory.getPersister().getJDBCConnection();
-        Statement st = null;
-        ResultSet rs = null;
-        File tempFile = null;
-        try{
-            File tempDir = Files.createTempDir();
-            tempFile = new File(tempDir, UUID.randomUUID().toString());
-            tempFile.createNewFile();
-            log.info("ShodaUdaju TEMPFILE:" + tempFile);
-            Writer vysledek = new FileWriter(tempFile);
+    public void analyze(final org.aplikator.client.shared.data.Record params, final Record modul, final Record analyza, final Context ctx) {
+        try {
+            final File file = getTmpFile();
 
-            st = conn.createStatement();
-            rs = st.executeQuery(query);
-            while (rs.next()){
-                druhy = new Radek();
-                druhy.id = rs.getString("hodnota");
-                druhy.nazev = rs.getString("hlavniNazev");
-                druhy.text.append(rs.getInt("Zaznam_ID")).append("\t").append(rs.getString("url")).append("\t").append(rs.getString("hodnota")).append("\t").append(rs.getString("hlavniNazev")).append("\n");
-                if (prvni != null ){
-                    if (Objects.equal(prvni.id, druhy.id) && !Objects.equal(prvni.nazev,druhy.nazev)){
-                        if (!prvni.zapsan){
-                            vysledek.append(prvni.text);
-                        }
-                        vysledek.append(druhy.text);
-                        druhy.zapsan = true;
+            SHODA_UDAJU_ACTOR_SYSTEM = ActorSystem.create("equality");
+            SHODA_UDAJU_ACTOR_SYSTEM.registerOnTermination(new Runnable() {
+                @Override
+                public void run() {
+                    BinaryData bd;
+                    try {
+                        RecordContainer rc = new RecordContainer();
+                        Structure.analyza.stav.setValue(analyza, Analyza.Stav.UKONCENA.getValue());
+                        Structure.analyza.ukonceni.setValue(analyza, new Date());
+
+                        bd = new BinaryData("ShodaUdaju.txt", new FileInputStream(file), file.length());
+                        Structure.analyza.vysledek.setValue(analyza, bd);
+
+                        rc.addRecord(null, analyza, analyza, Operation.UPDATE);
+
+
+                        Structure.modul.parametry.setValue(modul, "");
+                        rc.addRecord(null, modul, modul, Operation.UPDATE);
+
+                        rc = ctx.getAplikatorService().processRecords(rc);
+                        Logger.getLogger(ExistenceOdkazu.class.getName()).log(Level.INFO, "Analyza skoncena");
+                    } catch (FileNotFoundException ex) {
+                        Logger.getLogger(ExistenceOdkazu.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
-                prvni = druhy;
-            }
-            vysledek.close();
+            });
 
-            if (tempFile != null){
-                BinaryData bd  = new BinaryData("ShodaUdaju.txt", new FileInputStream(tempFile), tempFile.length());
-                Structure.analyza.vysledek.setValue(analyza, bd);
-            }
-        } catch (Exception ex){
-            log.log(Level.SEVERE, "Chyba v analyze", ex);
-        } finally{
-            if (rs != null){
-                try {
-                    rs.close();
-                } catch (SQLException e) {}
-            }
-            if (st != null){
-                try {
-                    st.close();
-                } catch (SQLException e) {}
-            }
-            if (conn != null){
-                try {
-                    conn.close();
-                } catch (SQLException e) {}
-            }
+            Props props = new Props(new UntypedActorFactory() {
+                public UntypedActor create() throws Exception {
+                    return new EqualityMaster(file);
+                }
+            });
+
+            // create the master
+            ActorRef master = SHODA_UDAJU_ACTOR_SYSTEM.actorOf(props, "master");
+            // start the calculation
+            master.tell(new StartAnalyze(params), null);
+
+        } catch (IOException ex) {
+            Logger.getLogger(ExistenceOdkazu.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         }
 
     }
@@ -133,28 +137,10 @@ a)      Vypsat záznamy se shodným čČNB a rozdílným Názvem
         public String nazev;
         public StringBuilder text = new StringBuilder();
         public boolean zapsan = false;
-    }
-
-    @SuppressWarnings("unused")
-    private void importRecord(Record sklizen, Context context, int i) {
-        RecordContainer rc = new RecordContainer(); //nový prázdný kontejner
-
-        Record zaznam = newRecord(Structure.zaznam); //nový záznam pro tabulku zaznam
-        Structure.zaznam.hlavniNazev.setValue(zaznam, "Náhodný název " + Math.random());//nastavit hodnoty v polích nového záznamu
-        Structure.zaznam.sklizen.setValue(zaznam, sklizen.getPrimaryKey().getId());//nastavit referenci na související záznam sklizně
-        Structure.zaznam.sourceXML.setValue(zaznam, "<xml>Náhodné xml " + Math.random() + " </xml>");
-        rc.addRecord(null, zaznam, zaznam, Operation.CREATE);//přidat záznam do kontejneru
-
-        Record identifikator = newSubrecord(zaznam.getPrimaryKey(), Structure.zaznam.identifikator);//nový záznam pro opakované pole (tabulku) identifikátor
-        Structure.identifikator.hodnota.setValue(identifikator, "Náhodný id " + Math.random());//opět nastavit hodnoty v záznamu opakovaného pole
-        Structure.identifikator.typ.setValue(identifikator, "ISSN");
-        rc.addRecord(null, identifikator, identifikator, Operation.CREATE);//přidat záznam opakovaného pole do kontejneru
-
-        Structure.sklizen.pocet.setValue(sklizen, i);  //aktualizovat hodnotu o počtu sklizených titulů v záznamu sklizně
-        rc.addRecord(null, sklizen, sklizen, Operation.UPDATE); //přidat záznam sklizně do kontejneru pro aktualizaci
-
-        rc = context.getAplikatorService().processRecords(rc);  //příkaz ProcessRecords uloží všechny záznamy v kontejenru do databáze (v jediné nové transakci) a vrátí zpět kontejner s aktualizovanými daty (tedy dočasné primární klíče nahradí skutečnými)
-
+        @Override
+        public String toString() {
+            return "Radek{" + "id=" + id + ", nazev=" + nazev + ", text=" + text + ", zapsan=" + zapsan + '}';
+        }
     }
 
 }

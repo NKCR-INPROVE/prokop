@@ -58,7 +58,7 @@ public class ExistenceOdkazu implements Analytic {
 
 
     public static File getTmpFile() throws IOException {
-        return File.createTempFile("output", "csv");
+        return File.createTempFile("output", "txt");
     }
     
     /*
@@ -88,13 +88,12 @@ public class ExistenceOdkazu implements Analytic {
                             Structure.analyza.vysledek.setValue(analyza, bd);
 
                             rc.addRecord(null, analyza, analyza, Operation.UPDATE);
-                            rc = ctx.getAplikatorService().processRecords(rc);
 
                             
                             Structure.modul.parametry.setValue(modul, "");
                             rc.addRecord(null, modul, modul, Operation.UPDATE);
                             
-                            
+                            rc = ctx.getAplikatorService().processRecords(rc);
                             Logger.getLogger(ExistenceOdkazu.class.getName()).log(Level.INFO, "Analyza skoncena");
                         } catch (FileNotFoundException ex) {
                             Logger.getLogger(ExistenceOdkazu.class.getName()).log(Level.SEVERE, null, ex);

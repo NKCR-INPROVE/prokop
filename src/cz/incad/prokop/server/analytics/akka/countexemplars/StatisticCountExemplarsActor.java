@@ -12,8 +12,10 @@ package cz.incad.prokop.server.analytics.akka.countexemplars;
 
 import akka.actor.UntypedActor;
 import cz.incad.prokop.server.analytics.akka.countexemplars.messages.CountExemplarsResults;
+import cz.incad.prokop.server.analytics.akka.countexemplars.messages.OnlyOneExemplarResult;
 import cz.incad.prokop.server.analytics.akka.messages.StartAnalyze;
 import cz.incad.prokop.server.utils.JDBCQueryTemplate;
+import cz.incad.prokop.server.utils.PersisterUtils;
 import cz.incad.prokop.server.utils.TestConnectionUtils;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -38,7 +40,7 @@ public class StatisticCountExemplarsActor extends UntypedActor{
     public void onReceive(Object message) throws Exception {
         if (message instanceof StartAnalyze) {
             System.out.println("Statistic count example");
-            List<String> list = new JDBCQueryTemplate<String>(TestConnectionUtils.getConnection(), true) {
+            List<String> list = new JDBCQueryTemplate<String>(PersisterUtils.getConnection(), true) {
                 @Override
                 public boolean handleRow(ResultSet rs, List<String> returnsList) throws SQLException {
                     StringBuilder builder = new StringBuilder();
@@ -49,10 +51,6 @@ public class StatisticCountExemplarsActor extends UntypedActor{
                 }
             }.executeQuery(query2);
             getSender().tell(new CountExemplarsResults(list), getSelf());
-        } else if (message instanceof CountExemplarsResults) {
-            CountExemplarsResults cs = (CountExemplarsResults) message;
-            System.out.println("REceiving result :"+cs.getResults());
-            
         } else {
             unhandled(message);
         }

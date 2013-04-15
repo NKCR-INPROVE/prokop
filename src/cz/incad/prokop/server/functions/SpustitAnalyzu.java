@@ -45,7 +45,7 @@ public class SpustitAnalyzu implements Executable {
                 Structure.analyza.stav.setValue(analyza, Analyza.Stav.ZAHAJENA.getValue());
                 rc.addRecord(null, analyza, analyza, Operation.CREATE);
 
-                setValue(modul, Structure.modul.parametry, "RUNNING");
+                //setValue(modul, Structure.modul.parametry, "RUNNING");
                 rc.addRecord(null, modul, modul, Operation.UPDATE);
                 
                 rc = context.getAplikatorService().processRecords(rc);
