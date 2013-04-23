@@ -42,7 +42,7 @@ public class PoctyExemplaru implements Analytic {
     }
 
     @Override
-    public void stopAnalyze() {
+    public void stopAnalyze(Record modul, Record analyza, Context ctx) {
         if (isRunning()) {
             POCTY_EXEMPLARU_ACTOR_SYSTEM.actorFor("user/master").tell(PoisonPill.getInstance(), null);
         }
@@ -81,14 +81,13 @@ public class PoctyExemplaru implements Analytic {
                         RecordContainer rc = new RecordContainer();
                         Structure.analyza.stav.setValue(analyza, Analyza.Stav.UKONCENA.getValue());
                         Structure.analyza.ukonceni.setValue(analyza, new Date());
+                        Structure.modul.stav.setValue(modul, Analyza.Stav.UKONCENA.getValue());
 
+                        
                         bd = new BinaryData("PoctyExemplaru.txt", new FileInputStream(file), file.length());
                         Structure.analyza.vysledek.setValue(analyza, bd);
 
                         rc.addRecord(null, analyza, analyza, Operation.UPDATE);
-
-
-                        Structure.modul.parametry.setValue(modul, "");
                         rc.addRecord(null, modul, modul, Operation.UPDATE);
 
                         rc = ctx.getAplikatorService().processRecords(rc);

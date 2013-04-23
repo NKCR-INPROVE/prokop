@@ -33,7 +33,7 @@ public class ZastavitAnalyzu implements Executable {
     public FunctionResult execute(FunctionParameters functionParameters, Context context) {
         Record modul = functionParameters.getClientContext().getCurrentRecord();
         Record parameters = functionParameters.getClientParameters();
-        Record analyza = null;
+        //Record analyza = null;
         try {
             String analyticName = getValue(modul, Structure.modul.trida);
             Analytic an = null;
@@ -45,17 +45,29 @@ public class ZastavitAnalyzu implements Executable {
             }
             
             if (an.isRunning()) {
-                an.stopAnalyze();
+                an.stopAnalyze(modul, null, context);
+
+                RecordContainer rc = new RecordContainer();
+                Structure.modul.stav.setValue(modul, "Pozadavek na ukoceni");
+                rc.addRecord(null, modul, modul, Operation.UPDATE);
+                rc = context.getAplikatorService().processRecords(rc);
+
                 return new FunctionResult("Analýza pro modul " + modul.getValue(Structure.modul.nazev.getId())+" bude zastavena. Vyckejte.", true);
             } else {
+
+                RecordContainer rc = new RecordContainer();
+                Structure.modul.stav.setValue(modul, Analyza.Stav.UKONCENA.getValue());
+                rc.addRecord(null, modul, modul, Operation.UPDATE);
+                rc = context.getAplikatorService().processRecords(rc);
+
                 return new FunctionResult("Nelze zastavit. Nebezi ! ", false);
             }
         } catch (Throwable t) {
             log.log(Level.SEVERE, "Error analyzing: ", t);
-            RecordContainer rc = new RecordContainer();
-            Structure.analyza.stav.setValue(analyza, Analyza.Stav.CHYBA.getValue());
-            rc.addRecord(null, analyza, analyza, Operation.UPDATE);
-            rc = context.getAplikatorService().processRecords(rc);
+//            RecordContainer rc = new RecordContainer();
+//            Structure.analyza.stav.setValue(analyza, Analyza.Stav.CHYBA.getValue());
+//            rc.addRecord(null, analyza, analyza, Operation.UPDATE);
+//            rc = context.getAplikatorService().processRecords(rc);
 
             return new FunctionResult("Analýza pro modul " + modul.getValue(Structure.modul.nazev.getId()) + "selhala: " + t, false);
         }

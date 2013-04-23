@@ -140,7 +140,6 @@ public class URLValidationMaster extends UntypedActor {
     }
     
     private int processTable(Connection conn,  Record params) throws SQLException {
-        System.out.println("params : "+params);
         String value = (String) params.getValue("Property:Wizard:SpustitAnalyzu_default-wizard.zdroj");
         
         List<Integer> sklizne = PersisterUtils.sklizneFromSource(conn, Integer.valueOf(value));
@@ -168,7 +167,7 @@ public class URLValidationMaster extends UntypedActor {
             }
         }.executeQuery(linksQuery + builder.toString(), ids.toArray(new Object[ids.size()]));
         
-        System.out.println("Executing sql :"+linksQuery+" with params :"+builder.toString());
+        log.info("Executing sql :"+linksQuery+" with params :"+builder.toString());
         Integer count = result.isEmpty() ? 0 : result.get(0);
         return count;
     }

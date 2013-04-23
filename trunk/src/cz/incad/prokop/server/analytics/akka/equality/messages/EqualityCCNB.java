@@ -8,29 +8,22 @@
  * a copy of the GNU General Public License along with this program. If not,
  * see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.prokop.server.analytics.akka.missing.messages;
-
-import java.util.List;
-import org.apache.log4j.Logger;
+package cz.incad.prokop.server.analytics.akka.equality.messages;
 
 /**
  *
  * @author Pavel Stastny <pavel.stastny at gmail.com>
  */
-public class EmptyCNBResult {
-
-    Logger log = Logger.getLogger(EmptyCNBResult.class.getName());
+public class EqualityCCNB {
     
-    private List<String> emptyCNB;
-
-    public EmptyCNBResult(List<String> emptyCNB) {
-        this.emptyCNB = emptyCNB;
+    private String ccnb;
+    
+    public EqualityCCNB(String ccnb) {
+        this.ccnb = ccnb;
     }
 
-    public List<String> getEmptyCNB() {
-        return emptyCNB;
+    public String getCcnb() {
+        return ccnb;
     }
-    
-    
     
 }

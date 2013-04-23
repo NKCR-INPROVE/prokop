@@ -36,6 +36,9 @@ public class Modul extends Entity {
     public Property<String> formatXML;
     public Property<String> trida;
     public Property<String> parametry;
+
+    public Property<String> stav;
+    
     public Collection<Analyza> analyza;
     
     public static class DefaultListItem implements ListItem<String>{
@@ -69,7 +72,7 @@ public class Modul extends Entity {
                 returnsList.add(new DefaultListItem(name, ""+i));
                 return super.handleRow(rs, returnsList); //To change body of generated methods, choose Tools | Templates.
             }
-        }.executeQuery("select Nazev, Zdroj_id from DEV_PROKOP.ZDROJ");
+        }.executeQuery("select Nazev, Zdroj_id from ZDROJ");
     }
     
 
@@ -108,6 +111,7 @@ public class Modul extends Entity {
         formatXML = stringProperty("formatXML");
         trida = stringProperty("trida");
         parametry = stringProperty("parametry");
+        stav = stringProperty("stav");
         
         this.setPersistersTriggers(new PersisterTriggers() {
 
@@ -162,7 +166,7 @@ public class Modul extends Entity {
         retval.addProperty(typModulu).addProperty(nazev);
         retval.form(column(
                 row(typModulu,nazev, formatXML),
-                row(trida, parametry),
+                row(trida, stav),
                 
                 row(spustitAnalyzu,zastavitAnalyzu),
 

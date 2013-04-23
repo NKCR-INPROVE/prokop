@@ -11,6 +11,8 @@
 package cz.incad.prokop.server.analytics.akka.missing;
 
 import akka.actor.UntypedActor;
+import akka.event.Logging;
+import akka.event.LoggingAdapter;
 import cz.incad.prokop.server.analytics.akka.messages.StartAnalyze;
 import cz.incad.prokop.server.analytics.akka.messages.StoppedWork;
 import cz.incad.prokop.server.analytics.akka.missing.messages.EmptyCNBResult;
@@ -31,6 +33,8 @@ import java.util.logging.Logger;
  */
 public class EmptyCNBWorker extends UntypedActor {
 
+        LoggingAdapter log = Logging.getLogger(getContext().system(), this);
+
     //private static final String emptyCNBquery = "select zaz.Zaznam_ID,zaz.url, zaz.hlavniNazev, id.hodnota  from identifikator id left outer join zaznam zaz on id.zaznam = zaz.Zaznam_ID left outer join sklizen on (sklizen.sklizen_id=zaz.sklizen) left outer join zdroj on (sklizen.zdroj = zdroj.zdroj_id) where id.typ = 'cCNB' and (id.hodnota is null or id.hodnota = '') and zdroj.nazev in( '%s' ) order by  zaz.hlavniNazev";
         
     private static final String emptyCNBquery = "select zaz.Zaznam_ID,zaz.url, zaz.hlavniNazev, id.hodnota  from identifikator id\n" +
@@ -44,30 +48,50 @@ public class EmptyCNBWorker extends UntypedActor {
     public void onReceive(Object mess) throws Exception {
         if (mess instanceof StartAnalyze) {
             StartAnalyze sta = (StartAnalyze) mess;
-            
+            log.info("EmptyCNB STARTING {}",mess);
+
             String value = (String) sta.getParams().getValue("Property:Wizard:SpustitAnalyzu_default-wizard.zdroj");
             List<Integer> sklizne = PersisterUtils.sklizneFromSource(getConnection(), Integer.valueOf(value), true);
             String sql = String.format(emptyCNBquery, PersisterUtils.separatedList(sklizne));
-            System.out.println("EmtpyCNB:executing query :"+sql);
 
             
+            log.info("Executing query {}",sql);
             List<String> retList = new JDBCQueryTemplate<String>(getConnection(), false) {
+                int counter = 0;
                 @Override
                 public boolean handleRow(ResultSet rs, List<String> returnsList) throws SQLException {
                     StringBuilder empty = new StringBuilder();
                     empty.append(Integer.toString(rs.getInt("Zaznam_ID"))).append("\t").append(rs.getString("url")).append("\t").append(rs.getString("hlavniNazev"));
                     returnsList.add(empty.toString());
+                    if ((counter % 10000) == 0) {
+                        log.info("\t in progress, current list size {}",returnsList.size());
+                        if (counter > 0) {
+                            getSender().tell( new EmptyCNBResult(returnsList) ,getSelf());
+                            returnsList.clear();
+                        }
+                    }
+                    counter += 1;
                     return super.handleRow(rs, returnsList); //To change body of generated methods, choose Tools | Templates.
                 }
             }.executeQuery(sql);
+            log.info("EmptyCNB Sending result with size {}", retList.size());
             getSender().tell( new EmptyCNBResult(retList) ,getSelf());
+            getSender().tell(new StoppedWork(),getSelf());
         } else {
             unhandled(mess);
         }
 
     }
+
+    @Override
+    public void postStop() {
+        super.postStop(); //To change body of generated methods, choose Tools | Templates.
+        log.info("stopping {}",this.getSelf().path());
+    }
+
     
-        public Connection getConnection() {
+    
+    public Connection getConnection() {
         if (Boolean.getBoolean("missing.debug")) {
             try {
                 return TestConnectionUtils.getConnection();

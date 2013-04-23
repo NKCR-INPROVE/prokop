@@ -3,6 +3,12 @@ package cz.incad.prokop.server.functions;
 import cz.incad.prokop.server.Structure;
 import cz.incad.prokop.server.analytics.Analytic;
 import cz.incad.prokop.server.data.Analyza;
+import cz.incad.prokop.server.data.Modul;
+import cz.incad.prokop.server.utils.JDBCQueryTemplate;
+import cz.incad.prokop.server.utils.PersisterUtils;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import org.aplikator.client.shared.data.Record;
 import org.aplikator.client.shared.data.RecordContainer;
 import org.aplikator.server.Context;
@@ -11,8 +17,10 @@ import org.aplikator.server.function.FunctionParameters;
 import org.aplikator.server.function.FunctionResult;
 
 import java.util.Date;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.aplikator.client.shared.data.ListItem;
 import org.aplikator.client.shared.data.Operation;
 
 import static org.aplikator.server.data.RecordUtils.getValue;
@@ -22,6 +30,20 @@ import static org.aplikator.server.data.RecordUtils.newSubrecord;
 public class SpustitAnalyzu implements Executable {
 
     Logger log = Logger.getLogger(SpustitAnalyzu.class.getName());
+
+    public static String readName(Integer id) {
+        Connection conn = PersisterUtils.getConnection();
+        List<String> names = new JDBCQueryTemplate<String>(conn, true) {
+            @Override
+            public boolean handleRow(ResultSet rs, List<String> returnsList) throws SQLException {
+                String name = rs.getString("Nazev");
+                returnsList.add(name);
+                return super.handleRow(rs, returnsList); //To change body of generated methods, choose Tools | Templates.
+            }
+        }.executeQuery("select Nazev from ZDROJ where Zdroj_id=?",id);
+        return names.isEmpty() ?  "" : names.get(0);
+    }
+    
 
     @Override
     public FunctionResult execute(FunctionParameters functionParameters, Context context) {
@@ -37,15 +59,20 @@ public class SpustitAnalyzu implements Executable {
                 log.log(Level.SEVERE, "Cannot instantiate analytic", e);
                 throw e;    
             }
-            
+
             if (!an.isRunning()) {
                 RecordContainer rc = new RecordContainer();
                 analyza = newSubrecord(modul.getPrimaryKey(), Structure.modul.analyza);
                 Structure.analyza.spusteni.setValue(analyza, new Date());
                 Structure.analyza.stav.setValue(analyza, Analyza.Stav.ZAHAJENA.getValue());
-                rc.addRecord(null, analyza, analyza, Operation.CREATE);
+                if (functionParameters != null && functionParameters.getClientParameters() != null) {
+                    String value = (String) functionParameters.getClientParameters().getValue("Property:Wizard:SpustitAnalyzu_default-wizard.zdroj");
+                    Integer id = Integer.valueOf(value);
+                    Structure.analyza.parametry.setValue(analyza, readName(id));
+                } 
 
-                //setValue(modul, Structure.modul.parametry, "RUNNING");
+                rc.addRecord(null, analyza, analyza, Operation.CREATE);
+                setValue(modul, Structure.modul.stav, Analyza.Stav.ZAHAJENA.name());
                 rc.addRecord(null, modul, modul, Operation.UPDATE);
                 
                 rc = context.getAplikatorService().processRecords(rc);
