@@ -9,7 +9,7 @@ public interface Analytic {
     public void analyze(org.aplikator.client.shared.data.Record params, Record modul, Record analyza, Context ctx);
     
     /** zastavi analyzu */
-    public void stopAnalyze();
+    public void stopAnalyze(Record modul, Record analyza, Context ctx);
     
     /** vraci true, pokud bezi */
     public boolean isRunning();

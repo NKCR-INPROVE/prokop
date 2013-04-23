@@ -1,6 +1,8 @@
 package cz.incad.prokop.server.analytics.akka.links;
 
 import akka.actor.UntypedActor;
+import akka.event.Logging;
+import akka.event.LoggingAdapter;
 import cz.incad.prokop.server.analytics.akka.links.messages.URLRequest;
 import cz.incad.prokop.server.analytics.akka.links.messages.URLResponse;
 import cz.incad.prokop.server.utils.IOUtils;
@@ -19,16 +21,18 @@ import java.util.logging.Logger;
  */
 public class URLConnectWorker extends UntypedActor {
     
-    static final Logger LOGGER = Logger.getLogger(URLConnectWorker.class.getName());
+    LoggingAdapter log = Logging.getLogger(getContext().system(), this);
+
     private int counter =0;
     
     @Override
     public void onReceive(Object message) throws Exception {
         System.out.println("Receive message");
         if (message instanceof URLRequest) {
+            log.info("URLConnect STARTING {}",message);
             this.counter ++;
             URLRequest req = (URLRequest) message;
-            LOGGER.info("receive request :"+req.getUrl());
+            log.info("\t Request URL :"+req.getUrl());
             getSender().tell(connect(req.getUrl(), req.getZaznamId()),getSelf());
             
         } else {
@@ -37,7 +41,6 @@ public class URLConnectWorker extends UntypedActor {
     }
     
     private URLResponse connect(String urlString, int zaznamId) {
-        System.out.println("testing  url "+urlString+" for zaznamID "+zaznamId);
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         HttpURLConnection httpUrlConn = null;
         URL url = null;
@@ -55,7 +58,7 @@ public class URLConnectWorker extends UntypedActor {
             
             return new URLResponse(respCode,respMessage, url, httpUrlConn.getURL(), zaznamId, bos.toByteArray());
         } catch (Exception ex) {
-            LOGGER.log(Level.SEVERE, ex.getMessage(),ex);
+            log.error(ex, ex.getMessage());
             return new URLResponse(-1,ex.getMessage(),url, httpUrlConn.getURL(), zaznamId, bos.toByteArray());
         } finally {
             if (httpUrlConn != null) {

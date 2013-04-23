@@ -11,6 +11,8 @@
 package cz.incad.prokop.server.analytics.akka.missing;
 
 import akka.actor.UntypedActor;
+import akka.event.Logging;
+import akka.event.LoggingAdapter;
 import cz.incad.prokop.server.analytics.akka.messages.StartAnalyze;
 import cz.incad.prokop.server.analytics.akka.messages.StoppedWork;
 import cz.incad.prokop.server.analytics.akka.missing.messages.CountCNBResult;
@@ -33,6 +35,8 @@ import org.aplikator.server.persistence.PersisterFactory;
 public class CountCNBWorker extends UntypedActor {
 
     
+    LoggingAdapter log = Logging.getLogger(getContext().system(), this);
+
     private static final String countCNBquery = "select count(*)  from  zaznam zaz "
             + "where exists ( select id.hodnota from identifikator id where id.zaznam = zaz.Zaznam_ID and id.typ = 'cCNB' and (id.hodnota is not null or not (id.hodnota = ''))) "
             + "and zaz.sklizen in( %s ) order by  zaz.hlavniNazev";
@@ -47,32 +51,43 @@ public class CountCNBWorker extends UntypedActor {
         super.preStart(); //To change body of generated methods, choose Tools | Templates.
     }
 
+    @Override
+    public void postStop() {
+        super.postStop(); 
+        log.info("stopping {}",this.getSelf().path());
+    }
 
+
+    
     
     @Override
     public void onReceive(Object mess) throws Exception {
         if (mess instanceof StartAnalyze) {
             StartAnalyze sta = (StartAnalyze) mess;
-           
-            System.out.println("sta : "+sta.getParams());
+            log.info("ContCNB STARTING {}",mess);
+            
             String value = (String) sta.getParams().getValue("Property:Wizard:SpustitAnalyzu_default-wizard.zdroj");
             List<Integer> sklizne = PersisterUtils.sklizneFromSource(getConnection(), Integer.valueOf(value), true);
             
             String sql = String.format(countCNBquery, separatedList(sklizne));
-            System.out.println("SQL :"+sql);
 
-            System.out.println("COUNT CNB : Executing query :"+sql);
+            log.info("Executing query {}",sql);
             List<String> retStringList = new JDBCQueryTemplate<String>(getConnection(), true) {
+                int counter = 0;
                 @Override
                 public boolean handleRow(ResultSet rs, List<String> returnsList) throws SQLException {
                     StringBuilder count = new StringBuilder();
-                    count.append("Počet záznamů s čČNB: ").append(Integer.toString(rs.getInt(1))).append("\n").append("\n").append("Záznamy bez čČNB:").append("\n");
+                    count.append(Integer.toString(rs.getInt(1))).append("\n");
                     returnsList.add(count.toString());
-                    
+                    if ((counter % 10000) == 0) {
+                        log.info("\t in progress");
+                    }
                     return super.handleRow(rs, returnsList); //To change body of generated methods, choose Tools | Templates.
                 }
             }.executeQuery(sql);
+            log.info("ContCNB Sending result");
             getSender().tell(new CountCNBResult(retStringList), getSelf());
+            getSender().tell(new StoppedWork(), getSelf());
         } else {
             unhandled(mess);
         }

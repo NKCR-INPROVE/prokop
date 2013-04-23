@@ -40,6 +40,7 @@ public class Analyza extends Entity {
     public Property<String> stav;
     public Property<BinaryData> vysledek;
     public Property<String> uzivatel;
+    public Property<String> parametry;
     public Reference<Modul> modul;
     public Property<String> zdroj;
 
@@ -56,6 +57,7 @@ public class Analyza extends Entity {
         uzivatel = stringProperty("uzivatel");
         //zdroj = stringProperty("zdroj");
         modul = referenceProperty(Structure.modul, "modul");
+        parametry = stringProperty("parametry");
     }
 
     @Override
@@ -63,7 +65,7 @@ public class Analyza extends Entity {
         View retval = new View(this);
         retval.addProperty(spusteni).addProperty(uzivatel).addProperty(ukonceni).addProperty(stav);
         retval.form(column(
-                row(spusteni,ukonceni, stav,uzivatel),
+                row(spusteni,ukonceni, stav,uzivatel, parametry),
                 new BinaryField(vysledek)
             ));
         return retval;

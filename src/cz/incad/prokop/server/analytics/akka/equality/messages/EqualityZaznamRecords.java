@@ -16,16 +16,17 @@ import java.util.List;
  *
  * @author Pavel Stastny <pavel.stastny at gmail.com>
  */
-public class EqualityResponse {
-    
-    private List<String> messages;
+public class EqualityZaznamRecords {
 
-    public EqualityResponse(List<String> messages) {
-        this.messages = messages;
+    private List<Integer> cnbRecords;
+    
+
+    public EqualityZaznamRecords(List<Integer> cnbRecords) {
+        this.cnbRecords = cnbRecords;
     }
 
-    public List<String> getMessages() {
-        return messages;
+    public List<Integer> getCnbRecords() {
+        return cnbRecords;
     }
     
 }

@@ -39,7 +39,7 @@ public class ChybejiciUdaje implements Analytic {
     }
 
     @Override
-    public void stopAnalyze() {
+    public void stopAnalyze(Record modul, Record analyza, Context ctx) {
         if (isRunning()) {
             CHYBEJICI_UDAJE_ACTOR_SYSTEM.actorFor("user/master").tell(PoisonPill.getInstance(), null);
         }
@@ -61,7 +61,7 @@ public class ChybejiciUdaje implements Analytic {
      * @see cz.incad.prokop.server.analytics.Analytic#analyze(java.lang.String, org.aplikator.client.data.Record, org.aplikator.server.Context)
      */
     @Override
-    public void analyze(final org.aplikator.client.shared.data.Record params, Record modul, final Record analyza, final Context ctx) {
+    public void analyze(final org.aplikator.client.shared.data.Record params, final Record modul, final Record analyza, final Context ctx) {
         try {
             if (this.isRunning()) {
                 return;
@@ -70,6 +70,7 @@ public class ChybejiciUdaje implements Analytic {
             final File file = getTmpFile();
             CHYBEJICI_UDAJE_ACTOR_SYSTEM = ActorSystem.create("missing");
             CHYBEJICI_UDAJE_ACTOR_SYSTEM.registerOnTermination(new Runnable() {
+
                 @Override
                 public void run() {
                     BinaryData bd;
@@ -78,7 +79,14 @@ public class ChybejiciUdaje implements Analytic {
                         Structure.analyza.stav.setValue(analyza, Analyza.Stav.UKONCENA.getValue());
                         Structure.analyza.ukonceni.setValue(analyza, new Date());
 
+                        bd = new BinaryData("ChybejiciUdaje.txt", new FileInputStream(file), file.length());
+                        Structure.analyza.vysledek.setValue(analyza, bd);
+
+                        Structure.modul.stav.setValue(modul, Analyza.Stav.UKONCENA.getValue());
+                        
                         rc.addRecord(null, analyza, analyza, Operation.UPDATE);
+                        rc.addRecord(null, modul, modul, Operation.UPDATE);
+                        
                         rc = ctx.getAplikatorService().processRecords(rc);
 
                         Logger.getLogger(ExistenceOdkazu.class.getName()).log(Level.INFO, "Analyza skoncena");

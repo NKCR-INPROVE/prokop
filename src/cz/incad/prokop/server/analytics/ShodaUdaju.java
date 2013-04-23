@@ -68,7 +68,7 @@ public class ShodaUdaju implements Analytic {
     }
 
     @Override
-    public void stopAnalyze() {
+    public void stopAnalyze(Record modul, Record analyza, Context ctx) {
         if (isRunning()) {
             SHODA_UDAJU_ACTOR_SYSTEM.actorFor("user/master").tell(PoisonPill.getInstance(), null);
         }
@@ -95,16 +95,15 @@ a)      Vypsat záznamy se shodným čČNB a rozdílným Názvem
                     BinaryData bd;
                     try {
                         RecordContainer rc = new RecordContainer();
-                        Structure.analyza.stav.setValue(analyza, Analyza.Stav.UKONCENA.getValue());
                         Structure.analyza.ukonceni.setValue(analyza, new Date());
 
                         bd = new BinaryData("ShodaUdaju.txt", new FileInputStream(file), file.length());
                         Structure.analyza.vysledek.setValue(analyza, bd);
-
+                        Structure.analyza.stav.setValue(analyza, Analyza.Stav.UKONCENA.getValue());
+                        Structure.modul.stav.setValue(modul, Analyza.Stav.UKONCENA.getValue());
+                         
+                        
                         rc.addRecord(null, analyza, analyza, Operation.UPDATE);
-
-
-                        Structure.modul.parametry.setValue(modul, "");
                         rc.addRecord(null, modul, modul, Operation.UPDATE);
 
                         rc = ctx.getAplikatorService().processRecords(rc);

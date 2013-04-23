@@ -13,13 +13,17 @@ package cz.incad.prokop.server.analytics.akka.missing;
 import akka.actor.ActorRef;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
+import akka.event.Logging;
+import akka.event.LoggingAdapter;
 import cz.incad.prokop.server.analytics.akka.messages.StartAnalyze;
+import cz.incad.prokop.server.analytics.akka.messages.StoppedWork;
 import cz.incad.prokop.server.analytics.akka.missing.messages.CountCNBResult;
 import cz.incad.prokop.server.analytics.akka.missing.messages.EmptyCNBResult;
 import cz.incad.prokop.server.analytics.akka.missing.messages.NoCNBResult;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -30,6 +34,8 @@ import java.util.logging.Logger;
  */
 public class MissingMaster extends UntypedActor {
 
+    LoggingAdapter log = Logging.getLogger(getContext().system(), this);
+    
     int resultCounter = 3;
 
     private ActorRef noCnbWorker;
@@ -49,38 +55,49 @@ public class MissingMaster extends UntypedActor {
     @Override
     public void preStart() {
         super.preStart(); //To change body of generated methods, choose Tools | Templates.
-        this.noCnbWorker = getContext().actorOf(new Props(NoCNBWorker.class));
-        this.emptyCNBWorker = getContext().actorOf(new Props(EmptyCNBWorker.class));
-        this.countCNBWorker = getContext().actorOf(new Props(CountCNBWorker.class));
+        this.noCnbWorker = getContext().actorOf(new Props(NoCNBWorker.class),"nocnb");
+        this.emptyCNBWorker = getContext().actorOf(new Props(EmptyCNBWorker.class),"emptycnb");
+        this.countCNBWorker = getContext().actorOf(new Props(CountCNBWorker.class),"countcnb");
     }
+
+    @Override
+    public void postStop() {
+        super.postStop(); 
+        log.info("stopping {}",this.getSelf().path());
+    }
+    
+
     
     
     @Override
     public void onReceive(Object mess) throws Exception {
         if (mess instanceof StartAnalyze) {
+            log.info("STARTING ANALYZE {}",mess);
             noCnbWorker.tell(mess, getSelf());
             emptyCNBWorker.tell(mess,getSelf());
             countCNBWorker.tell(mess,getSelf());
         } else if (mess instanceof NoCNBResult ){
             NoCNBResult nocnb = (NoCNBResult) mess;
             this.noCnbResult = nocnb;
-            System.out.println("NOCNB = "+nocnb.getNoCNB());
-            this.resultCounter --;
-            System.out.println("Counter = "+this.resultCounter);
-            this.checkStop();
+            log.info("NoCNB result {}",nocnb.getNoCNB());
         } else if (mess instanceof EmptyCNBResult ){
             EmptyCNBResult empty = (EmptyCNBResult) mess;
-            System.out.println("REceive result rom emtpyCNB "+empty.getEmptyCNB());
-            this.emptyCNBResult = empty;
-            this.resultCounter --;
-            System.out.println("Counter = "+this.resultCounter);
-            this.checkStop();            
+            log.info("EmptyCNB result {}",empty.getEmptyCNB().size());
+            if (this.emptyCNBResult == null) {
+                this.emptyCNBResult = empty;
+            } else {
+                List<String> elist = this.emptyCNBResult.getEmptyCNB();
+                List<String> all = new ArrayList<String>(elist);
+                all.addAll(empty.getEmptyCNB());
+                this.emptyCNBResult = new EmptyCNBResult(all);
+            }
         } else if (mess instanceof CountCNBResult ){
-            System.out.println("Receive result from countCNB");
             CountCNBResult count = (CountCNBResult) mess;
+            log.info("CountCNB result {}",count.getCount().size());
             this.countCNBResult = count;
+        } else if (mess instanceof StoppedWork ){
             this.resultCounter --;
-            System.out.println("Counter = "+this.resultCounter);
+            log.info("decreasing counter {} ",this.resultCounter);
             this.checkStop();
         } else {
             unhandled(mess);
@@ -100,24 +117,25 @@ public class MissingMaster extends UntypedActor {
 
     private void storeResults() throws IOException {
         // save result 
-        StringBuilder vysledek =  new StringBuilder();
-        List<String> count = countCNBResult.getCount();
-        vysledek.append("Počet záznamů s čČNB: ");
-        for (String line : count) { vysledek.append(line); }
-        vysledek.append("\n");
-
-        vysledek.append("Záznamy bez čČNB: ");
-        List<String> nocnb = noCnbResult.getNoCNB();
-        for (String line : nocnb) { vysledek.append(line); }
-        vysledek.append("\n");
-        
-        vysledek.append("Záznamy s prázdným čČNB: ").append("\n");
-        List<String> emptycnb = emptyCNBResult.getEmptyCNB();
-        for (String line : emptycnb) { vysledek.append(line); }
-            
-        
         FileWriter fw = new FileWriter(this.outFile);
-        fw.write(vysledek.toString());
-        fw.close();
+        try {
+            List<String> count = countCNBResult.getCount();
+            fw.write("Počet záznamů s čČNB: "); fw.write('\n');
+            for (String line : count) { fw.write(line); fw.write('\n'); }
+            fw.write("\n");
+
+            fw.write("Záznamy bez čČNB: "); fw.write('\n');
+            List<String> nocnb = noCnbResult.getNoCNB();
+            for (String line : nocnb) { fw.write(line); fw.write('\n');}
+
+            fw.write("Záznamy s prázdným čČNB: "); fw.write('\n');
+            List<String> emptycnb = emptyCNBResult.getEmptyCNB();
+            for (String line : emptycnb) { fw.write(line); fw.write('\n');}
+
+        } finally {
+            if (fw != null) {
+                fw.close();
+            }
+        }
     }
 }

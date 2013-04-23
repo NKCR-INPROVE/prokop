@@ -11,6 +11,8 @@
 package cz.incad.prokop.server.analytics.akka.missing;
 
 import akka.actor.UntypedActor;
+import akka.event.Logging;
+import akka.event.LoggingAdapter;
 import cz.incad.prokop.server.analytics.akka.messages.StartAnalyze;
 import cz.incad.prokop.server.analytics.akka.messages.StoppedWork;
 import cz.incad.prokop.server.analytics.akka.missing.messages.NoCNBResult;
@@ -30,6 +32,8 @@ import java.util.logging.Logger;
  */
 public class NoCNBWorker extends UntypedActor {
 
+    LoggingAdapter log = Logging.getLogger(getContext().system(), this);
+    
     /*
     private static final String noCNBquery = "select zaz.Zaznam_ID,zaz.url, zaz.hlavniNazev  "
             + "from  zaznam zaz left outer join "
@@ -51,12 +55,15 @@ public class NoCNBWorker extends UntypedActor {
     public void onReceive(Object mess) throws Exception {
         if (mess instanceof StartAnalyze) {
             StartAnalyze sta = (StartAnalyze) mess;
+            log.info("NoCNB STARTING {}",mess);
             
             String value = (String) sta.getParams().getValue("Property:Wizard:SpustitAnalyzu_default-wizard.zdroj");
             List<Integer> sklizne = PersisterUtils.sklizneFromSource(getConnection(), Integer.valueOf(value), true);
             String sql = String.format(noCNBquery, PersisterUtils.separatedList(sklizne));
            
+            log.info("Executing query {}",sql);
             List<String> ret = new JDBCQueryTemplate<String>(getConnection(),true) {
+                int counter = 0;
                 @Override
                 public boolean handleRow(ResultSet rs, List<String> returnsList) throws SQLException {
                     StringBuilder row = new StringBuilder();
@@ -65,11 +72,21 @@ public class NoCNBWorker extends UntypedActor {
                     return super.handleRow(rs, returnsList); //To change body of generated methods, choose Tools | Templates.
                 }
             }.executeQuery(sql);
+            log.info("NoCNB Sending result");
             getSender().tell( new NoCNBResult(ret) ,getSelf());
+            getSender().tell(new StoppedWork(), getSelf());
         } else {
             unhandled(mess);
         }
     }
+
+    @Override
+    public void postStop() {
+        super.postStop(); //To change body of generated methods, choose Tools | Templates.
+        log.info("stopping {}",this.getSelf().path());
+}
+
+    
     
     public Connection getConnection() {
         if (Boolean.getBoolean("missing.debug")) {
