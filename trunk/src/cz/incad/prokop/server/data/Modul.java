@@ -1,26 +1,20 @@
 package cz.incad.prokop.server.data;
 
-import cz.incad.prokop.server.Structure;
 import cz.incad.prokop.server.analytics.Analytic;
 import cz.incad.prokop.server.functions.SpustitAnalyzu;
 import cz.incad.prokop.server.functions.ZastavitAnalyzu;
 import cz.incad.prokop.server.utils.JDBCQueryTemplate;
 import cz.incad.prokop.server.utils.PersisterUtils;
-import java.io.Serializable;
 import org.aplikator.client.shared.data.ListItem;
 import org.aplikator.client.shared.data.Record;
 import org.aplikator.server.Context;
 import org.aplikator.server.descriptor.*;
-import org.aplikator.server.descriptor.Wizard;
 import org.aplikator.server.persistence.PersisterTriggers;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -113,34 +107,10 @@ public class Modul extends Entity {
         parametry = stringProperty("parametry");
         stav = stringProperty("stav");
         
-        this.setPersistersTriggers(new PersisterTriggers() {
+        this.setPersistersTriggers(new PersisterTriggers.Default() {
 
             @Override
-            public void beforeCreate(Record record, Context ctx) {
-            }
-
-            @Override
-            public void afterCreate(Record record, Context ctx) {
-            }
-
-            @Override
-            public void beforeUpdate(Record record, Context ctx) {
-            }
-
-            @Override
-            public void afterUpdate(Record record, Context ctx) {
-            }
-
-            @Override
-            public void beforeDelete(Record record, Context ctx) {
-            }
-
-            @Override
-            public void afterDelete(Record record, Context ctx) {
-            }
-
-            @Override
-            public void afterLoad(Record record, Context ctx) {
+            public void onLoad(Record record, Context ctx) {
                 String value = (String) record.getValue("Property:Modul.trida");
                 if (value != null) {
                     try {

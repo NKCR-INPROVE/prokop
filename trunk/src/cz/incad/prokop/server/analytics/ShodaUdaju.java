@@ -1,49 +1,25 @@
 package cz.incad.prokop.server.analytics;
 
-import akka.actor.ActorRef;
-import akka.actor.ActorSystem;
-import akka.actor.PoisonPill;
-import akka.actor.Props;
-import akka.actor.UntypedActor;
-import akka.actor.UntypedActorFactory;
-import static org.aplikator.server.data.RecordUtils.newRecord;
-import static org.aplikator.server.data.RecordUtils.newSubrecord;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileWriter;
-import java.io.Writer;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.UUID;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import com.google.common.io.Files;
-import org.aplikator.client.shared.data.Operation;
-import org.aplikator.client.shared.data.Record;
-import org.aplikator.client.shared.data.RecordContainer;
-import org.aplikator.client.shared.rpc.impl.ProcessRecords;
-import org.aplikator.server.Context;
-import org.aplikator.server.data.BinaryData;
-import org.aplikator.server.persistence.PersisterFactory;
-import org.aplikator.server.util.Configurator;
-
-import com.google.common.base.Objects;
-
+import akka.actor.*;
 import cz.incad.prokop.server.Structure;
-import static cz.incad.prokop.server.analytics.PoctyExemplaru.getTmpFile;
-import cz.incad.prokop.server.analytics.akka.countexemplars.CountExemplarsMaster;
 import cz.incad.prokop.server.analytics.akka.equality.EqualityMaster;
 import cz.incad.prokop.server.analytics.akka.messages.StartAnalyze;
 import cz.incad.prokop.server.data.Analyza;
-import cz.incad.prokop.server.utils.TestConnectionUtils;
+import org.aplikator.client.shared.data.Operation;
+import org.aplikator.client.shared.data.Record;
+import org.aplikator.client.shared.data.RecordContainer;
+import org.aplikator.server.Context;
+import org.aplikator.server.data.BinaryData;
+
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.StringWriter;
 import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static cz.incad.prokop.server.analytics.PoctyExemplaru.getTmpFile;
 
 public class ShodaUdaju implements Analytic {
 
