@@ -81,7 +81,7 @@ public class Modul extends Entity {
         vstupniHodnota.setListProvider(new ListProvider<String>() {
 
             @Override
-            public List<ListItem<String>> getListValues() {
+            public List<ListItem<String>> getListValues(Context ctx) {
                 return readItems();
             }
         });
