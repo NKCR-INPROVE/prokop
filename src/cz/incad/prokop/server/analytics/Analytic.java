@@ -17,5 +17,5 @@ public interface Analytic {
     public String getDescription();
 
     /** vraci klice pro wizardy, ktere se maji pouzit */
-    public String[] getWizardKeys();
+    public String getWizardPageKey();
 }

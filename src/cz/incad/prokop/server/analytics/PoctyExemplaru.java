@@ -50,10 +50,12 @@ public class PoctyExemplaru implements Analytic {
 
     
     @Override
-    public String[] getWizardKeys() {
-        return new String[] {};
+    public String getWizardPageKey() {
+        return null;
     }
 
+    
+    
     public static File getTmpFile() throws IOException {
         return File.createTempFile("output", "txt");
     }

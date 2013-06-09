@@ -25,6 +25,9 @@ import java.io.StringReader;
 import java.sql.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.aplikator.client.shared.data.Record;
+import org.aplikator.server.descriptor.Function;
+import org.aplikator.server.descriptor.WizardPage;
 
 public class ReindexFast implements Executable {
 
@@ -201,5 +204,20 @@ public class ReindexFast implements Executable {
         }
     }
 
+    @Override
+    public WizardPage getWizardPage(String currentPage, boolean forwardFlag, Record currentProcessingRecord, Record clientParameters) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 
+    @Override
+    public void setFunction(Function func) {
+    }
+
+    @Override
+    public Function getFunction() {
+        return null;
+    }
+
+
+    
 }
