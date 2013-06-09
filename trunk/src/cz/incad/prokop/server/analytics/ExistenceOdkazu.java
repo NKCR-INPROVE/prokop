@@ -21,6 +21,7 @@ import org.aplikator.server.Context;
 import org.aplikator.server.data.BinaryData;
 import org.aplikator.server.persistence.PersisterFactory;
 import cz.incad.prokop.server.data.Analyza;
+import cz.incad.prokop.server.data.Modul;
 import java.util.Date;
 import org.aplikator.client.shared.data.Operation;
 import org.aplikator.client.shared.data.RecordContainer;
@@ -51,9 +52,8 @@ public class ExistenceOdkazu implements Analytic {
     }
 
     @Override
-    public String[] getWizardKeys() {
-       if (this.isRunning()) return new String[] {};
-        else return new String[] {"default-wizard"};
+    public String getWizardPageKey() {
+        return Modul.WIZARD_PAGE_KEY;
      }
 
 

@@ -14,15 +14,25 @@ import org.aplikator.server.persistence.PersisterTriggers;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.aplikator.server.DescriptorRegistry;
 
 import static org.aplikator.server.descriptor.Panel.column;
 import static org.aplikator.server.descriptor.Panel.row;
+import org.aplikator.server.function.Executable;
+import org.aplikator.server.function.FunctionParameters;
+import org.aplikator.server.function.FunctionResult;
 
 public class Modul extends Entity {
     
+    
+    public static final String WIZARD_PAGE_KEY = "zdrojPage";
+    public static final String ZDROJ_KEY = "zdrojProperty";
     
     
     public Property<String> typModulu;
@@ -72,11 +82,13 @@ public class Modul extends Entity {
 
     
     /** Vstupni analyza - funkce a wizard */
-    public Function spustitAnalyzu = new Function("SpustitAnalyzu", "SpustitAnalyzu", new SpustitAnalyzu()); {
+    public Function spustitAnalyzu = new Function("SpustitAnalyzu", "SpustitAnalyzu", new SpustitAnalyzu()); 
+    {
 
         /** Spustit analyzu */ 
-        Wizard wizard = new Wizard(spustitAnalyzu,"default-wizard");
-        Property<String> vstupniHodnota = wizard.stringProperty("zdroj", 10);
+        WizardPage wizard = new WizardPage(spustitAnalyzu,WIZARD_PAGE_KEY);
+        Property<String> vstupniHodnota = wizard.stringProperty(ZDROJ_KEY, 3);
+        
         
         vstupniHodnota.setListProvider(new ListProvider<String>() {
 
@@ -93,6 +105,77 @@ public class Modul extends Entity {
 
     
     public Function zastavitAnalyzu = new Function("ZastavitAnalyzu", "ZastavitAnalyzu", new ZastavitAnalyzu()); 
+    
+    public final Function testFunction = new Function("test","test", new Executable() {
+
+        private Function f;
+        
+        @Override
+        public WizardPage getWizardPage(String currentPage, boolean forwardFlag, Record currentProcessingRecord, Record clientParameters) {
+            List<String> pages = Arrays.asList("first","second","third");
+            String nextPage = currentPage.trim().equals("") ? "first" : pages.get(pages.indexOf(currentPage)+1);
+
+            boolean execFlag = false;
+            boolean nextFlag = true;
+            boolean prevFlag = true;
+            
+            if (forwardFlag) {
+                if (nextPage.equals("third")) { execFlag = true; nextFlag = false; }
+            } else {
+                if (nextPage.equals("first")) {  prevFlag = false; }
+            }
+
+            WizardPage p = this.f.getRegistredView(nextPage);
+            p.setHasExecute(execFlag);
+            p.setHasNext(nextFlag);
+            p.setHasPrevious(prevFlag);
+            return p;
+        }
+
+        @Override
+        public void setFunction(Function func) {
+            this.f = func;
+        }
+
+        @Override
+        public Function getFunction() {
+            return this.f;
+        }
+
+        @Override
+        public FunctionResult execute(FunctionParameters parameters, Context context) {
+            Record clientRecord = parameters.getClientParameters();
+            Record procsRecord = parameters.getClientContext().getCurrentRecord();
+            
+            StringBuilder builder = new StringBuilder();
+            builder.append("record:").append(clientRecord);
+            builder.append("processingRecord:").append(procsRecord);
+            return new FunctionResult(builder.toString(),true);
+        }
+    }); 
+    {
+
+        WizardPage p1 = new WizardPage(testFunction, "first");
+        Property<String> p1input = p1.stringProperty("finput", 3);
+        p1.form(column(
+                row(p1input)
+        ), true);
+        
+        WizardPage p2 = new WizardPage(testFunction, "second");
+        Property<String> p2input = p2.stringProperty("sinput", 3);
+        p2.form(column(
+                row(p2input)
+        ), true);
+
+        WizardPage p3 = new WizardPage(testFunction, "third");
+        Property<String> p3input = p3.stringProperty("tinput", 3);
+        p3.form(column(
+                row(p3input)
+        ), true);
+    }
+        
+
+    
     
     public Modul() {
         super("Modul","Modul","Modul_ID");
@@ -111,6 +194,7 @@ public class Modul extends Entity {
 
             @Override
             public void onLoad(Record record, Context ctx) {
+                /*
                 String value = (String) record.getValue("Property:Modul.trida");
                 if (value != null) {
                     try {
@@ -118,6 +202,7 @@ public class Modul extends Entity {
                         Analytic analytic = (Analytic) clz.newInstance();
                         String[] keys =  analytic.getWizardKeys();
                         record.putAnnotation(spustitAnalyzu.getId()+"_"+Function.ANNOTATION_SELECTED_WIZARDS_KEY, keys);
+                        //record.putAnnotation(value, value);
                     } catch (ClassNotFoundException ex) {
                         Logger.getLogger(Modul.class.getName()).log(Level.SEVERE, null, ex);
                     } catch (InstantiationException ex) {
@@ -126,6 +211,7 @@ public class Modul extends Entity {
                         Logger.getLogger(Modul.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
+                */ 
             }
         });
     }
@@ -140,13 +226,14 @@ public class Modul extends Entity {
                 
                 row(spustitAnalyzu,zastavitAnalyzu),
 
+                row(testFunction),
                 RepeatedForm.repeated(analyza)
         ));
         return retval;
     }
 
     private View reverseView;
-    View getReverseView(){
+    public View getReverseView(){
         if(reverseView == null){
             reverseView = new View(this, "reverseView");
             reverseView.addProperty(typModulu).addProperty(nazev);

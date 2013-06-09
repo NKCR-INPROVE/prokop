@@ -19,6 +19,7 @@ import static cz.incad.prokop.server.analytics.ExistenceOdkazu.getTmpFile;
 import cz.incad.prokop.server.analytics.akka.messages.StartAnalyze;
 import cz.incad.prokop.server.analytics.akka.missing.MissingMaster;
 import cz.incad.prokop.server.data.Analyza;
+import cz.incad.prokop.server.data.Modul;
 import java.util.Date;
 import org.aplikator.client.shared.data.Operation;
 import org.aplikator.client.shared.data.RecordContainer;
@@ -46,11 +47,13 @@ public class ChybejiciUdaje implements Analytic {
     }
 
     
+
     @Override
-    public String[] getWizardKeys() {
-        if (this.isRunning()) return new String[] {};
-        else return new String[] {"default-wizard"};
+    public String getWizardPageKey() {
+        return Modul.WIZARD_PAGE_KEY;
     }
+
+    
     
 
     // private static final String PARAM = "'Aleph NKP', 'Aleph MZK', 'Aleph NKP CNB', 'Aleph NKP base CNB'";

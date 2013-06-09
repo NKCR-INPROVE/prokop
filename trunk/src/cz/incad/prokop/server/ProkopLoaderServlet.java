@@ -29,6 +29,7 @@ public class ProkopLoaderServlet extends ApplicationLoaderServlet {
             records.addView(Structure.zaznam.view());
             struct.addMenu(records);
             Menu admin = new Menu("Admin");
+
             admin.addView(Structure.zdroj.view());
             admin.addView(Structure.modul.view());
             Function globalFunction = new Function("GlobalFunction", "GlobalFunction", new ReindexFast());
@@ -41,6 +42,4 @@ public class ProkopLoaderServlet extends ApplicationLoaderServlet {
             throw new ServletException("Prokop Loader error: ", ex);
         }
     }
-
-
 }

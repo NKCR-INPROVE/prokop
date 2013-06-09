@@ -38,11 +38,14 @@ public class ShodaUdaju implements Analytic {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override
-    public String[] getWizardKeys() {
-        return new String[0];
-    }
 
+    @Override
+    public String getWizardPageKey() {
+        return null;
+    }
+    
+    
+    
     @Override
     public void stopAnalyze(Record modul, Record analyza, Context ctx) {
         if (isRunning()) {

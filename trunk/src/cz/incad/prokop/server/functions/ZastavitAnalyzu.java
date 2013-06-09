@@ -17,6 +17,8 @@ import org.aplikator.server.Context;
 import static org.aplikator.server.data.RecordUtils.getValue;
 import static org.aplikator.server.data.RecordUtils.newSubrecord;
 import static org.aplikator.server.data.RecordUtils.setValue;
+import org.aplikator.server.descriptor.Function;
+import org.aplikator.server.descriptor.WizardPage;
 import org.aplikator.server.function.Executable;
 import org.aplikator.server.function.FunctionParameters;
 import org.aplikator.server.function.FunctionResult;
@@ -73,5 +75,20 @@ public class ZastavitAnalyzu implements Executable {
         }
     }
 
+    @Override
+    public WizardPage getWizardPage(String currentPage, boolean forwardFlag, Record currentProcessingRecord, Record clientParameters) {
+        return null;
+    }
 
+    @Override
+    public void setFunction(Function func) {
+    }
+
+    @Override
+    public Function getFunction() {
+        return null;
+    }
+
+
+    
 }
