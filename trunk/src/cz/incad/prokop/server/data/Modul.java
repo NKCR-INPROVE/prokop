@@ -1,6 +1,5 @@
 package cz.incad.prokop.server.data;
 
-import cz.incad.prokop.server.analytics.Analytic;
 import cz.incad.prokop.server.functions.SpustitAnalyzu;
 import cz.incad.prokop.server.functions.ZastavitAnalyzu;
 import cz.incad.prokop.server.utils.JDBCQueryTemplate;
@@ -9,24 +8,19 @@ import org.aplikator.client.shared.data.ListItem;
 import org.aplikator.client.shared.data.Record;
 import org.aplikator.server.Context;
 import org.aplikator.server.descriptor.*;
+import org.aplikator.server.function.Executable;
+import org.aplikator.server.function.FunctionParameters;
+import org.aplikator.server.function.FunctionResult;
 import org.aplikator.server.persistence.PersisterTriggers;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.aplikator.server.DescriptorRegistry;
 
 import static org.aplikator.server.descriptor.Panel.column;
 import static org.aplikator.server.descriptor.Panel.row;
-import org.aplikator.server.function.Executable;
-import org.aplikator.server.function.FunctionParameters;
-import org.aplikator.server.function.FunctionResult;
 
 public class Modul extends Entity {
     
@@ -108,8 +102,7 @@ public class Modul extends Entity {
     
     public final Function testFunction = new Function("test","test", new Executable() {
 
-        private Function f;
-        
+
         @Override
         public WizardPage getWizardPage(String currentPage, boolean forwardFlag, Record currentProcessingRecord, Record clientParameters) {
             List<String> pages = Arrays.asList("first","second","third");
@@ -125,22 +118,14 @@ public class Modul extends Entity {
                 if (nextPage.equals("first")) {  prevFlag = false; }
             }
 
-            WizardPage p = this.f.getRegistredView(nextPage);
+            WizardPage p = this.function.getRegistredView(nextPage);
             p.setHasExecute(execFlag);
             p.setHasNext(nextFlag);
             p.setHasPrevious(prevFlag);
             return p;
         }
 
-        @Override
-        public void setFunction(Function func) {
-            this.f = func;
-        }
 
-        @Override
-        public Function getFunction() {
-            return this.f;
-        }
 
         @Override
         public FunctionResult execute(FunctionParameters parameters, Context context) {

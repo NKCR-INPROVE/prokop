@@ -6,32 +6,29 @@ import cz.incad.prokop.server.data.Analyza;
 import cz.incad.prokop.server.data.Modul;
 import cz.incad.prokop.server.utils.JDBCQueryTemplate;
 import cz.incad.prokop.server.utils.PersisterUtils;
-import java.security.Principal;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import org.aplikator.client.shared.data.Operation;
 import org.aplikator.client.shared.data.Record;
 import org.aplikator.client.shared.data.RecordContainer;
 import org.aplikator.server.Context;
+import org.aplikator.server.descriptor.Function;
+import org.aplikator.server.descriptor.WizardPage;
 import org.aplikator.server.function.Executable;
 import org.aplikator.server.function.FunctionParameters;
 import org.aplikator.server.function.FunctionResult;
 
+import java.security.Principal;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.aplikator.client.shared.data.ListItem;
-import org.aplikator.client.shared.data.Operation;
 
 import static org.aplikator.server.data.RecordUtils.getValue;
-import static org.aplikator.server.data.RecordUtils.setValue;
 import static org.aplikator.server.data.RecordUtils.newSubrecord;
-import org.aplikator.server.descriptor.Function;
-import org.aplikator.server.descriptor.WizardPage;
-import org.aplikator.server.processes.ProcessManager;
 
-public class SpustitAnalyzu implements Executable {
+public class SpustitAnalyzu extends Executable {
 
     public static Logger log = Logger.getLogger(SpustitAnalyzu.class.getName());
 
@@ -130,14 +127,6 @@ public class SpustitAnalyzu implements Executable {
         } else return null;
     }
 
-    @Override
-    public void setFunction(Function func) {
-        this.function = func;
-    }
 
-    @Override
-    public Function getFunction() {
-        return this.function;
-    }
     
 }

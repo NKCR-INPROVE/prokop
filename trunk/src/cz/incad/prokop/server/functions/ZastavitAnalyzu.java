@@ -7,27 +7,25 @@ package cz.incad.prokop.server.functions;
 import cz.incad.prokop.server.Structure;
 import cz.incad.prokop.server.analytics.Analytic;
 import cz.incad.prokop.server.data.Analyza;
-import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.aplikator.client.shared.data.Operation;
 import org.aplikator.client.shared.data.Record;
 import org.aplikator.client.shared.data.RecordContainer;
 import org.aplikator.server.Context;
-import static org.aplikator.server.data.RecordUtils.getValue;
-import static org.aplikator.server.data.RecordUtils.newSubrecord;
-import static org.aplikator.server.data.RecordUtils.setValue;
-import org.aplikator.server.descriptor.Function;
 import org.aplikator.server.descriptor.WizardPage;
 import org.aplikator.server.function.Executable;
 import org.aplikator.server.function.FunctionParameters;
 import org.aplikator.server.function.FunctionResult;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static org.aplikator.server.data.RecordUtils.getValue;
+
 /**
  *
  * @author pavels
  */
-public class ZastavitAnalyzu implements Executable {
+public class ZastavitAnalyzu extends Executable {
 
     static Logger log = Logger.getLogger(ZastavitAnalyzu.class.getName());
      
@@ -80,14 +78,7 @@ public class ZastavitAnalyzu implements Executable {
         return null;
     }
 
-    @Override
-    public void setFunction(Function func) {
-    }
 
-    @Override
-    public Function getFunction() {
-        return null;
-    }
 
 
     
