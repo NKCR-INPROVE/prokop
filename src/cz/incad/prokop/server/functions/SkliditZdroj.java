@@ -7,6 +7,7 @@ import org.aplikator.client.shared.data.Operation;
 import org.aplikator.client.shared.data.Record;
 import org.aplikator.client.shared.data.RecordContainer;
 import org.aplikator.server.Context;
+import org.aplikator.server.descriptor.WizardPage;
 import org.aplikator.server.function.Executable;
 import org.aplikator.server.function.FunctionParameters;
 import org.aplikator.server.function.FunctionResult;
@@ -17,10 +18,8 @@ import java.util.logging.Logger;
 
 import static org.aplikator.server.data.RecordUtils.getValue;
 import static org.aplikator.server.data.RecordUtils.newSubrecord;
-import org.aplikator.server.descriptor.Function;
-import org.aplikator.server.descriptor.WizardPage;
 
-public class SkliditZdroj implements Executable {
+public class SkliditZdroj extends Executable {
 
     Logger log = Logger.getLogger(SkliditZdroj.class.getName());
 
@@ -74,14 +73,7 @@ public class SkliditZdroj implements Executable {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override
-    public void setFunction(Function func) {
-    }
 
-    @Override
-    public Function getFunction() {
-        return null;
-    }
 
     
 }

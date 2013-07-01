@@ -71,8 +71,7 @@ public class Zaznam extends Entity {
                 ReferenceField.reference(sklizen, Structure.sklizen.spusteni,Structure.sklizen.stav),
                 new TextArea(sourceXML).setSize(12)
             ));
-        retval.setSortProperty(this.getPrimaryKey());     // hack kvůli řazení záznamů pozpátku. v případě nespokojenosti zakomentovat tento a následující řádek
-        retval.setSortAscending(false);
+        retval.addSortDescriptor("default", "default", SortItem.descending(this.getPrimaryKey()));     // hack kvůli řazení záznamů pozpátku. v případě nespokojenosti zakomentovat tento řádek
         return retval;
     }
 
