@@ -106,7 +106,7 @@ public class SpustitAnalyzu extends Executable {
     }
 
     @Override
-    public WizardPage getWizardPage(String currentPage, boolean forwardFlag, Record currentProcessingRecord, Record clientParameters) {
+    public WizardPage getWizardPage(String currentPage, boolean forwardFlag, Record currentProcessingRecord, Record clientParameters, Context context) {
         String value = (String) currentProcessingRecord .getValue("Property:Modul.trida");
         if (value != null) {
             try {

@@ -104,7 +104,7 @@ public class Modul extends Entity {
 
 
         @Override
-        public WizardPage getWizardPage(String currentPage, boolean forwardFlag, Record currentProcessingRecord, Record clientParameters) {
+        public WizardPage getWizardPage(String currentPage, boolean forwardFlag, Record currentProcessingRecord, Record clientParameters, Context context) {
             List<String> pages = Arrays.asList("first","second","third");
             String nextPage = currentPage.trim().equals("") ? "first" : pages.get(pages.indexOf(currentPage)+1);
 
