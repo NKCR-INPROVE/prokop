@@ -74,7 +74,7 @@ public class ZastavitAnalyzu extends Executable {
     }
 
     @Override
-    public WizardPage getWizardPage(String currentPage, boolean forwardFlag, Record currentProcessingRecord, Record clientParameters) {
+    public WizardPage getWizardPage(String currentPage, boolean forwardFlag, Record currentProcessingRecord, Record clientParameters, Context context) {
         return null;
     }
 
