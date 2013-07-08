@@ -142,21 +142,21 @@ public class Modul extends Entity {
 
         WizardPage p1 = new WizardPage(testFunction, "first");
         Property<String> p1input = p1.stringProperty("finput", 3);
-        p1.form(column(
-                row(p1input)
-        ), true);
+        p1.form(row(
+                column(p1input)
+        ), false);
         
         WizardPage p2 = new WizardPage(testFunction, "second");
         Property<String> p2input = p2.stringProperty("sinput", 3);
-        p2.form(column(
-                row(p2input)
-        ), true);
+        p2.form(row(
+                column(p2input)
+        ), false);
 
         WizardPage p3 = new WizardPage(testFunction, "third");
         Property<String> p3input = p3.stringProperty("tinput", 3);
-        p3.form(column(
-                row(p3input)
-        ), true);
+        p3.form(row(
+                column(p3input)
+        ), false);
     }
         
 
