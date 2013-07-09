@@ -4,7 +4,6 @@ import cz.incad.prokop.server.functions.SpustitAnalyzu;
 import cz.incad.prokop.server.functions.ZastavitAnalyzu;
 import cz.incad.prokop.server.utils.JDBCQueryTemplate;
 import cz.incad.prokop.server.utils.PersisterUtils;
-import java.io.File;
 import org.aplikator.client.shared.data.ListItem;
 import org.aplikator.client.shared.data.Record;
 import org.aplikator.server.Context;
@@ -13,7 +12,12 @@ import org.aplikator.server.function.Executable;
 import org.aplikator.server.function.FunctionParameters;
 import org.aplikator.server.function.FunctionResult;
 import org.aplikator.server.persistence.PersisterTriggers;
+import org.aplikator.server.processes.OSProcessConfiguration;
+import org.aplikator.server.processes.ProcessFactory;
+import org.aplikator.server.processes.ProcessType;
+import org.aplikator.server.processes.RunnableSerializationAware;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -22,11 +26,7 @@ import java.util.List;
 
 import static org.aplikator.server.descriptor.Panel.column;
 import static org.aplikator.server.descriptor.Panel.row;
-import org.aplikator.server.processes.OSProcessConfiguration;
 import static org.aplikator.server.processes.ProcessConfiguration.processConf;
-import org.aplikator.server.processes.ProcessFactory;
-import org.aplikator.server.processes.ProcessType;
-import org.aplikator.server.processes.RunnableSerializationAware;
 
 public class Modul extends Entity {
     
@@ -134,6 +134,7 @@ public class Modul extends Entity {
 
 
         @Override
+        @SuppressWarnings("unchecked")
         public FunctionResult execute(FunctionParameters parameters, Context context) {
             context.getHttpServletRequest().getServletPath();
             
