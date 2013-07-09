@@ -1,5 +1,8 @@
 package cz.incad.prokop.server.functions;
 
+import java.io.File;
+import java.util.Arrays;
+import java.util.List;
 import org.aplikator.client.shared.data.Record;
 import org.aplikator.server.Context;
 import org.aplikator.server.descriptor.WizardPage;
@@ -8,29 +11,64 @@ import org.aplikator.server.function.FunctionParameters;
 import org.aplikator.server.function.FunctionResult;
 
 import java.util.logging.Logger;
+import static org.aplikator.server.descriptor.Panel.column;
+import static org.aplikator.server.descriptor.Panel.row;
+import org.aplikator.server.descriptor.Property;
+import org.aplikator.server.processes.OSProcessConfiguration;
+import static org.aplikator.server.processes.ProcessConfiguration.processConf;
+import org.aplikator.server.processes.ProcessFactory;
+import org.aplikator.server.processes.ProcessType;
+import org.aplikator.server.processes.RunnableSerializationAware;
 
 public class TestFunction extends Executable {
 
-    Logger log = Logger.getLogger(TestFunction.class.getName());
-
-    @Override
-    public FunctionResult execute(FunctionParameters functionParameters, Context context) {
-        //Record zdroj = functionParameters.getClientContext().getCurrentRecord();
-        try {
-            return new FunctionResult("Test doběhl", true);
-        } catch (Throwable t) {
-
-            return new FunctionResult("Test selhal: " + t, false);
-        }
-    }
 
     @Override
     public WizardPage getWizardPage(String currentPage, boolean forwardFlag, Record currentProcessingRecord, Record clientParameters, Context context) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        List<String> pages = Arrays.asList("first", "second", "third");
+        String nextPage = currentPage.trim().equals("") ? "first" : pages.get(pages.indexOf(currentPage) + 1);
+
+        boolean execFlag = false;
+        boolean nextFlag = true;
+        boolean prevFlag = true;
+
+        if (forwardFlag) {
+            if (nextPage.equals("third")) {
+                execFlag = true;
+                nextFlag = false;
+            }
+        } else {
+            if (nextPage.equals("first")) {
+                prevFlag = false;
+            }
+        }
+
+        WizardPage p = this.function.getRegistredView(nextPage);
+        p.setHasExecute(execFlag);
+        p.setHasNext(nextFlag);
+        p.setHasPrevious(prevFlag);
+        return p;
     }
 
+    @Override
+    public FunctionResult execute(FunctionParameters parameters, Context context) {
+//        context.getHttpServletRequest().getServletPath();
+//
+//        OSProcessConfiguration conf = processConf().classpathlib(System.getProperty("user.dir") + File.separator + "libs");
+//        org.aplikator.server.processes.Process process = ProcessFactory.get(ProcessType.PROCESS).create(conf, new RunnableSerializationAware() {
+//            @Override
+//            public void run() {
+//                System.out.println("... testik ... ");
+//            }
+//        });
 
 
+        Record clientRecord = parameters.getClientParameters();
+        Record procsRecord = parameters.getClientContext().getCurrentRecord();
 
-
+        StringBuilder builder = new StringBuilder();
+        builder.append("record:").append(clientRecord);
+        builder.append("processingRecord:").append(procsRecord);
+        return new FunctionResult(builder.toString(), true);
+    }
 }
