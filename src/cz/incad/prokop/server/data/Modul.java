@@ -4,6 +4,7 @@ import cz.incad.prokop.server.functions.SpustitAnalyzu;
 import cz.incad.prokop.server.functions.ZastavitAnalyzu;
 import cz.incad.prokop.server.utils.JDBCQueryTemplate;
 import cz.incad.prokop.server.utils.PersisterUtils;
+import java.io.File;
 import org.aplikator.client.shared.data.ListItem;
 import org.aplikator.client.shared.data.Record;
 import org.aplikator.server.Context;
@@ -21,6 +22,11 @@ import java.util.List;
 
 import static org.aplikator.server.descriptor.Panel.column;
 import static org.aplikator.server.descriptor.Panel.row;
+import org.aplikator.server.processes.OSProcessConfiguration;
+import static org.aplikator.server.processes.ProcessConfiguration.processConf;
+import org.aplikator.server.processes.ProcessFactory;
+import org.aplikator.server.processes.ProcessType;
+import org.aplikator.server.processes.RunnableSerializationAware;
 
 public class Modul extends Entity {
     
@@ -129,6 +135,18 @@ public class Modul extends Entity {
 
         @Override
         public FunctionResult execute(FunctionParameters parameters, Context context) {
+            context.getHttpServletRequest().getServletPath();
+            
+            OSProcessConfiguration conf = processConf().classpathlib(System.getProperty("user.dir")+File.separator+"libs");
+            org.aplikator.server.processes.Process process = ProcessFactory.get(ProcessType.PROCESS).create(conf, new RunnableSerializationAware() {
+
+                @Override
+                public void run() {
+                    System.out.println("... testik ... ");
+                }
+            });
+
+            
             Record clientRecord = parameters.getClientParameters();
             Record procsRecord = parameters.getClientContext().getCurrentRecord();
             
