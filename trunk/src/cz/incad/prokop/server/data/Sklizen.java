@@ -1,22 +1,17 @@
 package cz.incad.prokop.server.data;
 
-import static org.aplikator.server.descriptor.Panel.column;
-import static org.aplikator.server.descriptor.Panel.row;
+import cz.incad.prokop.server.Structure;
+import org.aplikator.client.shared.data.ListItem;
+import org.aplikator.server.descriptor.*;
 
 import java.util.Date;
 
-import org.aplikator.client.shared.data.ListItem;
-import org.aplikator.server.descriptor.Entity;
-import org.aplikator.server.descriptor.ListProvider;
-import org.aplikator.server.descriptor.Property;
-import org.aplikator.server.descriptor.Reference;
-import org.aplikator.server.descriptor.View;
-
-import cz.incad.prokop.server.Structure;
+import static org.aplikator.server.descriptor.Panel.column;
+import static org.aplikator.server.descriptor.Panel.row;
 
 public class Sklizen extends Entity {
 
-    public static enum Stav implements ListItem<String>  {
+    public static enum Stav implements ListItem  {
         ZAHAJEN("zahajen"), UKONCEN("ukoncen"), CHYBA("chyba");
 
         private Stav(String value){
@@ -50,7 +45,7 @@ public class Sklizen extends Entity {
     protected void initFields() {
         spusteni = dateProperty("spusteni");
         ukonceni = dateProperty("ukonceni");
-        stav = stringProperty("stav").setListProvider(new ListProvider.Default<String>(Stav.values()));
+        stav = stringProperty("stav").setListProvider(new ListProvider.Default(Stav.values()));
         pocet = integerProperty("pocet");
         uzivatel = stringProperty("uzivatel");
 
