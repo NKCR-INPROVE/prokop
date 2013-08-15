@@ -5,11 +5,12 @@
 package cz.incad.prokop.server.data.triggers;
 
 import cz.incad.prokop.server.Structure;
-import javax.servlet.http.HttpServletRequest;
 import org.aplikator.client.shared.data.Record;
 import org.aplikator.client.shared.descriptor.PropertyDTO;
 import org.aplikator.server.Context;
 import org.aplikator.server.persistence.PersisterTriggers;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  *
@@ -22,7 +23,7 @@ public class ZaznamTrigger extends PersisterTriggers.Default {
         System.out.println("Before create trigger");
         HttpServletRequest request = ctx.getHttpServletRequest();
         String remoteUser = request.getRemoteUser();
-        PropertyDTO<String> uzivatel = Structure.zaznam.uzivatel.clientClone(ctx);
+        PropertyDTO uzivatel = Structure.zaznam.uzivatel.clientClone(ctx);
         if (remoteUser != null) {
             uzivatel.setValue(record, remoteUser);
         } else {

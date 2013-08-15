@@ -5,12 +5,13 @@
 package cz.incad.prokop.server.data.triggers;
 
 import cz.incad.prokop.server.Structure;
-import java.util.Set;
-import javax.servlet.http.HttpServletRequest;
 import org.aplikator.client.shared.data.Record;
 import org.aplikator.client.shared.descriptor.PropertyDTO;
 import org.aplikator.server.Context;
 import org.aplikator.server.persistence.PersisterTriggers;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.Set;
 
 /**
  *
@@ -25,7 +26,7 @@ public class SklizenTrigger extends PersisterTriggers.Default{
         HttpServletRequest request = ctx.getHttpServletRequest();
         String remoteUser = request.getRemoteUser();
         record.setValue(remoteUser, request);
-        PropertyDTO<String> uzivatel = Structure.sklizen.uzivatel.clientClone(ctx);
+        PropertyDTO uzivatel = Structure.sklizen.uzivatel.clientClone(ctx);
         if (remoteUser != null) {
             uzivatel.setValue(record, remoteUser);
         } else {

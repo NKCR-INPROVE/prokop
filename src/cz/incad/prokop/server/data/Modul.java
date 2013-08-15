@@ -45,7 +45,7 @@ public class Modul extends Entity {
     
     public Collection<Analyza> analyza;
     
-    public static class DefaultListItem implements ListItem<String>{
+    public static class DefaultListItem implements ListItem{
         private String name;
         private String value;
 
@@ -66,11 +66,11 @@ public class Modul extends Entity {
         }
     } 
     
-    public static List<ListItem<String>> readItems() {
+    public static List<ListItem> readItems() {
         Connection conn = PersisterUtils.getConnection();
-        return new JDBCQueryTemplate<ListItem<String>>(conn, true) {
+        return new JDBCQueryTemplate<ListItem>(conn, true) {
             @Override
-            public boolean handleRow(ResultSet rs, List<ListItem<String>> returnsList) throws SQLException {
+            public boolean handleRow(ResultSet rs, List<ListItem> returnsList) throws SQLException {
                 String name = rs.getString("Nazev");
                 Integer i = rs.getInt("Zdroj_id");
                 returnsList.add(new DefaultListItem(name, ""+i));
@@ -90,10 +90,10 @@ public class Modul extends Entity {
         Property<String> vstupniHodnota = wizard.stringProperty(ZDROJ_KEY, 3);
         
         
-        vstupniHodnota.setListProvider(new ListProvider<String>() {
+        vstupniHodnota.setListProvider(new ListProvider() {
 
             @Override
-            public List<ListItem<String>> getListValues(Context ctx) {
+            public List<ListItem> getListValues(Context ctx) {
                 return readItems();
             }
         });
