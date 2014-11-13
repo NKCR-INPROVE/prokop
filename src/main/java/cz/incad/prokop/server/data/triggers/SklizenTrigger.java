@@ -5,7 +5,7 @@
 package cz.incad.prokop.server.data.triggers;
 
 import cz.incad.prokop.server.Structure;
-import org.aplikator.client.shared.data.Record;
+import org.aplikator.client.shared.data.ContainerNode;
 import org.aplikator.client.shared.descriptor.PropertyDTO;
 import org.aplikator.server.Context;
 import org.aplikator.server.persistence.PersisterTriggers;
@@ -20,17 +20,17 @@ import java.util.Set;
 public class SklizenTrigger extends PersisterTriggers.Default{
 
     @Override
-    public void onCreate(Record record, Context ctx) {
-        Set<String> properties = record.getProperties();
+    public void onCreate(ContainerNode node, Context ctx) {
+        Set<String> properties = node.getEdited().getProperties();
         System.out.println("properties = "+properties);
         HttpServletRequest request = ctx.getHttpServletRequest();
         String remoteUser = request.getRemoteUser();
-        record.setValue(remoteUser, request);
+        node.getEdited().setValue(remoteUser, request);
         PropertyDTO uzivatel = Structure.sklizen.uzivatel.clientClone(ctx);
         if (remoteUser != null) {
-            uzivatel.setValue(record, remoteUser);
+            uzivatel.setValue(node.getEdited(), remoteUser);
         } else {
-            uzivatel.setValue(record, " ---- ");
+            uzivatel.setValue(node.getEdited(), " ---- ");
         }
     }
 
