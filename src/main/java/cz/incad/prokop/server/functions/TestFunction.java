@@ -1,24 +1,16 @@
 package cz.incad.prokop.server.functions;
 
-import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 import org.aplikator.client.shared.data.Record;
 import org.aplikator.server.Context;
 import org.aplikator.server.descriptor.WizardPage;
 import org.aplikator.server.function.Executable;
-import org.aplikator.server.function.FunctionParameters;
-import org.aplikator.server.function.FunctionResult;
+import org.aplikator.client.shared.data.FunctionParameters;
+import org.aplikator.client.shared.data.FunctionResult;
 
-import java.util.logging.Logger;
 import static org.aplikator.server.descriptor.Panel.column;
 import static org.aplikator.server.descriptor.Panel.row;
-import org.aplikator.server.descriptor.Property;
-import org.aplikator.server.processes.OSProcessConfiguration;
-import static org.aplikator.server.processes.ProcessConfiguration.processConf;
-import org.aplikator.server.processes.ProcessFactory;
-import org.aplikator.server.processes.ProcessType;
-import org.aplikator.server.processes.RunnableSerializationAware;
 
 public class TestFunction extends Executable {
 

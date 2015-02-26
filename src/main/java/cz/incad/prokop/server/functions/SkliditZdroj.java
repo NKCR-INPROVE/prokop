@@ -9,8 +9,8 @@ import org.aplikator.client.shared.data.RecordContainer;
 import org.aplikator.server.Context;
 import org.aplikator.server.descriptor.WizardPage;
 import org.aplikator.server.function.Executable;
-import org.aplikator.server.function.FunctionParameters;
-import org.aplikator.server.function.FunctionResult;
+import org.aplikator.client.shared.data.FunctionParameters;
+import org.aplikator.client.shared.data.FunctionResult;
 
 import java.util.Date;
 import java.util.logging.Level;
