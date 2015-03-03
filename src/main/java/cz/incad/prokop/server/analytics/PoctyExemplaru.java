@@ -1,31 +1,23 @@
 package cz.incad.prokop.server.analytics;
 
-import akka.actor.ActorRef;
-import akka.actor.ActorSystem;
-import akka.actor.PoisonPill;
-import akka.actor.Props;
-import akka.actor.UntypedActor;
-import akka.actor.UntypedActorFactory;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
+import akka.actor.*;
+import cz.incad.prokop.server.Structure;
+import cz.incad.prokop.server.analytics.akka.countexemplars.CountExemplarsMaster;
+import cz.incad.prokop.server.analytics.akka.messages.StartAnalyze;
+import cz.incad.prokop.server.data.Analyza;
 import org.aplikator.client.shared.data.Operation;
 import org.aplikator.client.shared.data.Record;
 import org.aplikator.client.shared.data.RecordContainer;
 import org.aplikator.server.Context;
+import org.aplikator.server.data.BinaryData;
 
-import cz.incad.prokop.server.Structure;
-import static cz.incad.prokop.server.analytics.ExistenceOdkazu.getTmpFile;
-import cz.incad.prokop.server.analytics.akka.countexemplars.CountExemplarsMaster;
-import cz.incad.prokop.server.analytics.akka.messages.StartAnalyze;
-import cz.incad.prokop.server.data.Analyza;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Date;
-import org.aplikator.server.data.BinaryData;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class PoctyExemplaru implements Analytic {
 

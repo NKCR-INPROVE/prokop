@@ -6,15 +6,11 @@ import cz.incad.prokop.server.data.Analyza;
 import cz.incad.prokop.server.data.Modul;
 import cz.incad.prokop.server.utils.JDBCQueryTemplate;
 import cz.incad.prokop.server.utils.PersisterUtils;
-import org.aplikator.client.shared.data.Operation;
-import org.aplikator.client.shared.data.Record;
-import org.aplikator.client.shared.data.RecordContainer;
+import org.aplikator.client.shared.data.*;
 import org.aplikator.server.Context;
 import org.aplikator.server.descriptor.Function;
 import org.aplikator.server.descriptor.WizardPage;
 import org.aplikator.server.function.Executable;
-import org.aplikator.client.shared.data.FunctionParameters;
-import org.aplikator.client.shared.data.FunctionResult;
 
 import java.security.Principal;
 import java.sql.Connection;

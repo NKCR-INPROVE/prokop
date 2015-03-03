@@ -3,14 +3,10 @@ package cz.incad.prokop.server.functions;
 import cz.incad.prokop.server.Structure;
 import cz.incad.prokop.server.data.Sklizen;
 import cz.incad.prokop.server.datasources.DataSource;
-import org.aplikator.client.shared.data.Operation;
-import org.aplikator.client.shared.data.Record;
-import org.aplikator.client.shared.data.RecordContainer;
+import org.aplikator.client.shared.data.*;
 import org.aplikator.server.Context;
 import org.aplikator.server.descriptor.WizardPage;
 import org.aplikator.server.function.Executable;
-import org.aplikator.client.shared.data.FunctionParameters;
-import org.aplikator.client.shared.data.FunctionResult;
 
 import java.util.Date;
 import java.util.logging.Level;

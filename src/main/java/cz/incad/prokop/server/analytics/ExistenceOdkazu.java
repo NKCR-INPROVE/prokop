@@ -1,31 +1,24 @@
 package cz.incad.prokop.server.analytics;
 
-import akka.actor.ActorRef;
-import akka.actor.ActorSystem;
-import akka.actor.PoisonPill;
-import akka.actor.Props;
-import akka.actor.UntypedActor;
-import akka.actor.UntypedActorFactory;
+import akka.actor.*;
 import cz.incad.prokop.server.Structure;
 import cz.incad.prokop.server.analytics.akka.links.URLValidationMaster;
 import cz.incad.prokop.server.analytics.akka.messages.StartAnalyze;
+import cz.incad.prokop.server.data.Analyza;
+import cz.incad.prokop.server.data.Modul;
+import org.aplikator.client.shared.data.Operation;
+import org.aplikator.client.shared.data.Record;
+import org.aplikator.client.shared.data.RecordContainer;
+import org.aplikator.server.Context;
+import org.aplikator.server.data.BinaryData;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.sql.Connection;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.aplikator.client.shared.data.Record;
-import org.aplikator.server.Context;
-import org.aplikator.server.data.BinaryData;
-import org.aplikator.server.persistence.PersisterFactory;
-import cz.incad.prokop.server.data.Analyza;
-import cz.incad.prokop.server.data.Modul;
-import java.util.Date;
-import org.aplikator.client.shared.data.Operation;
-import org.aplikator.client.shared.data.RecordContainer;
-import org.aplikator.server.data.RecordUtils;
 
 
 public class ExistenceOdkazu implements Analytic {
@@ -90,7 +83,7 @@ public class ExistenceOdkazu implements Analytic {
 
                             rc.addRecord(null, analyza, analyza, Operation.UPDATE);
                             rc.addRecord(null, modul, modul, Operation.UPDATE);
-                            
+
                             rc = ctx.getAplikatorService().processRecords(rc);
                             Logger.getLogger(ExistenceOdkazu.class.getName()).log(Level.INFO, "Analyza skoncena");
                         } catch (FileNotFoundException ex) {
